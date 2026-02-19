@@ -1,263 +1,262 @@
-"""LangGraph literature extraction pipeline.
-
-Accepts a pydantic data model defining extraction fields, and retrieves them iteratively from a collection of papers.
-"""
-
 from __future__ import annotations
 
-import os
+import json
 import traceback
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TypedDict
+from typing import Any, Dict, TypedDict
 
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.runnables import RunnableConfig
 from langchain_ollama import ChatOllama
-from langchain_anthropic import ChatAnthropic
-from langgraph.graph import StateGraph
-from pydantic import BaseModel
-from tqdm.asyncio import tqdm
+from langgraph.graph import StateGraph, END
+from pydantic import BaseModel, ValidationError
 from typing_extensions import Optional
-from src.utils.prompt_utils import load_prompt
 from loguru import logger
-from langchain.agents import create_agent
-from langchain.agents.structured_output import ToolStrategy
-from langchain.tools import tool
-from langchain_core.output_parsers import PydanticOutputParser
-from pydantic import ValidationError
 
-from src.utils import get_paper_collection, remove_section
+from src.utils.fulltext_manipulation import omit_sections_markdown
+from src.utils.prompt_utils import load_prompt
 
-@tool
-def extract_structured_data(text: str, schema_description: str) -> BaseModel:
-    """Extract structured information from academic paper text according to a schema.
+RETRIEVAL_PROMPT = load_prompt("prompts/convert_to_json_prompt.md")
 
-    Args:
-        text: The paper text to extract from
-        schema_description: Description of what fields to extract
+REASONING_PROMPT = load_prompt("prompts/reasoning_prompt.md")
 
-    Returns:
-        Extracted data as dictionary
-    """
-    # This is a placeholder - the agent will use its LLM to process
-    pass
+VALIDATION_PROMPT = """You are a JSON repair assistant. Fix ONLY the specific validation errors in the JSON.
 
-# ==================== load prompt templates ====================
+Original schema:
+{schema}
 
-RETRIEVAL_PROMPT = load_prompt("prompts/retrieval_prompt.md")
+Reasoning about JSON content:
+{reasoning}
+
+Current JSON with errors:
+{json_content}
+
+Validation errors:
+{errors}
+
+Return ONLY the corrected JSON with the problematic fields fixed."""
 
 class Configuration(TypedDict):
-    """Configurable parameters for the agent."""
-
     model_name: str
     temperature: float
 
-
 @dataclass
 class LiteratureItem:
-    """Represents a literature item with title and abstract."""
-
     title: str
     doi: str
     abstract: str
-    fulltext: str = ""  # Placeholder for full text if needed
+    fulltext: str = ""
     extra: str = ""
-
-
-@dataclass
-class SIEResult:
-    """Result of a literature retrieval."""
-
-    title: str
-    doi: str
-    retrieval_form: Optional[BaseModel]
-
 
 @dataclass
 class State:
-    """State for the literature screening agent."""
-
     retrieval_form: Optional[BaseModel]
-    collection_key: str = field(default_factory=lambda: os.environ.get("ZOTERO_COLLECTION_KEY", ""))
-    literature_items: List[LiteratureItem] = field(default_factory=list)
-    results: List[SIEResult] = field(default_factory=list)
+    literature_item: LiteratureItem
+    result: Optional[BaseModel] = field(default_factory=dict)
+    reasoning: Optional[str] = ""
+    raw_json: Optional[str] = None
+    validation_errors: Optional[str] = None
+    validation_attempts: int = 0
+    max_validation_attempts: int = 5
+    schema_instructions: Optional[str] = None
+    omit_titles : list[str] = None
 
-async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
-    """Load literature items from the literature folder."""
-    literature_items = []
-    if not state.literature_items:
-        paper_collection = get_paper_collection(collection_key=state.collection_key, get_fulltext=True)
-    else:
-        # assume literature items in correct format
-        paper_collection = state.literature_items
+async def reason(state: State, config: RunnableConfig) -> Dict[str, Any]:
+    """Analyze paper and reason about extraction requirements."""
 
-    for idx, paper in paper_collection.iterrows():
-        # check if item was already processed
-        output_filename = get_doi_based_filename(paper.DOI, "retrieval")
-        if os.path.exists("outputs/" + output_filename):
-            print(f"Skipping already processed paper: {paper.title}")
-            continue
-        else:
-            literature_items.append(LiteratureItem(title=paper.title, abstract=paper.abstractNote, doi =paper.DOI, fulltext=paper.fulltext, extra=paper.extra))
+    if state.literature_item.extra == "skip":
+        logger.info(f"Skipping paper: {state.literature_item.title}")
+        return {"result": None}
 
-    print(f"Loaded {len(literature_items)} literature items")
-    return {"literature_items": literature_items}
+    llm = get_llm(config)
 
+    schema = state.retrieval_form.model_json_schema()
+    schema_json = json.dumps(schema, indent=2)
 
-async def retrieve(state: State, config: RunnableConfig) -> Dict[str, Any]:
-    """Retrieve with automatic validation retry."""
-
-    configuration = config.get("configurable", {})
-    model_name = configuration.get("model_name", "gpt-oss:120b")
-    temperature = configuration.get("temperature", 0)
-
-    final_config = {
-        "model_name": model_name,
-        "temperature": temperature,
-        "max_retries": 3,
-    }
-
-    llm = ChatAnthropic(**final_config)
-    parser = PydanticOutputParser(pydantic_object=state.retrieval_form)
-
-    # Chain with retry logic
-    llm = llm.with_structured_output(
-        state.retrieval_form,
-        method="json_schema"
+    text_to_screen = omit_sections_markdown(
+        state.literature_item.fulltext,
+        omit_sections=state.omit_titles
     )
 
-    results = []
+    if len(text_to_screen.split()) > 12000:
+        logger.warning(f'Fulltext exceeds 12000 words < {len(text_to_screen.split())}')
 
-    for item in tqdm(state.literature_items, desc="Retrieve", unit="item"):
-        text_to_screen = remove_section(item.fulltext, section_title="References")
+    messages = [
+        SystemMessage(content=REASONING_PROMPT.format(
+            title=state.literature_item.title,
+            fulltext=text_to_screen,
+            schema=schema))
+    ]
+
+    try:
+        response = await llm.ainvoke(messages)
+        return {
+            "reasoning": response.content,
+            "schema_instructions": schema_json
+        }
+    except Exception as e:
+        logger.error(f"Reasoning error: {traceback.format_exc()}")
+        return {"result": None}
+
+async def convert_to_json(state: State, config: RunnableConfig) -> Dict[str, Any]:
+    """Generate JSON based on reasoning."""
+
+    llm = get_llm(config, json_mode=True)
+
+    messages = [
+        SystemMessage(content=RETRIEVAL_PROMPT.format(
+            reasoning=state.reasoning,
+            schema=state.schema_instructions)),
+    ]
+
+    try:
+        response = await llm.ainvoke(messages)
+        return {
+            "raw_json": response.content,
+            "validation_attempts": 0
+        }
+    except Exception as e:
+        logger.error(f"Generation error: {traceback.format_exc()}")
+        return {"result": None}
+
+async def validate(state: State, config: RunnableConfig) -> Dict[str, Any]:
+    """Validate and parse JSON."""
+
+    try:
+        result = state.retrieval_form.model_validate_json(state.raw_json)
+        return {"result": result, "validation_errors": None}
+
+    except ValidationError as e:
+        logger.warning(f"Validation error: {e}")
+        return {
+            "validation_errors": e.json(indent=2),
+            "validation_attempts": state.validation_attempts + 1
+        }
+
+    except json.JSONDecodeError as e:
+        logger.warning(f"JSON decode error: {e}")
+        return {
+            "validation_errors": f"JSON decode error: {str(e)}",
+            "validation_attempts": state.validation_attempts + 1
+        }
+
+async def repair_edit(state: State, config: RunnableConfig) -> Dict[str, Any]:
+    """Repair validation errors by applying targeted JSON edits."""
+
+    configuration = config.get("configurable", {})
+
+
+    class JsonEdit(BaseModel):
+        old_str: str
+        new_str: str
+        reason: str
+
+    class JsonEditPlan(BaseModel):
+        edits: list[JsonEdit]
+
+    EDIT_PROMPT = """You are a JSON repair assistant. Create targeted string replacements to fix validation errors.
+
+Pre-collected content of the paper as markdown as required by the JSON:
+{reasoning}
+
+Current JSON with errors:
+{json_content}
+
+Validation errors:
+{errors}
+
+Return a JSON with a list of 'edits', where each edit has:
+- old_str: exact string to find (must appear exactly once)
+- new_str: replacement string
+- reason: explanation of the fix
+
+Make minimal, precise edits targeting only the problematic fields."""
+
+    messages = [
+        SystemMessage(content=EDIT_PROMPT.format(
+            json_content=state.raw_json,
+            errors=state.validation_errors,
+            reasoning=state.reasoning
+        ))
+    ]
+
+    max_edit_iterations = 3
+    broken_edits = []
+    edited_json = state.raw_json
+
+    llm = get_llm(config, json_mode=True, temperature=0.0)
+
+    for edit_iteration in range(max_edit_iterations):
         try:
-            if item.extra == "skip":
-                raise Exception("Skipped paper")
-
-            # Build prompt with schema and previous errors
-            human_prompt = f"""Please extract the given information in the following scientific paper according to the provided schema:
-# Title: {item.title}
-
-# Fulltext: {text_to_screen}
-
-# Your Objective:
-Please extract the given information based on the provided schema.
-"""
-
-            messages = [
-                SystemMessage(content=RETRIEVAL_PROMPT),
-                HumanMessage(content=human_prompt),
-            ]
-
             response = await llm.ainvoke(messages)
+            edit_plan = JsonEditPlan.model_validate_json(response.content)
 
-            if response["parsing_error"]:
-                raise response["parsing_error"]
+            for edit in edit_plan.edits:
+                try:
+                    if edited_json.count(edit.old_str) == 1:
+                        edited_json = edited_json.replace(edit.old_str, edit.new_str, 1)
+                    elif edited_json.count(edit.old_str) > 1:
+                        raise ValueError(f"Multiple occurrences: {edit.reason} for '{edit.old_str}'")
+                    else:
+                        raise ValueError(f"String not found: {edit.reason} for '{edit.old_str}'")
+                except ValueError as ve:
+                    logger.warning(str(ve))
+                    broken_edits.append(edit)
 
-            # If include_raw=True, response is dict with 'parsed' and 'raw'
-            if isinstance(response, dict):
-                retrieval_result = response['parsed']
+            if not broken_edits:
+                break
             else:
-                retrieval_result = response
-
-            # Success - validation passed
-            results.append(SIEResult(
-                title=item.title,
-                doi=item.doi,
-                retrieval_form=retrieval_result,
-            ))
-            break
+                feedback = "\n".join([f"- {be.reason}: '{be.old_str}'" for be in broken_edits])
+                messages.append(HumanMessage(
+                    content=f"These edits failed:\n{feedback}\n\nRevise your edit plan with more specific strings."
+                ))
+                broken_edits = []
 
         except Exception as e:
-            traceback.print_exception(e)
-            # processing failed, save empty result
-            results.append(SIEResult(title=item.title, doi=item.doi, retrieval_form={}))
+            logger.error(f"Edit iteration {edit_iteration} error: {e}")
+            break
 
-    return {"results": results}
+    return {"raw_json": edited_json}
 
-def get_doi_based_filename(doi: str, suffix: str) -> str:
-    """Generate a filename based on DOI."""
-    safe_doi = doi.replace('/', '_')
-    return f"{safe_doi}_{suffix}.json"
+def should_repair(state: State) -> str:
+    """Route based on validation status."""
 
-async def dump_output(state: State, config: RunnableConfig) -> Dict[str, Any]:
-    """flatten schema and save retrieval results as JSON"""
+    if state.result and state.result != {}:
+        return END
 
-    # encode as list when set is encountered
-    import json
-    class SetEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if isinstance(obj, set):
-                return list(obj)
-            return json.JSONEncoder.default(self, obj)
+    if state.validation_errors is None:
+        return "validate"
 
-    # save output as json
-    for result in state.results:
-        output = {
-                'title': result.title,
-                'doi': result.doi,
-                'retrieval': result.retrieval_form.model_dump()
-            }
+    if state.validation_attempts >= state.max_validation_attempts:
+        logger.error(f"Max validation attempts reached: {state.literature_item.title}")
+        return END
 
-        with open("outputs/" + get_doi_based_filename(result.doi, "retrieval"), encoding='utf-8') as f:
-            import json
-            json.dump(output, f, ensure_ascii=False, indent=4, cls=SetEncoder)
+    return "repair"
 
+def get_llm(config: RunnableConfig, json_mode: bool = False, temperature: float = None) -> ChatOllama:
+    cfg = config.get("configurable", {})
+    return ChatOllama(
+        model=cfg["model_name"],
+        temperature=temperature if temperature is not None else cfg["temperature"],
+        format="json" if json_mode else None
+    )
 
-    return {'status': 'output saved as JSON'}
-
-
-
-    # try:
-    #     df = pd.DataFrame([
-    #         {
-    #             'title': r.title,
-    #             'doi': r.doi,
-    #             **flatten_pydantic(r.retrieval_form) if r.retrieval_form else {}
-    #         }
-    #         for r in state.results
-    #     ])
-    #
-    #     df.to_csv(state.output_path, index=False)
-    #     print(f"Results saved to {state.output_path}")
-    # except Exception as e:
-    #     print(f"Error generating CSV: {e}")
-
-
-    # try:
-    #     df = pd.DataFrame([
-    #         {
-    #             'title': r.title,
-    #             'doi': r.doi,
-    #             'exclusion': r.exclusion,
-    #             **(r.screening_decision.model_dump() if r.screening_decision else {})
-    #         }
-    #         for r in state.results
-    #     ])
-    #
-    #     df.to_csv(state.output_path, index=False)
-    #     print(f"Results saved to {state.output_path}")
-    #
-    #     # Print summary
-    #     excluded = sum(1 for r in state.results if r.exclusion == True)
-    #     included = len(state.results) - excluded
-    #     print(f"Summary: {included} included, {excluded} excluded out of {len(state.results)} papers")
-    #
-    # except Exception as e:
-    #     print(f"Error generating CSV: {e}")
-    #
-    # return {}
-
-
-# Define the graph
+# Build graph
 graph = (
     StateGraph(State, context_schema=Configuration)
-    .add_node("load_literature", load_literature)
-    .add_node("retrieve", retrieve)
-    .add_node("dump_output", dump_output)
-    .add_edge("__start__", "load_literature")
-    .add_edge("load_literature", "retrieve")
-    .add_edge("retrieve", "dump_output")
-    .compile(name="Literature Screening Agent")
+    .add_node("reason", reason)
+    .add_node("generate", convert_to_json)
+    .add_node("validate", validate)
+    .add_node("repair", repair_edit)
+    .add_edge("__start__", "reason")
+    .add_edge("reason", "generate")
+    .add_edge("generate", "validate")
+    .add_conditional_edges("validate", should_repair, {
+        "repair": "repair",
+        "validate": "validate",
+        END: END
+    })
+    .add_edge("repair", "validate")
+    .compile(name="Literature Screening Agent SLR")
 )
-
