@@ -21,6 +21,31 @@ load_dotenv()
 
 from pydantic.fields import FieldInfo
 
+meta_titles = [
+    "abstract", "references", "bibliography", "acknowledgments", "acknowledgements",
+    "author contributions", "funding", "conflicts of interest", "conflict of interest",
+    "appendix", "appendices", "supplementary material", "supplementary materials",
+    "data availability", "code availability",
+    "availability of data and materials", "Declaration of competing interest",
+    "Conflict of interest statement",
+]
+
+introductory_titles = [
+    "introduction", "motivation", "problem statement"
+]
+
+background_titles = ["literature review", "related work", "related works", "prior work", "previous work",
+                     "state of the art", "state-of-the-art", "theoretical background", "theoretical framework"]
+
+conclusion_titles = ["conclusion", "conclusions", "future work", "future directions", "future research",
+                     "outlook", "limitations and future work", "discussion", "discussion and implications",
+                     "implications"]
+
+result_titles = [
+    "results", "findings", "experimental results", "evaluation", "experiments",
+    "experimental evaluation", "performance evaluation"
+]
+
 def select_fields(model: type[BaseModel], include: list[str]):
     return create_model(
         f"{model.__name__}Partial",
@@ -42,9 +67,13 @@ async def run_retrieval(retrieval_schema: BaseModel, literature_item, omit_title
 
     config = RunnableConfig(
         configurable={
-            "model_name": "gpt-oss:120b",
+            "model_name": "gpt-oss:120b", #gpt-oss:120b" # claude-sonnet-4-6
             "temperature": 0.0,
-            "num_ctx": 32000
+            "num_ctx": 64000,
+            "reasoning": False,
+            "skip_analysis": True,
+            "word_count_limit": 13000,
+            "skip_on_word_count_limit": True
         }
     )
 
@@ -74,12 +103,7 @@ def load_literature(collection_key) -> List[LiteratureItem]:
     paper_collection = get_paper_collection(collection_key=collection_key, get_fulltext="parsed")
 
     for idx, paper in paper_collection.iterrows():
-        # check if item was already processed
-        output_filename = get_doi_based_filename(paper.DOI, "retrieval")
-        if os.path.exists("outputs/" + output_filename):
-            logger.info(f"Skipping already processed paper: {paper.title}")
-            continue
-        elif not isinstance(paper.fulltext, str) or paper.fulltext == "":
+        if not isinstance(paper.fulltext, str) or paper.fulltext == "":
             logger.warning("Paper fulltext not found, skipping paper: " + paper.title)
             continue
         else:
@@ -114,7 +138,21 @@ def dump_output(title, doi, output, reasoning):
 
     return {'status': 'output saved as JSON'}
 
+def get_part_retrieval(part_name, part_schema: BaseModel, literature_item, omit_titles: Optional[List[str]] = None):
+    #logger.info(f"Running retrieval for {part_name}...")
+    part_result = asyncio.run(run_retrieval(part_schema, literature_item, omit_titles))
+
+    # check if result[part_name] is empty
+    if not part_result["result"]:
+        raise ValueError(f"Retrieval for {part_name} returned empty result for paper: {literature_item.title}")
+
+    return part_result["result"], part_result["reasoning"]
+
 def orchestrate_decomposed_retrieval(literature_item):
+    if paper_processed(literature_item):
+        logger.info(f"Paper was already processed: {literature_item.title}. Skipping...")
+        return
+
     # decompose the schema for distributed retrieval
     agents = select_fields(
         SystemArchitecture,
@@ -141,73 +179,37 @@ def orchestrate_decomposed_retrieval(literature_item):
         include=["reported_outcomes", "validation_methods"]
     )
 
-    def get_retrieval(part_name, part_schema: BaseModel, literature_item, omit_titles: Optional[List[str]] = None):
-        #logger.info(f"Running retrieval for {part_name}...")
-        loop = asyncio.get_event_loop()
-        part_result = loop.run_until_complete(run_retrieval(part_schema, literature_item, omit_titles))
-
-        # check if result[part_name] is empty
-        if not part_result["result"]:
-            raise ValueError(f"Retrieval for {part_name} returned empty result for paper: {literature_item.title}")
-
-        return part_result["result"], part_result["reasoning"]
-
-    meta_titles = [
-        "abstract", "references", "bibliography", "acknowledgments", "acknowledgements",
-        "author contributions", "funding", "conflicts of interest", "conflict of interest",
-        "appendix", "appendices", "supplementary material", "supplementary materials",
-        "data availability", "code availability",
-        "availability of data and materials", "Declaration of competing interest",
-        "Conflict of interest statement",
-    ]
-
-    introductory_titles = [
-        "introduction", "motivation", "problem statement"
-    ]
-
-    background_titles = ["literature review", "related work", "related works", "prior work", "previous work",
-        "state of the art", "state-of-the-art", "theoretical background", "theoretical framework"]
-
-    conclusion_titles = ["conclusion", "conclusions", "future work", "future directions", "future research",
-        "outlook", "limitations and future work", "discussion", "discussion and implications",
-        "implications"]
-
-    result_titles = [
-        "results", "findings", "experimental results",  "evaluation", "experiments",
-        "experimental evaluation", "performance evaluation"
-    ]
-
     try:
         # run retrieval for each part
         result = {}
         reasoning = {}
         logger.debug("Processing agents")
-        result["agents"], reasoning["agents"] = get_retrieval(
+        result["agents"], reasoning["agents"] = get_part_retrieval(
             "agents",
             agents,
             literature_item,
             [*meta_titles, *introductory_titles, *background_titles, *conclusion_titles, *result_titles])
 
         logger.debug("Processing system architecture")
-        result["system_architecture"], reasoning["system_architecture"] = get_retrieval(
+        result["system_architecture"], reasoning["system_architecture"] = get_part_retrieval(
             "system_architecture",
             system_architecture,
             literature_item,
             [*meta_titles, *introductory_titles, *background_titles, *conclusion_titles, *result_titles])
         logger.debug("Processing domain")
-        result["domain"], reasoning["domain"] = get_retrieval(
+        result["domain"], reasoning["domain"] = get_part_retrieval(
             "domain",
             domain,
             literature_item,
             [*meta_titles, *background_titles, *conclusion_titles, *result_titles])
         logger.debug("Processing subject")
-        result["subject"], reasoning["subject"] = get_retrieval(
+        result["subject"], reasoning["subject"] = get_part_retrieval(
             "subject",
             subject,
             literature_item,
             [*meta_titles, *background_titles, *conclusion_titles, *result_titles])
         logger.debug("Processing reported outcomes")
-        result["reported_outcomes"], reasoning["reported_outcomes"] = get_retrieval(
+        result["reported_outcomes"], reasoning["reported_outcomes"] = get_part_retrieval(
             "reported_outcomes",
             reported_outcomes,
             literature_item,
@@ -246,6 +248,80 @@ def orchestrate_decomposed_retrieval(literature_item):
 
     logger.success(f"Retrieval completed and saved for paper: {literature_item.title}")
 
+def orchestrate_partial_retrieval_and_append(literature_item):
+    # decompose the schema for distributed retrieval
+    results_and_limitations = select_fields(
+        AISystem,
+        include=["integration_with_cps", "baseline_methods", "evaluation_metric_categories", "identified_research_gaps", "scalability_assessment"]
+    )
+
+    try:
+        # run retrieval for each part
+        result = {}
+        reasoning = {}
+        logger.debug("Processing retrieval")
+        result["results_and_limitations"], reasoning["results_and_limitations"] = get_part_retrieval(
+            "agents",
+            results_and_limitations,
+            literature_item,
+            meta_titles)
+
+        # get existing paper and append
+        import json
+        with open("outputs/" + get_doi_based_filename(literature_item.doi, "retrieval"), encoding='utf-8', mode='r') as f:
+            data = json.load(f)
+
+        # modify json
+        retrieval = data.get("retrieval")
+        retrieval["integration_with_cps"] = result["integration_with_cps"]
+        retrieval["baseline_methods"] = result["baseline_methods"]
+        retrieval["evaluation_metric_categories"] = result["evaluation_metric_categories"]
+        retrieval["identified_research_gaps"] = result["identified_research_gaps"]
+        retrieval["scalability_assessment"] = result["scalability_assessment"]
+
+        # save and close
+        with open("outputs/" + get_doi_based_filename(literature_item.doi, "retrieval"), encoding='utf-8', mode='w') as f:
+            json.dump(data, f, indent=2)
+
+    except Exception as e:
+        logger.error(f"Retrieval failed: Error occurred while constructing final data model: {e} \n Skipping paper due to error.")
+        return
+
+    logger.success(f"Retrieval completed and saved for paper: {literature_item.title}")
+
+
+def orchestrate_retrieval(literature_item):
+    if paper_processed(literature_item):
+        logger.info(f"Paper was already processed: {literature_item.title}. Skipping...")
+        return
+    # standard retrieval, no decomp
+    try:
+        # run retrieval
+        retrieval = asyncio.run(run_retrieval(AISystem, literature_item, omit_titles=meta_titles))
+        result = retrieval["result"]
+        reasoning = retrieval["reasoning"]
+
+    except Exception as e:
+        logger.error(f"Retrieval failed: Error occurred while constructing final data model: {e} \n Skipping paper due to error.")
+        return
+    if result == "skip":
+        return
+
+    dump_output(
+        title=literature_item.title,
+        doi=literature_item.doi,
+        output=result,
+        reasoning=reasoning
+    )
+
+    logger.success(f"Retrieval completed and saved for paper: {literature_item.title}")
+
+def paper_processed(paper):
+    # check if item was already processed
+    output_filename = get_doi_based_filename(paper.DOI, "retrieval")
+    if os.path.exists("outputs/" + output_filename):
+        return True
+    return False
 
 # Example usage
 if __name__ == "__main__":
@@ -253,7 +329,7 @@ if __name__ == "__main__":
 
     for item in tqdm(literature, desc="Retrieve", unit="item"):
         logger.info(f"Processing paper: {item.title}")
-        orchestrate_decomposed_retrieval(item)
+        orchestrate_partial_retrieval_and_append(item)
 
 
 

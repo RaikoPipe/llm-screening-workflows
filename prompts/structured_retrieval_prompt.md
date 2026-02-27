@@ -49,4 +49,4 @@ Return ONLY valid JSON matching the exact schema structure. All enum values must
 
 ---
 
-Generate the JSON according to the schema above based solely on the reasoning. Return ONLY valid JSON, nothing else.
+Generate the JSON according to the schema above based solely on the information stated in the analysis. Return ONLY valid JSON, nothing else.

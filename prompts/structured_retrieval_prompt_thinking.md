@@ -41,9 +41,6 @@ Return valid JSON matching the exact schema structure. All enum values must matc
 **Fulltext:**
 {fulltext}
 
-**Reasoning:**
-{reasoning}
-
 ---
 
 # Extraction Schema
