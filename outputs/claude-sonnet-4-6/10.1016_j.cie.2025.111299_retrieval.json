@@ -1,0 +1,221 @@
+{
+  "title": "Large language model-driven multi-agent systems for improving production efficiency and reducing carbon emissions in manufacturing",
+  "doi": "10.1016/j.cie.2025.111299",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Preprocesses historical production event logs and transforms process data into domain knowledge recognizable by LLMs using DFG models and process representation methods, forming long-term memory storage.",
+          "role": "other",
+          "specialized_role": "database_and_generative_agent",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Vicuna-13B (fine-tuned)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Multi-turn dialogue corpus built from production process event logs including textile process flows, machine attributes, carbon emissions, and multi-objective intent recognition data."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "LLMs-enhanced supervisory agent that recognizes production intentions of manufacturing enterprises, updates intention recognition parameters, generates target weights, and supplements historical environmental and carbon emission features for scheduling decisions.",
+          "role": "orchestrator",
+          "specialized_role": "supervisory_agent",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Vicuna-13B (fine-tuned)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Domain knowledge corpus from production process event logs for intent recognition and scheduling supervision tasks."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "LLMs-enhanced machine agents that autonomously perceive production targets and resource states, evaluate job task states and machine states, participate in self-organizing negotiation, and execute multi-objective scheduling decisions for task allocation.",
+          "role": "other",
+          "specialized_role": "machine_agent",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "PPO-based reinforcement learning policy network",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Trained on 3,264 production process logs from a textile manufacturing company using PPO algorithm with DFG-based simulation of uncertain events."
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "CarbonDTMAS uses a multi-agent self-organizing negotiation mechanism. The supervisory agent coordinates machine agents through intent recognition and parameter selection. Machine agents negotiate autonomously in a structured 8-step process: domain knowledge mining, intent recognition, task distribution, job state evaluation, machine state evaluation, multi-objective scheduling, quantity distribution, and strategy aggregation with adaptive PPO-based learning.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Self-organizing negotiation among machine agents coordinated by a supervisory agent. Machine agents autonomously evaluate task and machine states, negotiate task quantities, and receive aggregated strategies from the supervisory agent. The DFG model and PPO algorithm enable adaptive learning across agents.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "Human operators interact with CarbonDTMAS primarily through a digital twin platform dashboard. Production intentions are provided as natural language commands which the system interprets. The system operates largely autonomously with human monitoring via the DT platform interface.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_scheduling",
+    "application_domain_description": "Flexible job shop scheduling in customized manufacturing, focusing on multi-objective optimization of completion time, machine workload balancing, and carbon emission management in dynamic workshop environments.",
+    "problem_description": "Traditional MAS and scheduling methods struggle with dynamic disturbances, large-scale customized production, and multi-objective optimization (completion time, workload balance, carbon emissions). They lack autonomous decision-making, fail to exploit historical process knowledge, and cannot rapidly respond to uncertain events like machine failures and order insertions.",
+    "proposed_solution": "CarbonDTMAS: an LLM-enhanced Digital Twin Multi-Agent System combining process mining (DFG models), fine-tuned LLMs (Vicuna-13B), and PPO-based reinforcement learning. The system features a self-organizing negotiation mechanism among machine agents supervised by an LLM-enhanced supervisory agent, a multi-objective scheduling decision algorithm, and an adaptive learning strategy for handling uncertain events.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "Case study using real production data from a smart manufacturing textile company in Shanghai. 3,264 process logs collected over one month. System validated through ablation experiments comparing CarbonDTMAS against scheduling rules (SPT, WINO, LCE, Random), metaheuristic algorithms (GA, GP), and RL baselines (DQN, PPO).",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "3.68% reduction in tardiness time vs DQN-Based and PPO-Based",
+        "31% improvement in workload balance vs DQN-Based and PPO-Based",
+        "4.98% reduction in carbon emissions vs DQN-Based and PPO-Based",
+        "Complex evaluation score of 896.10 vs best baseline 556.37 (DQN-Based), representing ~61% improvement",
+        "53.76% to 62.48% improvement in complex evaluation over single-objective scheduling rules",
+        "Without self-organizing negotiation: 3.90% increase in tardiness; without adaptive optimization: 9.54% increase in tardiness",
+        "State evaluation components improve performance by 5.59%, 13.74%, and 7.06% on tardiness, workload balance, and carbon emissions respectively"
+      ],
+      "response_time_impact": [
+        "Execution time reduced by 56.7% compared to GA-Based model",
+        "Execution time reduced by 50.3% compared to GP-Based model",
+        "Execution time improved by 62.47% vs DQN-Based",
+        "Execution time improved by 69.48% vs PPO-Based",
+        "Without self-organizing negotiation: 32.67% increase in execution time; without LLMs: 64.96% increase",
+        "Best execution time of 2.54 hours vs 4.28 hours for PPO-Based baseline"
+      ],
+      "reliability_metrics": [
+        "Vicuna-13B fine-tuned achieves accuracy 0.802, F1 (positive) 0.843, balanced accuracy 0.781 on negotiation tasks",
+        "GPT-4 achieves highest balanced accuracy 0.870 on negotiation tasks",
+        "Decision model converges after 80 iterations across different penalty variable configurations",
+        "Reward variable R=-50 shows best convergence performance among tested configurations"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning (domain knowledge via DFG)": "Critical for autonomous perception; removing LLMs reduces execution time performance by 64.96%",
+        "chain-of-thought (intent recognition)": "GPT-4 achieves best performance (0.197) and stability (0.476); Vicuna-13B best among open-source with performance 0.098, stability 0.722",
+        "retrieval-augmented-generation (process knowledge base)": "Enables intent recognition and weight parameter generation; supports multi-objective scheduling with carbon emission features",
+        "iterative-reasoning (PPO + DFG adaptive learning)": "DFG simulation of uncertain events substantially improves handling of machine failures, order insertions, delivery modifications vs PPO-based without DFG"
+      },
+      "failure_modes": [
+        "Decision model may fall into local optimum with high penalty variables (R=-150)",
+        "State evaluation increases execution time by 27.95% in high-complexity cases with many processing operations",
+        "Performance degrades without self-organizing negotiation mechanism when handling uncertain events"
+      ],
+      "limitations": [
+        "Limited focus on selection of intent recognition parameters",
+        "LLM prompting engineering design not fully explored; Chain-of-Thought templates for LLMs identified as future work",
+        "Domain knowledge construction limited to DFG model representation; redundancy mechanisms not yet explored",
+        "Case study limited to textile production; generalizability to other industries (e.g., automotive assembly) not yet empirically validated",
+        "High computational cost of fine-tuning LLMs (requires NVIDIA HGX A100 hardware)"
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "SPT (Shortest Processing Time)",
+      "WINO (Workload in Operation)",
+      "LCE (Least Carbon Emission)",
+      "Random rules",
+      "GA-Based (Genetic Algorithm)",
+      "GP-Based (Genetic Programming)",
+      "DQN-Based",
+      "PPO-Based",
+      "w/o Self-Organizing Negotiation Mechanism",
+      "w/o LLMs",
+      "w/o Adaptive Optimization Strategy",
+      "w/o DFG"
+    ],
+    "evaluation_metric_categories": [
+      "operational-kpi",
+      "computational-efficiency",
+      "classification",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Weight constraint mechanism for intent recognition parameters needs further study",
+      "Design of Chain-of-Thought engineering templates for LLMs",
+      "Exploration of redundancy mechanisms in process representation methods",
+      "Multidimensional empirical studies in representative manufacturing scenarios with complex process flows and significant resource heterogeneity (e.g., automotive assembly, variable mixed-line production)",
+      "Integration of LLMs technologies to enhance DT multi-agent systems is lacking",
+      "Integration of historical knowledge to enhance autonomous perception and interaction capabilities of agents",
+      "Addressing uncertainties through adaptive learning to meet multi-task and multi-objective optimization needs"
+    ],
+    "scalability_assessment": "domain-generalization"
+  }
+}

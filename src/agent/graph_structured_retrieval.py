@@ -88,7 +88,7 @@ async def prepare_retrieval(state: State, config: RunnableConfig) -> Dict[str, A
     schema_json = json.dumps(schema, indent=2)
 
     if len(text_to_screen.split()) > cfg["word_count_limit"]:
-        logger.warning(f'Fulltext exceeds 12000 words < {len(text_to_screen.split())}')
+        logger.warning(f'Fulltext exceeds {cfg["word_count_limit"]} words < {len(text_to_screen.split())}')
         if cfg["skip_on_word_count_limit"]:
             logger.info(f"Skipping paper due to word limit hit: {state.literature_item.title}")
             return {"result": "skip"}
@@ -151,7 +151,6 @@ async def generate_json(state: State, config: RunnableConfig) -> Dict[str, Any]:
 
         # remove generation artifacts
         cleaned_content = extract_json(response.content)
-
 
         return {
             "raw_json": cleaned_content,

@@ -1,0 +1,273 @@
+{
+  "title": "Towards LLM-Based Failure Localization in Production-Scale Networks",
+  "doi": "10.1145/3718958.3750505",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Processes monitoring alerts from 11 upstream tools, extracting key information and generating condensed summaries per alert type per device.",
+          "role": "summarizer",
+          "specialized_role": "alert_summarizer",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-7B-Instruct (fine-tuned)",
+            "finetuning_datasets": [
+              "synthetic",
+              "llm-generated"
+            ],
+            "finetuning_dataset_description": "Randomly generated alerts based on value distributions of real-world data; ground truth labels produced by GPT-4 and verified with rule-based algorithms and small-scale operator fidelity tests."
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Analyzes summarized alerts per device for one of 7 predefined anomaly scenarios (e.g., Device Down, Congestion, Flapping) following operator-defined SOPs.",
+          "role": "other",
+          "specialized_role": "anomaly_analyzer",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-7B-Instruct (fine-tuned)",
+            "finetuning_datasets": [
+              "synthetic",
+              "llm-generated"
+            ],
+            "finetuning_dataset_description": "Randomly combined synthetic alert summaries as inputs; outputs produced by GPT-4 and verified with rule-based algorithms."
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Consolidates all device anomaly analysis reports to generate failure scores for candidate devices, reflecting the likelihood each device is the error device (Pipeline 1 Stage 1 joint scoring).",
+          "role": "other",
+          "specialized_role": "failure_scorer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-72B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Integrated root causing agent (Stage 2) that combines device anomaly reports, network topology (Pipeline 2), and event timeline (Pipeline 3) to generate final ranked failure scores with explanations. Run N=3 times with Rank of Ranks aggregation.",
+          "role": "other",
+          "specialized_role": "integrated_root_cause_analyzer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-72B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Reflection agent (Agent R) that analyzes diverse reasoning trials from exploration phase, contrasting correct and incorrect trials to extract actionable knowledge for improving root cause prompts.",
+          "role": "other",
+          "specialized_role": "reflection_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-72B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Knowledge consolidation agent (Agent C) that summarizes and ranks extracted knowledge from all incidents, retaining the six most frequently occurring pieces for prompt augmentation.",
+          "role": "summarizer",
+          "specialized_role": "knowledge_consolidator",
+          "context_engineering": {
+            "memory_types": [
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-72B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "BiAn uses a hierarchical two-stage pipeline. Stage 1 runs three sequential steps in parallel where applicable (alert summary \u2192 anomaly analysis \u2192 joint scoring) using fine-tuned smaller models for steps 1-2 and a large model for step 3. An entropy-based early stop gate determines whether Stage 2 is triggered. Stage 2 applies a Top-p filter, then runs an integrated root causing agent incorporating topology and timeline pipelines, executed N=3 times with Rank of Ranks aggregation. A separate iterative prompt updating loop uses exploration, reflection, consolidation, and augmentation agents.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents operate in a structured hierarchical pipeline: summarizer agents run in parallel per alert type/device, feeding into parallel anomaly analysis agents, whose outputs are consolidated by a joint scoring agent. A gating mechanism (early stop) conditionally triggers the integrated Stage 2 agent with topology and timeline data. Prompt updating agents (reflection, consolidation, augmentation) operate asynchronously as a continuous improvement loop.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "BiAn operates as an assistant to human network operators. It is triggered automatically when incidents bypass self-healing. Operators review BiAn's ranked device output and explanations, selectively validate by checking relevant data sources, and make final mitigation decisions. Operators provide post-incident feedback via satisfaction questionnaires and post-incident reviews, which inform iterative prompt updates. BiAn is integrated into the NOC's on-call platform with output formatting aligned to operator workflows.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "logistics_planning",
+    "application_domain_description": "Cloud network operations incident management at Alibaba Cloud \u2014 specifically root cause analysis and failure (error device) localization in production-scale WAN and data center networks spanning 87 data centers globally.",
+    "problem_description": "Network incidents in large-scale cloud infrastructure require rapid root cause identification and error device localization. Manual investigation by operators is bottlenecked by excessive alert volumes (up to 1 GB per incident), complex spatial/temporal device relationships, high incident load, and time pressure \u2014 leading to SLA violations and revenue loss.",
+    "proposed_solution": "BiAn: an LLM-based hierarchical multi-pipeline framework that automates root cause analysis and failure localization. It processes monitoring alerts through three stages \u2014 alert summarization, single-device anomaly analysis, and joint scoring \u2014 enhanced by network topology and event timeline pipelines. It uses fine-tuned smaller models for simpler tasks, a Rank of Ranks mechanism to reduce LLM output randomness, early stopping for efficiency, and iterative prompt updating for continuous adaptation.",
+    "research_maturity": "production",
+    "research_methodology": "case-study",
+    "research_methodology_description": "BiAn was deployed in Alibaba Cloud's production network for 10 months. Evaluation combines A/B testing (operator TTR with/without BiAn), operator satisfaction surveys, analysis of 3 representative real incidents, and extensive offline experiments on 357 real cases from 17 months of incident data including ablation studies, latency benchmarks, fine-tuning microbenchmarks, and cross-model evaluation.",
+    "validation_methods": [
+      "field deployment",
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "BiAn achieves 95.5% top-1 accuracy over 357 cases, vs. 86.3% for Hot Device baseline",
+        "Top-2 accuracy: 98.6% (BiAn) vs. 88.9% (Hot Device); Top-3: 99.3% vs. 93.0%",
+        "In tie cases where Hot Device drops to 70.5%, BiAn maintains 97.1%",
+        "Fine-tuned models achieve 98.7% accuracy on alert summary and 98.6% on anomaly analysis, both outperforming default Qwen model by >6%",
+        "Prompt updating improves test accuracy from 36.7% to 50.0% on difficult cases after 3 iterations",
+        "Top-p filter + Stage 2 integration increases accuracy from 87.2% (Pipeline 1 only) to 95.5%"
+      ],
+      "response_time_impact": [
+        "End-to-end reasoning completes within 30 seconds, ready before operators come online (~1 minute notification delay)",
+        "BiAn reduces time-to-root-causing (TTR) by 20.5% on average; 55.2% reduction for high-risk incidents",
+        "Early stop reduces overall processing time to 70.0% with only 0.5% accuracy loss",
+        "Fine-tuning smaller models for Steps 1-2 achieves significant latency savings vs. default large model",
+        "End-to-end latency is only 15% greater than theoretical sum of parallel components"
+      ],
+      "reliability_metrics": [
+        "Deployed for 10 months in global production network",
+        "Per-incident inference cost averages $0.17 (Pipeline 1) to $0.18 (full BiAn)",
+        "Fine-tuning cost: $121.63 average",
+        "API latency average stable at ~5 seconds but individual calls can spike up to 16 seconds"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "chain-of-thought": "Zero-shot CoT used in exploration phase generates intermediate reasoning steps; including explanations reduces score entropy (e.g., {0.5,0.3,0.2}\u2192{0.7,0.2,0.1}) indicating greater confidence without affecting accuracy",
+        "in-context-learning": "One-shot prompting used for alert summary and anomaly analysis agents; few-shot prompting applied across agents to improve instruction following",
+        "iterative-reasoning (Rank of Ranks)": "Running integrated reasoning 3 times and averaging ranks reduces output variance; increasing from 3 to 5 runs yields diminishing returns"
+      },
+      "failure_modes": [
+        "Multi-device failures: BiAn assumes single error device per incident; struggles when multiple devices are equally responsible",
+        "Upstream monitor quality: invalid or ambiguous monitor data degrades localization accuracy",
+        "Link-based incidents not yet supported; only device-based incidents covered",
+        "High-risk incidents with many concurrent anomalies increase noise, reducing accuracy below 90%",
+        "Prompt length degradation: excessive prompt augmentation eventually hurts LLM comprehension",
+        "LLM prompt obedience inconsistency: agents sometimes skip steps or produce overly verbose output"
+      ],
+      "limitations": [
+        "Assumes single error device per incident; multi-device failures are not fully addressed",
+        "Dependent on upstream monitoring system quality; silent packet drops generating no alerts are out of scope",
+        "Link-based incident investigation not yet implemented",
+        "Cross-industry generalizability limited; designed for Alibaba Cloud's specific network infrastructure",
+        "API latency fluctuation impacts latency-sensitive deployments",
+        "Prompt updating has diminishing returns due to growing prompt length eventually outweighing knowledge gains",
+        "Candidate device pre-selection (fixed at 6) misses error device ~2% of the time (improved to ~1% with dynamic selection)"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Hot Device (device with the most associated alerts, adapted from 007)",
+      "RCACopilot (variant outputting coarser-grained root cause categories)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency",
+      "operational-kpi",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Handling multi-device failures where multiple devices contribute equally as root causes",
+      "Extending BiAn to support link-based incidents in addition to device-based incidents",
+      "Validating consistency between failure scores and explanations",
+      "Developing more adaptive multi-agent behaviors (retrying failed analysis, skipping irrelevant steps, dynamically invoking other agents)",
+      "Managing prompt length growth in prompt updating to prevent performance degradation",
+      "Addressing API latency fluctuations for latency-sensitive inference tasks",
+      "Improving dynamic candidate device selection mechanism for better coverage",
+      "Handling cases where upstream monitors generate invalid or ambiguous data"
+    ],
+    "scalability_assessment": "data-scalability"
+  }
+}

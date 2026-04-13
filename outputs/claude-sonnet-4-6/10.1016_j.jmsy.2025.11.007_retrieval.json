@@ -1,0 +1,346 @@
+{
+  "title": "IM-Chat: A multi-agent LLM framework integrating tool-calling and diffusion modeling for knowledge transfer in injection molding industry",
+  "doi": "10.1016/j.jmsy.2025.11.007",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Task Formatter module that reformulates user input using recent conversation history, standardizes queries into a predefined format, and translates input into English while retaining original language metadata.",
+          "role": "other",
+          "specialized_role": "input_formatter",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Classifier module that determines whether the query pertains to injection molding or not, outputting either 'injection' or 'no_injection' to route the task to the appropriate workflow.",
+          "role": "other",
+          "specialized_role": "task_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "ReAct Agent that handles general queries unrelated to injection molding, using an internet search tool to retrieve recent information and combining retrieval with reasoning.",
+          "role": "other",
+          "specialized_role": "react_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Planner module that decomposes injection molding-related tasks into multiple subtasks for sequential execution.",
+          "role": "planner",
+          "specialized_role": "task_planner",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Executor module that executes the foremost subtask from the plan, dynamically selecting the appropriate tool (troubleshooting table retriever, manufacturing manual retriever, internet searcher, or diffusion model) based on subtask requirements.",
+          "role": "other",
+          "specialized_role": "task_executor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "knowledge-base",
+              "external-models",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Supervisor module that evaluates whether the combined results from execution sufficiently answer the original query, deciding whether to proceed to output formatting or trigger replanning.",
+          "role": "orchestrator",
+          "specialized_role": "output_supervisor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Replanner module that redefines and adjusts the plan when the Supervisor deems results insufficient, triggering another cycle of execution.",
+          "role": "planner",
+          "specialized_role": "adaptive_replanner",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Diffusion Input Formatter module that standardizes and organizes incoming natural language queries into the structured vector format required by the diffusion model, prompting users for missing information if needed.",
+          "role": "other",
+          "specialized_role": "input_formatter_for_diffusion_model",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Reporter module that summarizes the agent history (planning steps, tool calls, execution results) into a concise and contextually accurate response, then translates it back into the user's original language.",
+          "role": "summarizer",
+          "specialized_role": "response_reporter",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini / GPT-3.5-turbo",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "IM-Chat uses a plan-and-execute orchestration graph for injection molding tasks and a ReAct pattern for general tasks. For injection molding queries, a Planner decomposes the task into subtasks, an Executor processes each subtask using appropriate tools, a Supervisor evaluates sufficiency, and a Replanner adjusts the plan if needed. This loop continues until the Supervisor is satisfied, after which a Reporter formats the final response. For non-injection queries, a ReAct agent handles the task directly with internet search.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Multiple specialized agents (Task Formatter, Classifier, Planner, Executor, Supervisor, Replanner, Reporter) cooperate in a structured sequential and iterative workflow. The Planner decomposes tasks, the Executor invokes tools, the Supervisor evaluates results, and the Replanner adjusts plans as needed. Agents share state through a common task history and coordinate through defined handoff points.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Field operators interact with IM-Chat through a Streamlit-based chat interface, submitting queries in natural language (including multiple languages). Human domain experts evaluated system responses using a 10-point rubric for relevance and correctness. The system prompts users interactively when inputs are incomplete (e.g., missing environmental parameters for the diffusion model). Expert involvement is emphasized as indispensable for reliable evaluation in technical manufacturing contexts.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Knowledge transfer and decision support for injection molding manufacturing, including defect troubleshooting, process parameter optimization, and operational guidance for field operators.",
+    "problem_description": "The injection molding industry faces critical challenges in preserving and transferring field knowledge as experienced workers retire, multilingual barriers hinder communication, and traditional apprenticeship-based knowledge transfer systems are insufficient. Operators must manage complex process parameters and respond to defects, but existing systems lack the flexibility to capture tacit knowledge, adapt to real-time conditions, and communicate across languages and skill levels.",
+    "proposed_solution": "IM-Chat, a multi-agent LLM framework that integrates RAG-based retrieval from troubleshooting tables and manufacturing manuals, tool-calling agents, and a Classifier-Free Guidance Diffusion Model (CFGDM) trained on real production data to recommend optimal process parameters. The system uses a plan-and-execute workflow with Planner, Executor, Supervisor, and Replanner agents, supports multilingual input via a Translator module, and is implemented using LangChain/LangGraph with a Streamlit interface.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The study constructs a curated benchmark of 160 question-answer pairs (100 single-tool, 60 multi-tool hybrid tasks) and evaluates IM-Chat across three LLM variants (GPT-4o, GPT-4o-mini, GPT-3.5-turbo) using both human expert evaluation (10-point rubric) and automated LLM-as-a-judge assessment. The multi-agent system is also compared against a fine-tuned single-agent LLM baseline in terms of accuracy, latency, and cost.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o achieved the highest human expert scores across all task categories in both single-tool (avg 8.65/10) and multi-tool tasks (avg 7.19/10).",
+        "IM-Chat (multi-agent, GPT-4o) significantly outperformed the fine-tuned single-agent LLM baseline across all categories: e.g., diffusion model single-tool task score 10.00 vs 2.00 for baseline.",
+        "Multi-agent IM-Chat demonstrated superior accuracy in quantitative reasoning and multi-source coordination compared to the fine-tuned single-agent baseline.",
+        "GPT-4o showed outstanding performance on hybrid diffusion model + troubleshooting tasks (score = 9.2/10).",
+        "Among 15 physical products produced using diffusion model-generated parameters, 13 were non-defective; all cases with surrogate model confidence \u22650.99 were non-defective."
+      ],
+      "response_time_impact": [
+        "GPT-4o: average latency 24.4s (single-tool), 66.0s (multi-tool).",
+        "GPT-4o-mini: average latency 32.4s (single-tool), 63.2s (multi-tool); highest latency among variants due to suboptimal planning and unnecessary re-planning.",
+        "GPT-3.5-turbo: average latency 17.2s (single-tool), 33.3s (multi-tool); fastest but often incomplete due to frequent failure to invoke required tools.",
+        "Fine-tuned single-agent LLM: average latency 1.15\u20131.67s (single-tool), 1.07\u20132.13s (multi-tool), substantially faster than IM-Chat.",
+        "Diffusion model inference dominates multi-tool latency at approximately 37s per inference on NVIDIA RTX 3090 GPU (40s for 64 process parameters)."
+      ],
+      "reliability_metrics": [
+        "Diffusion model: among 64,000 generated non-defective parameter sets, 799 (1.248%) were incorrectly generated; among 64,000 defective sets, 1,288 (2.013%) were misgenerated.",
+        "Surrogate classification model: true positive rate 0.927 \u00b1 0.066, true negative rate 0.995 \u00b1 0.006.",
+        "Pearson correlation between human and LLM evaluations: -0.14 (GPT-4o), 0.25 (GPT-4o-mini), 0.35 (GPT-3.5-turbo), indicating weak alignment."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency",
+        "tool-failure"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG with troubleshooting tables and manufacturing manuals enabled factually grounded responses without fine-tuning; MMR-based retrieval improved diversity and relevance of retrieved manual chunks.",
+        "iterative-reasoning": "Plan-and-execute loop with Supervisor and Replanner enabled multi-step task resolution and correction of insufficient results, particularly beneficial for complex hybrid tasks.",
+        "dynamic-decomposition": "Planner decomposition of complex queries into subtasks enabled coordinated multi-tool invocation; GPT-4o showed superior decomposition quality compared to lighter models.",
+        "in-context-learning": "System prompt-guided classification and tool selection enabled appropriate routing without fine-tuning."
+      },
+      "failure_modes": [
+        "GPT-3.5-turbo frequently failed to comprehend lengthy documents or extract correct values from embedded tables in manuals.",
+        "GPT-3.5-turbo exhibited higher frequency of tool misselection during planning and execution stages.",
+        "GPT-3.5-turbo often failed to invoke the diffusion model when required, resulting in incomplete reasoning paths.",
+        "GPT-4o-mini showed suboptimal planning and unnecessary re-planning leading to excessive iterations and indecisive behavior.",
+        "LLM-as-a-judge evaluator overemphasized fluency while failing to validate numerical reasoning, leading to weak correlation with human expert scores.",
+        "Fine-tuned single-agent LLM produced hallucinated or inconsistent answers, particularly in tasks requiring numerical or data-driven inference.",
+        "System generates lower-quality outputs when user queries are vague or under-defined.",
+        "Limited capability for extracting information from visual content (images, tables, diagrams, engineering drawings) in manufacturing"
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Fine-tuned single-agent LLM (GPT-4o-based)"
+    ],
+    "evaluation_metric_categories": [
+      "human-evaluation",
+      "generation-quality",
+      "computational-efficiency",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Limited multimodal capabilities for extracting information from visual content such as images, tables, diagrams, and engineering drawings",
+      "Limited set of supported external tools (need for empirical equation solvers, process simulators, optimization modules, CAD-integrated analysis software)",
+      "Scalability challenges related to latency and cost when relying on commercial LLMs",
+      "Sensitivity to vague or underdefined user inputs requiring more sophisticated input-to-query formatting modules",
+      "Data privacy and vendor lock-in concerns from using external APIs for proprietary process data",
+      "Need for reinforcement learning and reward functions to guide more efficient reasoning and tool invocation",
+      "Need for more robust interoperability with heterogeneous external tools through modular adapters and dynamic invocation protocols",
+      "LLM-as-judge evaluation insufficient for complex domain-sensitive tasks requiring numerical reasoning"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

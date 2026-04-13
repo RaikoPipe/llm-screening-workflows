@@ -62,7 +62,8 @@ async def run_retrieval(retrieval_schema: BaseModel, literature_item, omit_title
     initial_state = RetrievalState(
         retrieval_form=retrieval_schema,
         literature_item=literature_item,
-        omit_titles=omit_titles
+        omit_titles=omit_titles,
+        max_validation_attempts=2
     )
 
     config = RunnableConfig(
@@ -71,8 +72,8 @@ async def run_retrieval(retrieval_schema: BaseModel, literature_item, omit_title
             "temperature": 0.0,
             "num_ctx": 64000,
             "reasoning": False,
-            "skip_analysis": True,
-            "word_count_limit": 13000,
+            "skip_analysis": False,
+            "word_count_limit": 17000,
             "skip_on_word_count_limit": True
         }
     )
@@ -249,6 +250,18 @@ def orchestrate_decomposed_retrieval(literature_item):
     logger.success(f"Retrieval completed and saved for paper: {literature_item.title}")
 
 def orchestrate_partial_retrieval_and_append(literature_item):
+    # get existing paper
+    import json
+    with open("outputs/" + get_doi_based_filename(literature_item.doi, "retrieval"), encoding='utf-8', mode='r') as f:
+        data = json.load(f)
+
+    retrieval = data.get("retrieval")
+
+    if retrieval.get("integration_with_cps"):
+        # skip paper
+        logger.info(f"Paper was already processed: {literature_item.title}. Skipping...")
+        return
+
     # decompose the schema for distributed retrieval
     results_and_limitations = select_fields(
         AISystem,
@@ -266,18 +279,12 @@ def orchestrate_partial_retrieval_and_append(literature_item):
             literature_item,
             meta_titles)
 
-        # get existing paper and append
-        import json
-        with open("outputs/" + get_doi_based_filename(literature_item.doi, "retrieval"), encoding='utf-8', mode='r') as f:
-            data = json.load(f)
-
         # modify json
-        retrieval = data.get("retrieval")
-        retrieval["integration_with_cps"] = result["integration_with_cps"]
-        retrieval["baseline_methods"] = result["baseline_methods"]
-        retrieval["evaluation_metric_categories"] = result["evaluation_metric_categories"]
-        retrieval["identified_research_gaps"] = result["identified_research_gaps"]
-        retrieval["scalability_assessment"] = result["scalability_assessment"]
+        retrieval["integration_with_cps"] = result["results_and_limitations"].integration_with_cps
+        retrieval["baseline_methods"] = result["results_and_limitations"].baseline_methods
+        retrieval["evaluation_metric_categories"] = result["results_and_limitations"].evaluation_metric_categories
+        retrieval["identified_research_gaps"] = result["results_and_limitations"].identified_research_gaps
+        retrieval["scalability_assessment"] = result["results_and_limitations"].scalability_assessment
 
         # save and close
         with open("outputs/" + get_doi_based_filename(literature_item.doi, "retrieval"), encoding='utf-8', mode='w') as f:
@@ -318,7 +325,7 @@ def orchestrate_retrieval(literature_item):
 
 def paper_processed(paper):
     # check if item was already processed
-    output_filename = get_doi_based_filename(paper.DOI, "retrieval")
+    output_filename = get_doi_based_filename(paper.doi, "retrieval")
     if os.path.exists("outputs/" + output_filename):
         return True
     return False
@@ -329,7 +336,7 @@ if __name__ == "__main__":
 
     for item in tqdm(literature, desc="Retrieve", unit="item"):
         logger.info(f"Processing paper: {item.title}")
-        orchestrate_partial_retrieval_and_append(item)
+        orchestrate_decomposed_retrieval(item)
 
 
 
