@@ -1,0 +1,127 @@
+{
+  "title": "FD-LLM: Large language model for fault diagnosis of complex equipment",
+  "doi": "10.1016/j.aei.2025.103208",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "FD-LLM: A multimodal large language model for fault diagnosis of complex equipment. It processes time-series engineering data through modal alignment, fuzzy semantic embedding, and prompt learning to perform fault classification and provide maintenance guidance via dialogue.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_reasoner",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Vicuna-7B",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "Aero-engine fault diagnosis dataset (Boeing CFM56-7B26 and GE90-115B engines) with gas path parameters (DEGT, EGTM, DN2, DFF) covering EGT indication fault, TAT indication fault, HPT blade ablation fault, and normal conditions (200 samples each). Also CWRU bearing fault diagnosis dataset (19 operating states, 150 samples per class) and rock drilling rig dataset (11 categories, 240 training cycles per class). Descriptive text pairs were synthetically generated using prompt templates combining attribute and status descriptions."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Single-step orchestration: engineering time-series data is encoded by an LSTM data encoder, aligned with text embeddings via contrastive learning, transformed into fuzzy semantic embeddings, combined with learnable prompt embeddings, and fed into the fine-tuned LLM (Vicuna-7B with LoRA) for fault classification inference in a single forward pass.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users can interact with FD-LLM through a dialogue interface, querying the system about equipment fault status and receiving diagnostic results along with maintenance recommendations. The system supports multi-turn dialogue for follow-up questions on maintenance guidance.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis of complex mechanical equipment, specifically aero-engines (Boeing CFM56-7B26, GE90-115B), rolling bearings (CWRU dataset), and rock drilling rigs, using multimodal LLM to classify faults from time-series sensor data.",
+    "problem_description": "Traditional deep learning-based fault diagnosis methods require 'one model for one scenario' design, suffer from feature aliasing between fault categories causing misclassification, and lack generalization. Existing multimodal LLMs lack domain-specific knowledge and modal alignment training for engineering time-series data, limiting their effectiveness in industrial fault diagnosis. Additionally, engineering data scarcity and poor readability make direct LLM fine-tuning prone to overfitting and catastrophic forgetting.",
+    "proposed_solution": "FD-LLM: a multimodal LLM-based fault diagnosis method that (1) trains an LSTM data encoder aligned with LLM text embeddings via contrastive learning to enable LLM understanding of time-series engineering data; (2) introduces fuzzy semantic embedding using fuzzy set theory to handle pattern aliasing in feature space by computing weighted combinations of text embeddings based on cosine similarity; (3) adds learnable prompt embeddings to inject domain knowledge; and (4) fine-tunes Vicuna-7B using LoRA for efficient adaptation to fault diagnosis tasks.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments comparing FD-LLM against six baseline methods (CNN, ResNet18, Transformer, SimCLR, Attention+LSTM, Attention+GRU) on three datasets (aero-engine, CWRU bearing, rock drilling rig). Ablation studies evaluate contributions of data-text alignment, fuzzy semantic embedding, prompt learner, LLM inference, and LoRA fine-tuning. Performance under different LLM backbones (BERT, GPT-2, LLaMA-2, BLOOM, GLM-3, LLaMA-3, Vicuna-7B, Vicuna-13B) is also assessed. Each method undergoes ten repeated experiments.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "FD-LLM achieves 94.38% accuracy, 95.35% precision, and 93.85% F1 score on aero-engine dataset, outperforming best baseline (Attention-GRU) by 10%, 8.1%, and 9.87% respectively.",
+        "FD-LLM achieves 98.79% accuracy, 98.83% precision, and 98.78% F1 score on CWRU bearing dataset.",
+        "FD-LLM achieves 99.89% accuracy, 99.86% precision, and 99.78% F1 score on rock drilling rig dataset, outperforming second-best method by 3.53%, 3.4%, and 3.3% respectively.",
+        "Ablation: removing DTA&FSE drops accuracy from 94.38% to 76.3%; removing prompt learner drops to 89.4%; removing LLM drops to 89.6%; removing LoRA drops to 94.27%.",
+        "Vicuna-13B improves over Vicuna-7B by 0.03% accuracy, 0.11% precision, 0.12% F1 at nearly double the resource cost."
+      ],
+      "response_time_impact": [
+        "Vicuna-7B single inference time for 50 tokens: <0.5s with 14GB memory usage.",
+        "Vicuna-13B single inference time: <1.4s with 26GB memory usage.",
+        "LLaMA-3 achieves faster inference (<0.4s) due to more efficient encoding scheme.",
+        "Training time on all datasets did not exceed six hours on RTX_4090 GPU."
+      ],
+      "reliability_metrics": [
+        "Each method evaluated over ten repeated experiments to reduce randomness impact.",
+        "FD-LLM consistently outperforms all baselines across all three datasets and all three metrics."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Learnable prompt embedding (continuous prompts) combined with discrete prompt templates improved accuracy from 89.4% to 94.38% in ablation study, demonstrating effectiveness of prompt learner for injecting domain knowledge.",
+        "chain-of-thought": "Fuzzy semantic embedding combined with LLM reasoning enables accurate classification of ambiguous boundary samples that hard classification methods misclassify, improving F1 score significantly over deep learning baselines."
+      },
+      "failure_modes": [
+        "Feature aliasing in engineering data causes misclassification when fault patterns overlap in feature space.",
+        "Direct fine-tuning of LLM on scarce fault data leads to overfitting and catastrophic forgetting.",
+        "Smaller backbone models (BERT 340M, GPT-2 1.5B) yield poor accuracy (39.47% and 53.26%) insufficient for fault diagnosis."
+      ],
+      "limitations": [
+        "Limited availability of fault samples from complex equipment like aero-engines makes large-scale pre-training challenging.",
+        "Vicuna-13B requires quantization and mixed precision to run on RTX_4090, with only marginal performance improvement over 7B model.",
+        "The method is evaluated on specific datasets; broader generalization to other industrial equipment types requires further validation.",
+        "Engineering data lacks pre-trained encoders comparable to vision encoders (ViT, CLIP) used in image-text multimodal systems."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "CNN",
+      "Resnet18",
+      "Transformer",
+      "SimCLR",
+      "Attention + LSTM",
+      "Attention + GRU"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Lack of pre-trained encoders and corresponding modal alignment training for engineering data obtained from sensors",
+      "Data scarcity for complex equipment such as aero-engines making it challenging to collect numerous fault samples",
+      "Limited availability of training samples often results in overfitting and catastrophic forgetting when directly fine-tuning LLM",
+      "Existing MM-LLMs lack domain-specific knowledge for industrial fault diagnosis tasks",
+      "Current deep learning models follow 'one model for one application scenario' paradigm unsuitable for dynamic production environments"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

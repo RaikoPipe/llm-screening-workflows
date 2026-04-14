@@ -1,0 +1,139 @@
+{
+  "title": "Large model for fault diagnosis of industrial equipment based on a knowledge graph construction",
+  "doi": "10.1016/j.asoc.2025.113936",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic agent that integrates DeepSeek-V3 for encoding natural language descriptions of vibration features, combined with graph attention networks for structural reasoning and MobileNetV3 for time-frequency map feature extraction. It performs collaborative fault diagnosis reasoning across text, graph, and time-frequency map modalities.",
+          "role": "monolithic",
+          "specialized_role": "multimodal_fault_diagnosis_agent",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-V3",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "The model is fine-tuned on vibration signal data from the ABLT-1A bearing degradation test rig (6205 type rolling bearing) with six fault types: normal, inner race fault, outer race fault, ball fault, inner and outer race compound fault, and outer race and ball compound fault. Fine-tuning freezes the first 24 layers and fine-tunes the last three Transformer blocks."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step orchestration pattern where vibration signals are processed through a pipeline: feature extraction (time-frequency features + time-frequency maps), knowledge graph construction and retrieval, text prompt generation fed into DeepSeek-V3, graph encoding via multi-head attention GAT, image feature extraction via MobileNetV3, and finally multimodal fusion via a gated unit for fault classification output.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "The system is primarily automated for industrial fault diagnosis. Human involvement is limited to the experimental setup, dataset collection using LabVIEW, and evaluation of results. No explicit human-in-the-loop mechanism during inference is described.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial equipment fault diagnosis, specifically for rolling bearings and gearboxes, using multimodal vibration signal analysis to detect and classify fault types including single and compound faults.",
+    "problem_description": "Industrial equipment fault diagnosis faces challenges of high multimodal data heterogeneity (vibration signals, time-frequency maps), insufficient modeling of fault semantic relationships, and weak adaptability of large language models to industrial non-text modalities. Traditional methods rely on single-modal data and manual feature engineering, while existing deep learning methods lack transparency and struggle with compound fault diagnosis and sparse fault samples.",
+    "proposed_solution": "A multimodal fault diagnosis framework integrating a dynamically constructed time-frequency knowledge graph with the large model DeepSeek-V3. The framework uses unsupervised knowledge graph construction via mutual information (MIC) and dynamic time warping (DTW) to mine semantic relationships from vibration signals. DeepSeek-V3 encodes natural language descriptions of vibration features, while graph attention networks encode subgraph structure and MobileNetV3 extracts time-frequency map features. A gated unit fuses the three modalities, and a graph consistency loss constrains predictions to align with knowledge graph logic.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental evaluation on a custom bearing fault dataset (ABLT-1A test rig) and the SEU gearbox dataset. The proposed method is compared against eight benchmark models (SVM, XGBoost, 1D-CNN, CNN-FC, CNN-SA, WKNN, GPT-3.5-Turbo, LLaMa-2) using accuracy and F1-score metrics. Ablation studies evaluate contributions of the knowledge graph module, multimodal fusion strategies, and the consistency loss module. Additional robustness tests under varying noise levels (SNR -5 to 25 dB) and few-shot scenarios (5%-40% training data) are conducted.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Proposed method achieves average accuracy of 95.8% across six fault types, surpassing best benchmark LLaMa-2 by 4.2%.",
+        "F1-score of 0.942, representing improvements of 5.3-18.1% over other benchmark methods.",
+        "Knowledge graph module improves IORF ACC from 84.3% to 93.7% and ORBF F1-score from 0.812 to 0.901 compared to KG-Loss variant.",
+        "Multimodal fusion achieves 93.7% ACC for IORF, 13.9% higher than KG-only variant.",
+        "Graph consistency loss improves IORF F1-score from 0.861 to 0.928 and ORBF F1-score from 0.821 to 0.901.",
+        "On SEU gearbox dataset, achieved average accuracy of 96.5% and F1-score of 0.958, outperforming LLaMa-2 by 3.7%.",
+        "In few-shot scenario with only 5% training data, framework achieves 80.2% average accuracy; ACC increases by 14.5% as training data expands from 5% to 20%."
+      ],
+      "response_time_impact": [
+        "Proposed method inference delay is 38 ms, lower than GPT-3.5-Turbo (62 ms) and LLaMa-2 (55 ms), though higher than traditional methods (SVM: 12 ms, XGBoost: 18 ms, 1D-CNN: 25 ms).",
+        "Multi-modal fusion increases inference latency compared to single-modal approaches."
+      ],
+      "reliability_metrics": [
+        "At SNR of -5 dB (highly noisy conditions), average ACC is 85.3%, demonstrating robustness under strong noise.",
+        "Knowledge graph dynamic edge pruning suppresses noise interference by removing low-confidence edges."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "knowledge-graph": "Significantly improves compound fault diagnosis; IORF ACC improved from 84.3% to 93.7% and ORBF F1-score from 0.812 to 0.901 when knowledge graph is included.",
+        "retrieval-augmented-generation": "Subgraph retrieval from knowledge graph based on MIC-filtered fault nodes enables structured reasoning and improves semantic alignment between features and fault types.",
+        "in-context-learning": "Structured text prompts encoding vibration feature values and their physical interpretations enable DeepSeek-V3 to generate meaningful semantic vectors for fault diagnosis."
+      },
+      "failure_modes": [
+        "Normal states slightly misclassified when knowledge graph imposes strong generalization constraints on normal-state features.",
+        "Normal state F1-score slightly increases when consistency loss is removed, suggesting possible over-suppression of noise-related features in constrained model.",
+        "Image-only model yields lowest ACC for normal states as uniform texture in time-frequency map is easily confused with early-stage faults.",
+        "GPT-3.5 suffers from higher false alarm rate due to absence of local time-frequency feature fusion and structured knowledge from graphs."
+      ],
+      "limitations": [
+        "Challenges remain in domain generalization and adaptability to extreme operating environments.",
+        "Multi-modal fusion increases inference latency compared to single-modal approaches.",
+        "Model relies on supervised fine-tuning which may limit generalization with sparse fault samples.",
+        "Semantic gap between LM text generation paradigm and industrial multimodal data can lead to ambiguous physical meanings.",
+        "Future work needed on cross-modal alignment algorithms for multi-sensor data and adversarial training for highly interfered environments."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "SVM",
+      "XGBoost",
+      "1D-CNN",
+      "CNN-FC",
+      "CNN-SA",
+      "WKNN",
+      "GPT-3.5-Turbo",
+      "LLaMa-2"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Domain generalization and adaptability to extreme operating environments",
+      "Cross-modal alignment algorithms for multi-sensor data",
+      "Improving model stability in highly interfered environments through adversarial training",
+      "Lack of multimodal semantic alignment in existing LM methods",
+      "Integration of fault mechanisms and logical constraints within the graph",
+      "Real-time optimization capabilities for industrial fault diagnosis"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

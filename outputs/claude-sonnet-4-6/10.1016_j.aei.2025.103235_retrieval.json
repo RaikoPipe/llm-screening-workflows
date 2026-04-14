@@ -1,0 +1,210 @@
+{
+  "title": "Leveraging large language models for Human-Machine collaborative troubleshooting of complex industrial equipment faults",
+  "doi": "10.1016/j.aei.2025.103235",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Knowledge extraction agent that uses GPT-4 to extract entities, relationships, and causal chains from fault diagnosis documents (operation manuals, fault tickets) to construct the Enhanced Causal Fault Knowledge Graph (ECFKG). Performs triplet extraction, semantic mapping, and 5-why causal analysis.",
+          "role": "other",
+          "specialized_role": "knowledge_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Interactive diagnostic agent that retrieves relevant fault knowledge from ECFKG using semantic similarity search and graph traversal, then uses GPT-4 to reason about potential fault causes and generate troubleshooting recommendations for workers in a multi-round dialogue.",
+          "role": "other",
+          "specialized_role": "fault_diagnostician",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "vector-database",
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Fine-tuned BGE text embedding model (bge-base-v1.5) used for semantic similarity retrieval of fault factor nodes from the ECFKG. Fine-tuned on domain-specific fault diagnosis text pairs using contrastive learning with ANN-style hard negative sampling.",
+          "role": "retriever",
+          "specialized_role": "semantic_similarity_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "BGE (bge-base-v1.5)",
+            "finetuning_datasets": [
+              "human-annotated",
+              "real-world"
+            ],
+            "finetuning_dataset_description": "2156 fault description pairs with semantically similar positive samples curated by five fault diagnosis domain experts from fault factor and actual fault factor node types in the ECFKG. Hard negative samples obtained using ANN-style negative sampling strategy."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows an orchestration graph pattern. First, the knowledge extraction agents (GPT-4 with different prompts) construct the ECFKG from documents and fault tickets in a pipeline. Then, the IDTM operates as an iterative ReAct-style loop: the diagnostic agent retrieves knowledge from ECFKG (via the embedding retriever or graph queries), reasons about fault causes, recommends troubleshooting steps to the human worker, receives updated fault observations, and repeats until the root cause is identified or the maximum cycle limit is reached. Finally, a solution generation step synthesizes all gathered information.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The knowledge extraction agent and the diagnostic agent operate sequentially: extraction first builds the ECFKG, then the diagnostic agent uses it. Within the diagnostic loop, the embedding retriever agent feeds results to the GPT-4 diagnostic agent. Agents cooperate toward the shared goal of fault diagnosis.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human workers play a central role in the IDTM process. Workers initiate the diagnosis by describing the initial fault symptom in natural language. After each round of machine-generated troubleshooting recommendations, workers physically inspect the equipment and report findings back to the system. Workers can confirm identified fault causes, provide additional on-site observations (sounds, smells, visual cues), and guide the next diagnostic cycle. Five fault maintenance experts also validated the knowledge graph construction accuracy and curated fine-tuning datasets. The system updates the ECFKG based on new fault cases, creating a closed-loop improvement cycle.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis and troubleshooting of complex large-scale industrial equipment (specifically bridge cranes in steel mills), combining knowledge graph construction from maintenance documents and fault tickets with LLM-driven interactive human-machine collaborative fault diagnosis.",
+    "problem_description": "Traditional fault diagnosis for large industrial equipment (e.g., bridge cranes) is inefficient due to long fault chains, numerous potential fault points, harsh sensor-deployment environments, and the inability of existing methods to support dynamic, interactive troubleshooting that integrates human on-site experience with machine computational power. Existing knowledge extraction methods lose semantic detail, and current human-machine collaboration approaches lack rich natural language interaction for fault diagnosis.",
+    "proposed_solution": "The paper proposes a two-phase LLM-enabled human-machine collaborative troubleshooting method: (1) Construction of an Enhanced Causal Fault Knowledge Graph (ECFKG) by using GPT-4 for triplet extraction, semantic mapping, and 5-why causal analysis from both theoretical documents (TKG) and fault ticket records (SKG), then fusing them; (2) An Interactive Diagnostic and Troubleshooting Method (IDTM) that uses ECFKG-augmented GPT-4 in a multi-round dialogue with workers, combining historical fault mode reuse (via fine-tuned BGE embeddings), equipment-information-based inference, and solution generation to progressively identify root causes.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A case study on a bridge crane in a steel mill using 471 real fault investigation forms collected over three years. The ECFKG was constructed from operational manuals and fault tickets. Forty fault forms were used for comparative experiments against GPT-4, KG+ALBERT, KG+GCN, and an ablation (IDTM without KG), evaluated by five fault maintenance experts on fault troubleshooting accuracy/recall and solution generation precision/recall metrics.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "IDTM achieved AccuracyFT of 0.875 and RecallFT of 0.806, outperforming GPT-4 (0.675/0.465), KG+ALBERT (0.525/0.443), KG+GCN (0.375/0.318), and IDTM w/o KG (0.636/0.400) in fault troubleshooting.",
+        "IDTM achieved PrecisionSG of 0.575 and RecallSG of 0.823 in solution generation, outperforming GPT-4 (0.419/0.562), KG+ALBERT (0.394/0.591), KG+GCN (0.348/0.536), and IDTM w/o KG (0.512/0.667).",
+        "Knowledge graph extraction accuracy was 95.73% as validated by five fault maintenance experts.",
+        "Fine-tuned BGE model achieved MRR@10 of 0.858 and Recall@10 of 0.945 on the test set, compared to 0.324 and 0.381 before fine-tuning.",
+        "IDTM with KG outperforms IDTM without KG, demonstrating the effectiveness of ECFKG integration."
+      ],
+      "response_time_impact": [
+        "System response speed and processing efficiency may become sluggish due to reliance on continuous LLM API invocation constrained by network bandwidth (acknowledged as a limitation)."
+      ],
+      "reliability_metrics": [
+        "Triple extraction accuracy of 95.73% validated by five domain experts.",
+        "Fine-tuned BGE model: MRR@1=0.795, MRR@10=0.858, Recall@10=0.945 on test set."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "ECFKG-based RAG significantly improved specificity and accuracy of fault diagnosis recommendations compared to pure LLM (GPT-4) and pure KG methods; IDTM with KG outperformed IDTM without KG on all metrics.",
+        "in-context-learning": "Few-shot examples (5 representative cases per task) in prompts enabled effective knowledge extraction from complex fault documents with minimal human involvement.",
+        "chain-of-thought": "5-why stepwise causal analysis prompting enabled automated extraction of causal chains from ambiguously written fault tickets.",
+        "iterative-reasoning": "Multi-round diagnostic-troubleshooting cycles progressively narrowed fault root cause identification, outperforming non-dynamic methods.",
+        "semantic-search": "Fine-tuned BGE embedding model achieved MRR@10 of 0.858 vs 0.324 before fine-tuning, enabling accurate retrieval of relevant historical fault modes."
+      },
+      "failure_modes": [
+        "LLM may still produce errors in knowledge extraction requiring expert review and correction.",
+        "When similar historical fault cases are not available in ECFKG, the system falls back to equipment-information-based inference which may be less precise.",
+        "Semantic redundancy and irrelevant information in retrieved KG nodes can hinder direct recommendations without LLM summarization."
+      ],
+      "limitations": [
+        "Core reliance on continuous LLM API invocation makes system response speed dependent on network bandwidth, potentially causing sluggishness.",
+        "LLM errors in knowledge extraction still require professional personnel review; existing KG platforms (e.g., Neo4j) lack sufficient user interaction and editing features.",
+        "Local deployment of LLMs for privacy protection places high demands on computing resources, and available open-source LLMs may not meet required functionality.",
+        "The method has only been validated on bridge cranes in a single steel mill; generalizability to other equipment types is not demonstrated."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "GPT-4",
+      "KG + ALBERT",
+      "KG + GCN",
+      "IDTM w/o KG (ablation)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "retrieval-quality",
+      "generation-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Optimizing prompt engineering methods to reduce unnecessary computations and enhance processing speed",
+      "Exploring knowledge graph-based Retrieval Augmented Generation (RAG) methods and tools for LLMs to improve context retrieval quality and efficiency",
+      "Developing a comprehensive platform integrating LLMs, knowledge graphs, and user interactions with real-time interactive modifications and intuitive operating interface",
+      "Local deployment of LLMs for privacy protection of sensitive corporate data",
+      "Aligning with the concept of Cognitive Digital Twin by integrating fault knowledge extraction, modification, and troubleshooting into a comprehensive platform"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

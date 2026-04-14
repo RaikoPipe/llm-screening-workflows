@@ -1,0 +1,220 @@
+{
+  "title": "Leveraging error-assisted fine-tuning large language models for manufacturing excellence",
+  "doi": "10.1016/j.rcim.2024.102728",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Main LLM agent fine-tuned on manufacturing domain corpus. Handles manufacturing-related queries (question-answering, judgment classification) and generates domain-specific programming code (ROS Python, MATLAB) based on engineer prompts.",
+          "role": "monolithic",
+          "specialized_role": "manufacturing_domain_llm",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT Davinci (OpenAI)",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [
+              "real-world",
+              "human-annotated"
+            ],
+            "finetuning_dataset_description": "Manufacturing-domain corpus including equipment manuals, technical documents, maintenance and service reports, customer service logs, quality assurance data, question-answer sets, and labeled judgment questions (concept queries and operation queries). Processed via Named Entity Recognition and information extraction techniques."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Syntax discriminator that checks generated code for lexical, syntactic, and semantic correctness. Performs lexical analysis (tokenization), syntax analysis (parse tree construction), and semantic analysis (type checking, scope validation). Returns error messages to the Generator for re-prompting if errors are found.",
+          "role": "other",
+          "specialized_role": "syntax_checker",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "rule-based static analyzer",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Resource discriminator that verifies the generated code can execute within the specific environment. Performs accessibility analysis (scope/visibility), dependence analysis (variable/function dependencies), and environment analysis (global/local variables, libraries, memory).",
+          "role": "other",
+          "specialized_role": "resource_validator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "rule-based resource analyzer",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Expectation discriminator that validates whether generated code meets engineer expectations. Performs input validation, unit testing, trace execution path generation, and uses a semantic transfer function to communicate issues back to engineers in a comprehensible format.",
+          "role": "other",
+          "specialized_role": "expectation_validator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "rule-based expectation checker",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses an iterative ReAct-style orchestration. The main LLM Generator produces code, which is then passed sequentially through three discriminators (syntax, resource, expectation). If any discriminator detects errors, feedback is sent back to the Generator for re-prompting. This loop continues until the code passes all checks. Error data is also accumulated and fed back into the LLM fine-tuning process (closed-loop refinement).",
+        "orchestration_pattern": [
+          "re-act",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The Generator and three discriminators (syntax, resource, expectation) cooperate in a sequential pipeline with feedback loops. The discriminators validate the Generator's output and return error messages to guide iterative re-generation. Errors are also preprocessed and used to continuously fine-tune the LLM.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Engineers initiate queries to the system by providing natural language prompts for manufacturing questions or code generation tasks. The expectation discriminator uses a semantic transfer function to communicate problematic code sections back to engineers. Engineers can also consult the instruction base (built from accumulated error messages and expectation gaps) to refine their prompts before querying the LLM.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Smart manufacturing domain, including human-robot collaboration (robot control code generation), ultra-precision machining (surface modeling code generation), and manufacturing knowledge management (query answering, judgment classification for engineers).",
+    "problem_description": "General-purpose LLMs lack manufacturing-specific domain knowledge and struggle to generate syntactically valid and contextually appropriate code for manufacturing-specific programming languages (e.g., ROS Python, MATLAB for machining). This limits their practical utility for manufacturing engineers who need reliable, domain-aware responses and executable code.",
+    "proposed_solution": "An error-assisted fine-tuning approach is proposed: (1) fine-tune a general LLM (GPT Davinci) on manufacturing-domain corpora (question-answer sets, judgment questions); (2) introduce an error-assisted iterative prompting framework with three discriminators (syntax, resource, expectation) to ensure generated code is correct and meets engineer expectations; (3) implement a closed-loop refinement mechanism that accumulates error messages and expectation gaps to continuously fine-tune the LLM and expand an instruction base.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A case study is conducted using manufacturing-domain materials (equipment manuals, technical documents, maintenance reports, customer service logs, quality assurance data). The fine-tuned LLM is evaluated on classification (judgment querying) and two code generation tasks: human-robot collaboration (ROS Python) and ultra-precision machining surface modeling (MATLAB). Performance is compared against a general (non-fine-tuned) LLM.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Fine-tuned LLM achieves 85.7% F1 score vs. 81% for general LLM in judgment classification (~4.1% improvement in accuracy).",
+        "Fine-tuned LLM achieves 89.2% AUC vs. 85.7% for general LLM.",
+        "Fine-tuned LLM achieves 86.9% precision vs. 82.6% for general LLM.",
+        "Fine-tuned LLM surpasses general LLM across all classification metrics.",
+        "Significant improvement observed in concept-based querying compared to general LLM."
+      ],
+      "response_time_impact": [
+        "Training time approximately 240 seconds per 100 dialogues on average (subject to variability due to OpenAI API conditions)."
+      ],
+      "reliability_metrics": [
+        "All metrics (F1, AUC, precision) exceed 80% for both general and fine-tuned LLM in judgment classification.",
+        "Error-assisted iterative prompting ensures syntactically valid and executable code generation."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "iterative-reasoning": "Error-assisted iterative prompting with discriminators ensures syntactically correct and expectation-aligned code generation; demonstrated in human-robot collaboration and ultra-precision machining case studies.",
+        "in-context-learning": "Injection of labeled judgment dataset and instruction base into the LLM improves classification accuracy by ~4.1% and guides engineers to refine prompts for better code generation outcomes."
+      },
+      "failure_modes": [
+        "General LLM generates code where robot arm remains distant from human hand despite correct postures (missing hand position consideration in handover task).",
+        "General LLM generates only a single microlens instead of an array when prompted for microlens array surface modeling.",
+        "LLM-generated microlens array uses individual polar coordinates per unit, making tool path generation difficult due to lack of uniform coordinate system.",
+        "Operation-based querying shows less pronounced improvement than concept-based querying after fine-tuning.",
+        "LLM may fail to understand explicit meaning of engineer queries without domain-specific fine-tuning."
+      ],
+      "limitations": [
+        "User satisfaction with manufacturing-domain query responses is not assessed (no questionnaire distribution).",
+        "Language comprehension is evaluated only through binary classification; multi-label classification may be more appropriate.",
+        "All corpus used in the case study is in English only.",
+        "Training time is variable due to OpenAI API conditions.",
+        "Fine-tuning mechanism requires further refinement.",
+        "Semantic knowledge constraints for model responses are not yet incorporated."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "General LLM (GPT Davinci, without fine-tuning)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "User satisfaction with responses from manufacturing-domain queries is not assessed (would require questionnaire distribution)",
+      "Model language comprehension is evaluated through binary classification; multi-label classification may be more appropriate",
+      "Refining the fine-tuning mechanism",
+      "Incorporating semantic knowledge to constrain the model's responses"
+    ],
+    "scalability_assessment": "not-assessed"
+  },
+  "reasoning": ""
+}

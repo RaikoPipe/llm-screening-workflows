@@ -1,0 +1,176 @@
+{
+  "title": "Large Language Model Enabled Industrial Document Generation Method Based on Retrieval Enhanced Prompt Learning",
+  "doi": "10.1109/CASE58245.2025.11163775",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Large Vision Language Model (LVLM) used to convert industrial images into structured textual descriptions via OCR capabilities. Specifically uses Qwen2.5-VL-7B-Instruct.",
+          "role": "other",
+          "specialized_role": "image_to_text_converter",
+          "context_engineering": {
+            "memory_types": [],
+            "prompt_engineering_techniques": [],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-VL-7B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Large Embedding Model (LEM) using BGE-large-zh to convert documents into vector embeddings stored in a FAISS vector database, enabling semantic retrieval of task-relevant few-shot prompts via cosine similarity.",
+          "role": "retriever",
+          "specialized_role": "document_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "BGE-large-zh",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Large Language Model (LLM) using Qwen1.5-7B-Chat as backbone, fine-tuned with LoRA (soft prompt), guided by manually designed hard prompts and retrieval-enhanced few-shot prompts to generate industrial maintenance documents.",
+          "role": "other",
+          "specialized_role": "document_generator",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen1.5-7B-Chat",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "404 industrial maintenance documents for continuous casting equipment from Bao Steel Company, deduplicated to 133 samples, converted to instruction-tuning dataset format. 80% used for training, 20% for testing."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a linear pipeline: (1) LVLM converts images to text, (2) text preprocessing and deduplication produces an instruction-tuning dataset, (3) LEM embeds documents into a FAISS vector database and retrieves top-M similar documents as few-shot prompts, (4) LLM generates industrial documents using combined hard prompt, LoRA-tuned soft prompt, and retrieved few-shot prompts.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three specialized components (LVLM, LEM, LLM) operate in a sequential pipeline where each component's output feeds into the next. LVLM provides text from images, LEM retrieves relevant examples, and LLM generates the final document using all inputs combined.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human operators provide the initial industrial documents and images as input. Hard prompts are manually designed by researchers. The system automates document generation to reduce manual compilation effort, but humans initiate the process and review outputs. Technicians rely on generated documents for maintenance tasks.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "image"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Automated generation of industrial maintenance documents for manufacturing equipment, specifically maintenance operation records for continuous casting equipment in steel manufacturing.",
+    "problem_description": "Industrial maintenance documents require extensive manual compilation, which is labor-intensive and fails to systematically encode complex relationships among large-scale documents. LLMs face challenges with technically complex, non-structured industrial text and hallucination phenomena that produce inaccurate or fictitious content, posing operational risks in safety-critical industries.",
+    "proposed_solution": "A retrieval-enhanced prompt learning framework integrating three components: (1) hard prompts manually designed to guide LLM output format and task relevance, (2) soft prompts via LoRA fine-tuning to inject domain knowledge, and (3) retrieval-enhanced few-shot prompts using BGE-large-zh LEM with FAISS vector database to retrieve the most similar documents as examples. LVLM (Qwen2.5-VL-7B-Instruct) converts images to text, and LLM (Qwen1.5-7B-Chat) generates the final industrial documents.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison on a dataset of 404 (deduplicated to 133) industrial maintenance documents from Bao Steel Company. The proposed method is compared against multiple SOTA closed-source (GPT-3.5, GPT-4o, Qwen-Plus) and open-source (Qwen2.5-7B-Instruct, LLaMA3.1-8B-Instruct) models. Ablation studies evaluate contributions of retrieval mechanism and soft prompt components. Backbone model and few-shot prompt number studies are also conducted.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Proposed method achieves BLEU-1: 0.7146, BLEU-2: 0.6851, BLEU-4: 0.6331, ROUGE-L: 0.7677, surpassing all compared models including GPT-4o (BLEU-1: 0.3636, ROUGE-L: 0.4452) and Qwen2.5-7B-Instruct (BLEU-1: 0.4132, ROUGE-L: 0.4356).",
+        "Adding retrieval mechanism improves BLEU-1 from 0.2957 to 0.4719 and ROUGE-L from 0.3002 to 0.4045 compared to no retrieval or soft prompt.",
+        "Adding soft prompt (LoRA) improves BLEU-4 from 0.2341 to 0.4440 compared to retrieval alone.",
+        "Combined retrieval and soft prompt achieves highest scores: BLEU-1: 0.7146, BLEU-4: 0.6331, ROUGE-L: 0.7677.",
+        "Larger Qwen1.5 models show higher Qwen-scores: Qwen1.5-7B-Chat scores 7.85 coherence, 8.84 accuracy, 7.56 detailedness.",
+        "Few-shot prompting significantly improves ROUGE-L for larger models; Qwen1.5-7B-Chat achieves ROUGE-L of 0.38 with five-shot prompting."
+      ],
+      "response_time_impact": [
+        "vLLM framework employed to accelerate sampling; five sampling runs per data entry averaged for final results."
+      ],
+      "reliability_metrics": [
+        "Combined retrieval and soft prompt reduces mean output length to 107.15 words with standard deviation of 37.48, indicating more consistent and concise outputs.",
+        "Without retrieval and soft prompt, mean output length is 205.49 tokens with standard deviation of 46.17, indicating verbose and inconsistent outputs."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Significantly improves alignment with reference texts (BLEU-1: 0.4719 vs 0.2957, ROUGE-L: 0.4045 vs 0.3002) and reduces hallucination by grounding generation in retrieved examples.",
+        "in-context-learning": "Few-shot prompting substantially improves ROUGE-L for larger models (Qwen1.5-7B-Chat reaches 0.38 with 5-shot); smaller models (0.5B, 1.8B) show weak instruction-following even with 5-shot prompts.",
+        "parametric-memory (LoRA soft prompt)": "LoRA fine-tuning sharply improves performance; disabling it causes BLEU-4 to drop from 0.4440 to 0.1469 and reduces output conciseness."
+      },
+      "failure_modes": [
+        "LLM hallucination: generating inaccurate or fictitious content not grounded in factual data.",
+        "Overthinking in reasoning models (DeepSeek series): generating overly long sequences (average 1354-1578 characters vs reference 177 words).",
+        "Small models (Qwen1.5-0.5B-Chat, 1.5-1.8B-Chat) exhibit weak instruction-following; ROUGE-L scores only reach 0.1 even with 5-shot prompts.",
+        "Without retrieval and soft prompt, models generate verbose outputs (205.49 tokens mean) with high variance."
+      ],
+      "limitations": [
+        "The proposed framework is only validated on a single dataset from Bao Steel Company (continuous casting equipment), limiting generalizability.",
+        "Document structures and compilation methods vary across different industrial fields, requiring further validation on more diverse datasets.",
+        "The dataset after deduplication is relatively small (133 samples), which may limit the robustness of conclusions."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "GPT-3.5",
+      "GPT-4o",
+      "Qwen-Plus",
+      "Qwen2.5-7B-Instruct",
+      "LLaMA3.1-8B-Instruct"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "The proposed algorithm framework is only validated on a single dataset from the Bao Steel Company; further validation on more datasets from different industrial fields is necessary to ensure reliability and generalizability."
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

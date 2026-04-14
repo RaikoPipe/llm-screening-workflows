@@ -1,0 +1,123 @@
+{
+  "title": "Graph Topology-Guided Manufacturing Knowledge Representation and Knowledge Integration for Manufacturing Process Selection",
+  "doi": "10.1007/978-3-032-07675-5_7",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM-based agent using GPT-4o and LangChain framework to extract manufacturing process knowledge from unstructured text and semi-structured tabular data, and integrate it into a Knowledge Graph following a predefined graph topology.",
+          "role": "other",
+          "specialized_role": "knowledge_extractor_integrator",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential orchestration graph: first, the LLM-based knowledge extraction and integration module processes raw manufacturing knowledge and populates the Knowledge Graph. Then, a rule-based parser retrieves relevant knowledge from the KG and applies decision rules (screening and ranking) to perform Manufacturing Process Selection. The LLM agent handles knowledge extraction while a Python-based parser translates graph topology into Cypher queries for KG interaction.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human experts are partially involved in the process. Manual standardization of terminology was performed to align extracted text with existing KG nodes. Manual correction is also required when the LLM incorrectly assigns information not mentioned in the original text. The framework aims to reduce reliance on human expertise for MPS tasks, but human intervention is still needed for error correction in knowledge extraction.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "production_planning",
+    "application_domain_description": "Manufacturing Process Selection (MPS) for determining the most appropriate set of manufacturing processes to realize a product, considering material compatibility, production quantity, cost, surface finish, and other criteria.",
+    "problem_description": "Traditional Manufacturing Process Selection (MPS) methods rely on predetermined criteria and fixed frameworks, limiting adaptability to new knowledge and flexible process selection needs. Expert knowledge and database engineering skills are required to construct KG queries. Existing rule-based approaches lack flexibility, and LLM-based RAG approaches suffer from explainability and reliability issues. Additionally, maintaining up-to-date manufacturing knowledge in KGs is challenging.",
+    "proposed_solution": "An adaptive MPS framework integrating Knowledge Graphs (KG) with graph topology-based manufacturing process knowledge and decision rules. The framework includes an LLM-based (GPT-4o + LangChain) automated knowledge extraction and integration module for continuous KG updates, and a Python-based parser that translates graph topology into Cypher queries for explainable, rule-driven two-stage (screening and ranking) manufacturing process selection without requiring human expert intervention.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The framework was validated through a case study involving the selection of a manufacturing process for the facepiece of an elastomeric half-face respirator (EHMR). The case study demonstrated knowledge extraction and integration of material jetting into the KG, followed by MPS across casting, plastic manufacturing, and additive manufacturing processes, resulting in the selection of compression molding as the optimal process.",
+    "validation_methods": [
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "The framework enables dynamic and explainable MPS across a wide range of manufacturing processes compared to traditional fixed-framework methods.",
+        "Reasoning steps are transparent and easily traceable, improving upon RAG-based approaches where MPS rules remain implicit.",
+        "Compression molding was correctly identified as the optimal process for the EHMR facepiece, demonstrating feasibility of graph topology-based decision rules."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [],
+      "failure_attribution": [
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Enables retrieval of up-to-date manufacturing knowledge from KG for MPS tasks, improving upon static LLM knowledge; however, accuracy issues arise when content is not explicitly mentioned in source text.",
+        "in-context-learning": "Predefined graph topology provided as context to GPT-4o enables structured knowledge extraction aligned with KG schema."
+      },
+      "failure_modes": [
+        "LLM incorrectly assigned unrelated information to fields (e.g., size min and size max) when the information was not explicitly mentioned in the original text.",
+        "Retrieving information for nodes and their properties simultaneously may lead to information loss.",
+        "Manual terminology standardization is required to align extracted text with existing KG nodes."
+      ],
+      "limitations": [
+        "Framework validated only for casting, plastic manufacturing, and additive manufacturing processes, limiting applicability to universal MPS tasks.",
+        "Accuracy and stability of LLM-based extraction needs improvement, especially for implicitly mentioned content.",
+        "Manual correction is required for incorrectly extracted information.",
+        "Manual standardization of terminology is needed to reduce entity resolution complexity.",
+        "Decision rules and KG schema need expansion to accommodate a wider range of manufacturing processes such as machining and welding."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Analytic Hierarchy Process (AHP) with embedded manufacturing process knowledge",
+      "Rule-based approaches using if-then-else conditions",
+      "Semantic Web Rule Language (SWRL)",
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Expanding the KG scheme with more types of MPS knowledge and rules",
+      "Improving knowledge extraction and integration techniques for broader industrial applications",
+      "Developing multi-stage MPS mechanisms",
+      "Expanding MPS-related representation to accommodate a wider range of manufacturing processes such as machining and welding",
+      "Improving prompt engineering strategy to improve reliability and precision of knowledge extraction and integration",
+      "Improving accuracy and stability of LLM-based extraction, especially when content is not explicitly mentioned in the original text",
+      "Separating the extraction of node entities and properties to improve accuracy and completeness"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

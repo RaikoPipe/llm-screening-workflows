@@ -1,0 +1,143 @@
+{
+  "title": "ProcessCarbonAgent: A large language models-empowered autonomous agent for decision-making in manufacturing carbon emission management",
+  "doi": "10.1016/j.jmsy.2024.08.008",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "SafetyGPT is an autonomous agent for electrical safety risk monitoring that processes video streams from power production sites, identifies unsafe worker behaviors, classifies risk levels, and generates recommended plans. It encodes visual and textual features, fuses them via cross-attention, and uses LLaMA to generate targeted responses. It operates in a human-machine collaborative mode, pushing alerts and decision options to backend supervisors.",
+          "role": "monolithic",
+          "specialized_role": "safety_risk_monitor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLaMA-7B",
+            "finetuning_datasets": [
+              "human-annotated",
+              "llm-generated",
+              "real-world"
+            ],
+            "finetuning_dataset_description": "A domain-specific dataset of 24,979 image-text pairs from power production operation sites (substation engineering), manually annotated by power industry professionals with captions and risk labels. Additionally, 165,732 multi-modal instruction-following data items were generated using ChatGPT from the annotated captions. The COCO dataset and CC3M dataset samples were also used in intermediate training stages."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "SafetyGPT operates as a single autonomous agent that continuously scans video streams, detects safety risks, classifies risk levels, and generates recommended plans. It follows a structured flowchart: scan video, detect risk, classify type and level, route to appropriate channel (human-agent interaction for major risks, automatic warning for general risks, knowledge management for minor risks), and push results to backend supervisors for review. The system uses role instructions to enable active response without requiring one-on-one questioning from supervisors.",
+        "orchestration_pattern": [
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "SafetyGPT operates in a human-machine collaborative monitoring mode. Backend supervisors set instructions for SafetyGPT based on task requirements. SafetyGPT pushes generated risk identification results, risk levels, and recommended plans to backend supervisors for review. Supervisors can approve and issue instructions to on-site workers, or reject and provide corrective feedback to SafetyGPT by marking incorrect risk types. For major risks, supervisors make manual decisions on emergency plans. For general risks, prompts are pushed to the person in charge of the work.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "risk-based-escalation",
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "video",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Monitoring and identification of unsafe worker behaviors in electric power production environments, including substations, transmission lines, and distribution networks, to prevent safety accidents and improve production safety management.",
+    "problem_description": "Electric power production involves diverse and frequently switching operational scenarios, making it difficult to identify unsafe worker behaviors. Existing AI methods (image classification, object detection) have insufficient generalization and adaptability for the complex, variable, and diverse unsafe behaviors in electric power production contexts. Over 80% of power production accidents are caused by unsafe behaviors, yet no domain-specific intelligent monitoring system with sufficient generalization existed.",
+    "proposed_solution": "SafetyGPT, a domain-specific autonomous agent based on a multi-modal large language model (LLaMA-7B), is proposed. It integrates a ViT-B/16 visual encoder, a BERT text encoder, and a cross-attention-based multi-modal feature fusion module to align and fuse image and text features. The system is fine-tuned on a purpose-built power industry dataset of 24,979 image-text pairs and 165,732 instruction-following data items. It operates within a human-machine collaborative monitoring mode, actively scanning video streams, identifying unsafe behaviors, classifying risk levels, and generating recommended plans for backend supervisors.",
+    "research_maturity": "pilot",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The paper constructs SafetyGPT and evaluates it through controlled experiments on a purpose-built dataset from real power production sites. Ablation studies assess the contribution of the cross-attention mechanism and domain-specific fine-tuning. Comparative experiments benchmark SafetyGPT against image classification methods (Hog+SVM, Swin-Transformer), object detection methods (Faster RCNN, YOLOv8), and other MLLMs (LLaVA, MiniGPT-4, InternVL, GPT-4o Vision) across six operational scenarios. Real substation data is also used to demonstrate practical application.",
+    "validation_methods": [
+      "benchmark",
+      "case study",
+      "field deployment"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "SafetyGPT achieves 96.5% overall accuracy in identifying unsafe behaviors across 6 power production scenarios, outperforming all baselines.",
+        "SafetyGPT-final (CA + DK) achieves BLEU-4 of 0.4628 and ROUGE_L of 0.6989, outperforming LLaVA (BLEU-4: 0.3845, ROUGE_L: 0.6113) and all NIC models.",
+        "Cross-attention mechanism improves BLEU-4 from 0.3845 (LLaVA, no CA) to 0.4437 (SafetyGPT-base, CA only), a significant improvement in long-distance n-gram matching.",
+        "Domain-specific fine-tuning combined with cross-attention (M4) leads all metrics: BLEU-1: 0.8334, BLEU-2: 0.6517, BLEU-3: 0.5799, BLEU-4: 0.4628, METEOR: 0.3974, ROUGE_L: 0.6989, CIDEr: 0.9658.",
+        "SafetyGPT outperforms GPT-4o Vision (87% accuracy) and MiniGPT-4 (83% accuracy) in unsafe behavior identification.",
+        "SafetyGPT achieves 100% accuracy in the 'Working with ladder' scenario and 97.5% in 'Working with pole', compared to 78.38% and 85.00% for the best baseline (GPT-4o Vision)."
+      ],
+      "response_time_impact": [
+        "SafetyGPT scans video streams and extracts one image every 3 frames for real-time monitoring, enabling rapid response to safety risks."
+      ],
+      "reliability_metrics": [
+        "Loss function stabilizes at approximately epoch 5 during fine-tuning, indicating good convergence.",
+        "Identification accuracy of 96.5% across 400 test images spanning 6 operational scenarios."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning (domain-specific fine-tuning)": "Improves BLEU-4 from 0.3845 to 0.4331 for LLaVA and from 0.4437 to 0.4628 for SafetyGPT; enables recognition of power-industry-specific unsafe behaviors like distinguishing insulated gloves from wire gloves.",
+        "cross-attention mechanism": "Improves BLEU-4 from 0.3845 (no CA) to 0.4437 (CA only) and ROUGE_L from 0.6113 to 0.6824, demonstrating stronger effect on logical coherence and long-distance n-gram matching than domain-specific knowledge alone."
+      },
+      "failure_modes": [
+        "General-purpose MLLMs (e.g., GPT-4o Vision) cannot distinguish domain-specific protective equipment (e.g., insulated gloves vs. protective gloves) without domain fine-tuning.",
+        "LLaVA focuses on global image features and misses specific unsafe behaviors (e.g., missing insulated gloves, unsupervised ladder climbing).",
+        "MiniGPT-4 has errors in perceiving specific types of unsafe behaviors (e.g., missing insulated gloves, missing safety helmets).",
+        "Object detection methods cannot identify potential safety risks in human-object interaction scenarios (e.g., unsafe ladder use, unsafe fence interactions).",
+        "Image classification methods provide coarse-grained results and cannot identify specific behavior types."
+      ],
+      "limitations": [
+        "The dataset constructed is limited in size, requiring epoch=10 and use of external datasets (CC3M, COCO) to supplement training.",
+        "No public dataset exists for power industry unsafe behavior identification, requiring manual construction.",
+        "The monitoring cannot be completely separated from manual supervision due to the high-stakes nature of power production accidents.",
+        "The system requires domain-specific fine-tuning and optimization, which demands relatively large amounts of labeled data."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Hog+SVM (image classification)",
+      "Swin-Transformer (image classification)",
+      "Faster RCNN (object detection)",
+      "YOLOv8 (object detection)",
+      "MiniGPT-4 (MLLM)",
+      "GPT-4o Vision (MLLM)",
+      "LLaVA (MLLM)",
+      "InternVL (MLLM)",
+      "Show and Tell (NIC)",
+      "Show Attend and Tell (NIC)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Lack of public datasets for unsafe behavior identification in electric power production scenarios",
+      "Insufficient generalization and adaptability of existing methods for complex and diverse electric power production environments",
+      "Need for domain-specific fine-tuning of LLMs for electrical safety monitoring applications",
+      "Limited research on applying MLLMs to monitoring workers' unsafe behaviors in electrical power production",
+      "Need for human-machine collaborative monitoring modes that integrate human supervisors into AI-based decision-making systems"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

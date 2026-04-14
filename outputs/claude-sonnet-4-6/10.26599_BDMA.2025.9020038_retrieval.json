@@ -1,0 +1,132 @@
+{
+  "title": "Semi-Supervised Prefix Tuning of Large Language Models for Industrial Fault Diagnosis with Big Data",
+  "doi": "10.26599/BDMA.2025.9020038",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A single LLM-based agent (GPT-2) that performs industrial fault diagnosis on tabular time-series data. It uses a prefix-based soft embedding layer for parameter-efficient fine-tuning, processes auxiliary tasks generated from unlabeled data via SGP filtering and K-means clustering, and applies a hybrid prompt template combining hard prompts from labeled data and soft prompts from unlabeled data to classify fault types.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-2",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "The model is fine-tuned using the Tennessee Eastman Process (TEP) dataset. Labeled samples (600 training, 800 test) and 43,790 unlabeled samples are used. Auxiliary pseudo-labeled tasks are generated from unlabeled data via K-means clustering and SGP-based sample selection. The prefix-based soft embedding layer is trained on these auxiliary tasks while the base LLM parameters remain frozen."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step orchestration pattern where a single LLM agent processes a hybrid prompt (combining soft embeddings from unlabeled data and hard prompts from labeled data) and produces a fault type classification. The pipeline is sequential: auxiliary task generation \u2192 SGP filtering \u2192 prefix-tuning \u2192 hybrid prompt construction \u2192 inference.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human involvement is limited to providing the initial labeled dataset and configuring the experimental setup. The system operates autonomously for fault diagnosis once configured. No explicit human oversight mechanisms during inference are described.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial fault diagnosis for chemical process systems, specifically detecting and classifying fault types in the Tennessee Eastman Process (TEP) using multivariate time-series tabular sensor data under conditions of extreme label scarcity and large volumes of unlabeled data.",
+    "problem_description": "Industrial fault diagnosis faces two key challenges: (1) extreme label scarcity in industrial big data, where only a small fraction of sensor data is labeled due to expensive annotation, making supervised ML/DL methods insufficient; and (2) the heterogeneous and high-volume nature of industrial tabular data, which traditional semi-supervised and LLM-based methods cannot efficiently handle. Existing LLM approaches either ignore unlabeled data, use computationally expensive fine-tuning (e.g., LoRA, full fine-tuning), or rely on hard prompt stacking that is limited by token context length constraints.",
+    "proposed_solution": "The paper proposes Semi-Supervised Prefix Tuning (SSPT) of LLMs for industrial fault diagnosis. The method consists of three modules: (1) Auxiliary task generation from unlabeled data using Pearson correlation-based feature selection, K-means pseudo-labeling, and Sparse Gaussian Process (SGP) filtering to select the most informative samples; (2) A prefix-based soft embedding layer that is fine-tuned on auxiliary tasks while keeping the base LLM (GPT-2) frozen, enabling parameter-efficient learning of task-specific representations; and (3) A hybrid prompt template that combines hard prompts from labeled data with soft embeddings from unlabeled data for final fault type prediction.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments are conducted on the Tennessee Eastman Process (TEP) benchmark dataset. The proposed SSPT method is compared against nine baseline methods including traditional ML (RBF-SVM, ANN, DT, WKNN), semi-supervised methods (Pseudo-Labeling, Self-Learning, SPROUT), and LLM-based methods (LoRA, full-tuning). Ablation studies evaluate the contribution of the prefix-based soft embedding layer versus hard prompts (SPROUT), and SGP filtering versus random selection. Sensitivity analyses are performed on three hyperparameters: number of auxiliary tasks, SGP sample size, and prefix embedding dimensions.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "SSPT achieves ACC=0.9284, F1=0.9281, G-mean=0.9210, MCC=0.9269, outperforming all traditional ML and semi-supervised baselines.",
+        "SSPT outperforms SPROUT (hard prompt stacking) by up to 10% accuracy when labeled samples are extremely scarce (50 samples), narrowing to ~2% at 600 samples.",
+        "SSPT achieves comparable accuracy to LoRA (0.9284 vs 0.9273) while reducing running time by approximately 40% (15,889s vs 28,506s).",
+        "SGP-based sample selection outperforms random selection by 0.10 accuracy at 100 samples (0.78 vs 0.68), with the gap narrowing as dataset size increases.",
+        "Increasing auxiliary tasks from 1 to 3 improves accuracy by 0.2411 (0.6873 to 0.9284) with moderate computational increase.",
+        "Increasing prefix tokens from 5 to 10 improves accuracy by 0.0366 (0.8918 to 0.9284) with minimal running time increase."
+      ],
+      "response_time_impact": [
+        "SSPT running time is 15,889s, compared to full-tuning at 45,832s (>60% reduction) and LoRA at 28,506s (~40% reduction).",
+        "SSPT is faster than RBF-SVM (46,018s) and comparable to semi-supervised methods (Self-learning: 16,751s, Pseudo-labeling: 13,573s, SPROUT: 16,185s).",
+        "Beyond 3 auxiliary tasks, running time escalates significantly (to 16,866s for 4 tasks, 18,415s for 5 tasks) with negligible accuracy gains.",
+        "Beyond 100 SGP samples, running time grows sharply (reaching 19,209s at 300 samples) with negligible accuracy improvement.",
+        "Beyond 10 prefix tokens, running time escalates sharply (to 18,003s at 50 tokens) with minimal accuracy gain."
+      ],
+      "reliability_metrics": [
+        "SSPT achieves MCC=0.9269, indicating strong correlation between predicted and actual fault labels.",
+        "SSPT achieves G-mean=0.9210, demonstrating balanced performance across fault classes."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Leveraging in-context learning of LLMs with auxiliary tasks from unlabeled data significantly improves fault diagnosis, especially in extreme few-shot settings (up to 10% improvement over hard prompt stacking at 50 labeled samples).",
+        "prefix-based-soft-embedding": "Prefix tuning with soft embeddings outperforms hard prompt stacking (SPROUT) across all dataset sizes, demonstrating superior ability to capture hidden features from unlabeled data in a parameter-efficient manner.",
+        "SGP-filtering": "SGP-based sample selection consistently outperforms random selection, with the largest benefit in data-scarce settings (0.10 accuracy improvement at 100 samples), making the model applicable to industrial big data."
+      },
+      "failure_modes": [
+        "Hard prompt stacking (SPROUT) is limited by the bounded context length of Transformers (e.g., 2048 tokens for GPT-3), restricting the amount of unlabeled data that can be utilized.",
+        "Performance gains from auxiliary tasks plateau beyond 3 tasks, with excessive tasks inducing parameter redundancy and diminishing marginal returns.",
+        "SGP filtering shows diminishing returns beyond 100 samples, with slight accuracy drop at 300 samples (0.9288 vs 0.9293 at 200 samples)."
+      ],
+      "limitations": [
+        "The method may struggle to process extremely high-dimensional data due to high computational cost in feature selection and sample selection modules.",
+        "The framework is tailored for structured tabular formats and does not handle unstructured data.",
+        "Full-tuning achieves slightly higher accuracy (0.9525) than SSPT (0.9284), indicating a performance-efficiency trade-off.",
+        "The current implementation uses GPT-2 as the base model; more advanced LLMs like GPT-3.5 are planned for future work.",
+        "The framework does not yet incorporate adaptive loss functions for more complex industrial fault diagnosis tasks."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "RBF-SVM (Radial Basis Function Support Vector Machine)",
+      "ANN (Artificial Neural Network)",
+      "DT (Decision Tree)",
+      "WKNN (Weighted K-Nearest Neighbors)",
+      "Self-Learning (SL)",
+      "Pseudo-Labeling (PL)",
+      "SPROUT (Self-generated PROmpts from Unlabeled Tables)",
+      "LoRA",
+      "Full-tuning"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Difficulty processing extremely high-dimensional data due to high computational cost in feature selection and sample selection modules",
+      "Framework is tailored for structured tabular formats and not applicable to other data types",
+      "Need to explore more advanced and lightweight selection methods such as ad-hoc active learning approaches for high-dimensional data",
+      "Plan to incorporate more advanced LLMs like GPT-3.5 and adaptive loss functions for more complex industrial fault diagnosis tasks"
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

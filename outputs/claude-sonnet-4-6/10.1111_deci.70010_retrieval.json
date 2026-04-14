@@ -1,0 +1,171 @@
+{
+  "title": "Talking terms: Agent information in LLM supply chain bargaining",
+  "doi": "10.1111/deci.70010",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM-based supplier agent that negotiates wholesale price and order quantity on behalf of the upstream supplier in a two-stage supply chain bargaining experiment. The agent is endowed with role-specific instructions, cost information (public, private, ambiguous, or deceptive), and optionally RAG-retrieved negotiation transcripts.",
+          "role": "other",
+          "specialized_role": "supplier_negotiator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "LLM-based retailer agent that negotiates wholesale price and order quantity on behalf of the downstream retailer in a two-stage supply chain bargaining experiment. The agent is endowed with role-specific instructions and selling price information, and optionally RAG-retrieved negotiation transcripts.",
+          "role": "other",
+          "specialized_role": "retailer_negotiator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Two LLM agents (supplier and retailer) engage in a structured turn-based multi-agent negotiation. An orchestration function manages the full negotiation lifecycle: initializing conditions, alternating offer/accept/pass turns between agents across multiple periods, processing decisions, computing payoffs upon agreement, logging interactions, and providing end-of-round feedback summaries to agents at the start of the next round.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Supplier and retailer LLM agents negotiate bilaterally over wholesale price and order quantity in a structured turn-based protocol. Each agent pursues its own profit-maximization objective, making them competitive. The orchestration function coordinates turn-taking, processes responses, calculates outcomes, and feeds round summaries back to agents.",
+          "task_alignment": "competition",
+          "organizational_structure": "distributed"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "The experiments are fully automated with no human involvement during the bargaining process. Humans designed the experimental framework, set up the LLM agent instructions and parameters, and analyzed results post-hoc. The paper discusses human-in-the-loop models as future work but does not implement them.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Supply chain contract bargaining between upstream suppliers and downstream retailers, negotiating wholesale prices and order quantities under conditions of public or private cost information.",
+    "problem_description": "Firms are increasingly deploying LLM agents to autonomously conduct B2B supply chain negotiations, but it is unclear how these agents behave compared to humans, whether their behavior is trustworthy and human-like, and what information should be provided to them to optimize negotiation outcomes.",
+    "proposed_solution": "A series of controlled bargaining experiments using GPT-based LLM agents as supplier and retailer participants in a two-stage supply chain setting inspired by Davis and Hyndman (2021). The study examines baseline LLM behavior under public vs. private cost information, tests robustness across negotiation lengths and models, and evaluates strategic information interventions (ambiguous and deceptive cost information) and RAG-based memory interventions (General RAG, Efficiency RAG, Supplier RAG) to improve negotiation performance.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled laboratory-style experiments where GPT-based LLM agents replace human participants in a supply chain bargaining paradigm. Multiple studies manipulate information conditions, negotiation length, model type, temperature, and RAG configurations. Results are compared against human benchmarks from Davis and Hyndman (2021) using t-tests on group-level independent observations.",
+    "validation_methods": [
+      "benchmark",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Supplier RAG significantly improved supplier profit shares for low-cost (33.3% to 42.8%) and medium-cost (27.2% to 37.7%) suppliers compared to baseline LLM under public information.",
+        "Efficiency RAG substantially improved supply chain efficiency, achieving significantly higher order quantities (e.g., average 57.38 vs. 51.22 under public information) compared to baseline.",
+        "Deceptive information intervention increased supplier profit shares for low- and medium-cost suppliers (p<=0.058) compared to full information baseline.",
+        "LLM agents achieved higher overall supply chain efficiency than humans (99.65% agreement rate vs. 91.67% for humans), driven by greater inclination to reach agreements.",
+        "Supply chain efficiency was higher under public information (95.1%) than private information (92.7%) for LLM agents."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "LLM agents reached agreements in 99.65% of negotiations (both private and public), compared to 91.67% average agreement rate for human participants."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation (General RAG)": "Minimal improvement over baseline; wholesale prices and quantities nearly identical to baseline, suggesting no significant advantage from broad historical data retrieval.",
+        "retrieval-augmented-generation (Efficiency RAG)": "Significantly improved supply chain efficiency through higher order quantities, but reduced supplier profit shares, particularly under private information; high-cost suppliers showed negative profit shares.",
+        "retrieval-augmented-generation (Supplier RAG)": "Substantially improved supplier profit shares by raising wholesale prices for low- and medium-cost suppliers while maintaining order quantities near baseline levels.",
+        "in-context-learning": "Agents used round-end feedback summaries to inform subsequent rounds; behavior showed iterative adjustment but remained anchored to simple heuristics rather than advanced reasoning."
+      },
+      "failure_modes": [
+        "LLM agents rely on simple heuristics (e.g., midpoint of cost and price, average demand of 50) rather than advanced mathematical reasoning or expected profit calculations.",
+        "LLM agents almost always ignore demand uncertainty, leading to miscalculation of expected profits by assuming deterministic demand equal to order quantity.",
+        "LLM agents have a strong tendency to always reach agreement (myopic view), which can be exploited by counterparts to secure more favorable terms.",
+        "LLM agents do not leverage strategic ignorance under private information as humans do; instead they assume average or worst-case costs for their partner.",
+        "LLM agents never exercise the 'pass' option, always countering or accepting, reinforcing agreement-seeking behavior.",
+        "Ambiguous cost information caused LLM suppliers to assume average cost, leading to lower profits when actual costs were high.",
+        "General RAG provided no meaningful improvement, suggesting that broad undifferentiated historical data does not enhance negotiation performance.",
+        "Efficiency RAG sacrificed supplier profitability for system-wide efficiency, with high-cost suppliers showing negative profit shares under private information."
+      ],
+      "limitations": [
+        "Study focused primarily on GPT-based models; other LLM families may behave differently (Gemini 1.5 Pro showed different results due to higher order quantities).",
+        "RAG results are a proof of concept; the 20% transcript selection threshold was arbitrary and alternative selections might yield better results.",
+        "The RAG approach is not iterative in this study; iterative refinement of the knowledge base could potentially yield further improvements.",
+        "The bargaining environment is structured (turn-based) unlike the unstructured human negotiations in Davis and Hyndman (2021), limiting direct comparability.",
+        "The study does not examine LLM agents negotiating with human counterparts, leaving open questions about practical vulnerabilities when behavioral patterns become recognizable.",
+        "Human-in-the-loop models blending human intuition with AI efficiency are not examined.",
+        "Only wholesale price and order quantity contracts are studied; broader contract types (e.g., buybacks, two-part tariffs) are not examined.",
+        "Results from Gemini suggest that using multiple LLM models across negotiations could lead to inconsistent outcomes, complicating demand planning and supply chain coordination."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Human participants from Davis and Hyndman (2021)",
+      "Baseline LLM (GPT-4o, Study 1A) without RAG",
+      "GPT-4o with temperature=0 (Study 1C)",
+      "GPT-4o Mini (Study 1C)",
+      "Gemini 1.5 Pro (Study 1C)"
+    ],
+    "evaluation_metric_categories": [
+      "operational-kpi",
+      "task-completion",
+      "human-evaluation",
+      "regression"
+    ],
+    "identified_research_gaps": [
+      "Examining how other LLM models (beyond GPT-based) negotiate with each other to test robustness and identify comparative advantages among models",
+      "Exploring a broader set of supply chain contracts influenced by behavior (e.g., buybacks) and scenarios (e.g., inventory risk allocated to retailers)",
+      "Iterative RAG approaches where new RAG documents are generated based on updated outcomes until substantial performance gains are achieved",
+      "Investigating other prompt engineering interventions, such as giving LLM agents the ability to disclose credible or non-credible information to build trust or strategically influence outcomes",
+      "Endowing LLM agents with specific bargaining strategies (e.g., strategic ignorance, specific opening offers) or personas (e.g., aggressive, risk-averse)",
+      "Exploring LLM agent performance in bargaining scenarios with human negotiators to assess practical effectiveness and vulnerabilities",
+      "Examining human-in-the-loop models that blend human intuition with AI-driven efficiency",
+      "Investigating optimal RAG transcript selection percentages beyond the 20% threshold used in this study",
+      "Studying LLM agents in competitive versus cooperative bargaining environments"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

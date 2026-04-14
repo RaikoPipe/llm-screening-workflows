@@ -1,0 +1,134 @@
+{
+  "title": "Enhancing Bottleneck Analysis in Ship Manufacturing with Knowledge Graphs and Large Language Models",
+  "doi": "10.3390/machines13030224",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic LLM-based agent that receives decision-maker questions, generates Cypher queries via the Question-Query Chain, retrieves 5M1E information from the manufacturing process knowledge graph, and produces interpretable bottleneck root cause analysis responses.",
+          "role": "monolithic",
+          "specialized_role": "bottleneck_analyst",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "vector-database",
+              "conversation-history",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Qwen2-72B-Instruct (primary); also GPT-3.5-Turbo, ChatGLM-4-9b-Chat evaluated",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single orchestration graph: first, a data-driven turning-point algorithm detects bottlenecks from production event logs; then, the LLM agent is invoked via a Question-Query Chain to retrieve relevant 5M1E information from the knowledge graph using Cypher queries and similarity/full-text searches, and generates interpretable root cause analysis responses across multiple dialogue rounds.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Production decision-makers initiate the bottleneck analysis by posing natural language questions to the LLM-based system. They review the LLM responses containing 5M1E information and assess whether the identified causes meet standards, then implement improvement measures such as personnel adjustments or machine maintenance. The system supports multi-round Q&A dialogues (up to 8 rounds) to guide decision-makers through root cause identification.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "pre-action-validation"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Bottleneck detection, analysis, and improvement in ship manufacturing production lines, specifically targeting throughput bottleneck mining in thin plate production processes.",
+    "problem_description": "Ship manufacturing generates large volumes of multi-source heterogeneous data, but existing methods are limited to bottleneck detection without deep analysis, traceability, or interpretability. Traditional approaches rely heavily on expert knowledge, lack transparency, and cannot effectively integrate heterogeneous data sources to identify root causes of dynamic production bottlenecks.",
+    "proposed_solution": "SPKG: a graph-retrieval-based bottleneck mining method combining a manufacturing process knowledge graph (process flow subgraph + 5M1E specification subgraph stored in Neo4j) with large language models. A data-driven 'turning point' mechanism detects dynamic bottlenecks, and a Question-Query Chain enables LLMs to generate Cypher queries against the knowledge graph, supported by a Question-Query Space of ~900 pre-defined examples for flexible multi-round Q&A-based root cause analysis.",
+    "research_maturity": "pilot",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The SPKG method was applied to real production data from a Shanghai shipyard's thin plate production line over 80 working days (40 detection rounds). Performance was compared against baseline LLMs (GPT-3.5-Turbo, ChatGLM-4-9b-Chat, Qwen2-72B-Instruct), traditional RAG, and an ablation variant (SPKG without Question-Query Space) using bottleneck analysis success rate as the primary metric.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "SPKG achieved bottleneck analysis success rates of 52%, 62.5%, and 65% for GPT-3.5-Turbo, ChatGLM-4-9b-Chat, and Qwen2-72B-Instruct respectively, compared to near-zero rates for baseline LLMs.",
+        "SPKG outperformed baseline LLMs by 13 to 20.8 times and traditional RAG by 2.7 to 2.9 times in bottleneck analysis success rate.",
+        "SPKG with Question-Query Space improved performance by 10% to 108% over SPKG without Question-Query Space.",
+        "Qwen2-72B-Instruct achieved the highest success rate (65%) among all tested models with SPKG."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Success rate plateaus after approximately 600 query examples in the Question-Query Space, constrained by LLM reasoning capabilities.",
+        "Success rate for Cypher generation is highest when query examples include node types matching the question; mismatched node types result in low absolute success rates."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Traditional RAG improved over baseline LLMs but was outperformed by SPKG's graph-based retrieval by 2.7-2.9x, as RAG lacks structured semantic relationship context.",
+        "in-context-learning": "Question-Query Space with ~900 query examples significantly improved Cypher generation accuracy; performance plateaued at ~600 examples, after which LLM reasoning capability became the bottleneck.",
+        "knowledge-graph": "Manufacturing process knowledge graph (5M1E + process flow subgraphs) provided structured semantic context that compensated for LLM reasoning gaps, enabling more accurate bottleneck root cause analysis."
+      },
+      "failure_modes": [
+        "LLMs failed to generate correct Cypher query statements when the Question-Query Space lacked relevant query examples for the node types involved in the question.",
+        "LLMs generated plausible but inaccurate Cypher due to limited reasoning and code generation capabilities inherent to the models.",
+        "Hallucination risk in baseline LLMs without external knowledge grounding."
+      ],
+      "limitations": [
+        "Performance depends heavily on the quality of the manufacturing process knowledge graph construction.",
+        "Performance depends on the design of prompt engineering and the coverage of the Question-Query Space.",
+        "The upper limit of bottleneck analysis success rate is constrained by the LLM's inherent reasoning and code generation capabilities.",
+        "Data privacy and cybersecurity concerns require offline deployment and anonymization, limiting access to real-time data.",
+        "The method's applicability to other industrial sectors requires further validation."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Baseline LLMs (GPT-3.5-Turbo, ChatGLM-4-9b-Chat, Qwen2-72B-Instruct)",
+      "Traditional RAG (Retrieval-Augmented Generation)",
+      "SPKG without Question-Query Space"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "retrieval-quality"
+    ],
+    "identified_research_gaps": [
+      "Expanding the corpus of query examples within the Question-Query Space to refine the inferential capabilities of the LLMs",
+      "Developing structured methods to enhance the pattern layer description of the manufacturing process knowledge graph",
+      "Advancing the use of LLMs with enhanced instruction-following and logical reasoning abilities to further refine the analytical capabilities of SPKG",
+      "Inadequate utilization of multi-source heterogeneous data in ship manufacturing bottleneck analysis",
+      "Excessive reliance on expert knowledge resulting in subjective analysis outcomes",
+      "Limited interpretability and traceability of bottleneck analyses in traditional methods"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

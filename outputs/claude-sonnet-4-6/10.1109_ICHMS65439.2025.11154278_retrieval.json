@@ -1,0 +1,137 @@
+{
+  "title": "A Cognitive Digital Twin for Industry 5.0 Based on a Large Language Model Agent",
+  "doi": "10.1109/ICHMS65439.2025.11154278",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "The LLM agent serves as the cognitive core ('brain') of the Cognitive Digital Twin (CDT), connecting the physical world, digital world, and IKG databases. It enhances domain-specific task-solving through RAG and in-context learning, converts human commands into sequential task plans via function calls, retrieves domain-specific knowledge from industrial knowledge graphs, and handles dynamic incidents during manufacturing processes.",
+          "role": "planner",
+          "specialized_role": "task_planner",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "api-call",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a single LLM agent orchestrated through a three-phase pipeline: (1) prompting CDT with task planning instructions via in-context learning, (2) establishing context awareness by retrieving relevant subgraphs from IKG using BERT-based semantic matching, and (3) generating task plans and handling dynamic incidents by retrieving domain-specific solutions from IKG. The agent sequentially processes human commands, retrieves knowledge, and generates robotic action plans as Pythonic function calls.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans provide intuitive natural language commands to CDT without adherence to specific syntactic structures. CDT processes these commands and translates them into actionable AMR tasks. Humans also provide dynamic feedback on incidents (e.g., grasp errors, detection errors, object misplacing) during task execution, which CDT uses to adaptively update task plans. CDT generates natural language explanations to articulate the rationale behind function calls, enabling operators to validate and build confidence in the task plan.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Cognitive digital twin for smart manufacturing in Industry 5.0, focusing on autonomous task planning and dynamic incident handling for pick-and-place operations with autonomous mobile robots (AMR) in a lab-scale manufacturing unit.",
+    "problem_description": "Digital twins lack sufficient cognitive capabilities to address dynamic complexities in manufacturing, including process variations, environmental fluctuations, and human interactions. This limits their applicability in Industry 5.0, which emphasizes Self-X cognitive capabilities (self-awareness, self-configuration, self-optimization, self-adaptation). Current LLMs also lack domain-specific expertise required for manufacturing applications.",
+    "proposed_solution": "An improved five-dimensional framework for a Cognitive Digital Twin (CDT) that adopts an LLM agent (GPT-4o) as its cognitive core. The LLM agent enhances domain-specific task-solving through IKG-based Retrieval-Augmented Generation (RAG) and few-shot in-context learning. RAG retrieves relevant subgraphs from an Industrial Knowledge Graph (IKG) using BERT-based semantic matching to establish context awareness. The agent converts human commands into sequential robotic task plans via Pythonic function calls and handles dynamic incidents by retrieving domain-specific solutions from IKG. Real-time digital environment modeling is achieved via LiDAR-camera fusion SLAM.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A lab-scale manufacturing unit case study evaluating CDT effectiveness in pick-and-place task planning for an autonomous mobile robot. Two task planning processes (normal command-based and dynamic feedback-based) are analyzed under two modes (with and without IKG retrieval) and two paradigms (zero-shot and few-shot), assessed by human experts using executability, goal-condition recall, and success rate metrics.",
+    "validation_methods": [
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Few-shot with IKG mode achieves 92% EX, 96% GR, 92% SR for normal command-based planning vs. 42% EX, 88% GR, 34% SR for zero-shot with IKG mode.",
+        "Few-shot with IKG mode achieves 84% EX, 89% GR, 84% SR for dynamic feedback-based planning vs. 8% EX, 64% GR, 8% SR for zero-shot with IKG mode.",
+        "IKG-based RAG with few-shot in-context learning outperforms other modes in dynamic feedback-based task planning.",
+        "Few-shot paradigm significantly enhances CDT performance in handling dynamic incidents compared to zero-shot paradigm.",
+        "Proposed approach reduces input token size for LLM by retrieving only relevant subgraphs, minimizing computational workload and processing time."
+      ],
+      "response_time_impact": [
+        "Retrieving only relevant subgraphs from IKG reduces input token size for LLM, thereby minimizing computational workload and processing time compared to full environment description approaches."
+      ],
+      "reliability_metrics": [
+        "Zero-shot w/o IKG: Normal command EX=68%, GR=90%, SR=62%; Dynamic feedback EX=0%, GR=3%, SR=0%.",
+        "Zero-shot w/ IKG: Normal command EX=42%, GR=88%, SR=34%; Dynamic feedback EX=8%, GR=64%, SR=8%.",
+        "Few-shot w/o IKG: Normal command EX=94%, GR=96%, SR=94%; Dynamic feedback EX=84%, GR=63%, SR=61%.",
+        "Few-shot w/ IKG: Normal command EX=92%, GR=96%, SR=92%; Dynamic feedback EX=84%, GR=89%, SR=84%."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Few-shot in-context learning significantly enhances task planning performance by enabling CDT to grasp the rationale behind action sequences; improves SR from 34% to 92% for normal commands and from 8% to 84% for dynamic feedback with IKG.",
+        "retrieval-augmented-generation": "IKG-based RAG enables CDT to acquire domain-specific knowledge for handling dynamic incidents (GR improves from 3% to 64% in zero-shot dynamic feedback); superior performance in dynamic feedback-based planning when combined with few-shot learning."
+      },
+      "failure_modes": [
+        "Action Missing Error (AME): Omission of necessary actions in task plans, especially in zero-shot paradigm.",
+        "Action Logical Error (ALE): Sequential or logical inconsistencies in generated programs, frequent in dynamic feedback-based planning.",
+        "Action Calling Error (ACE): Improper arguments for action functions.",
+        "Action Hallucinating Error (AHE): Hallucinated actions induced by LLM hallucination, e.g., manipulating box at undefined location despite IKG indicating correct location.",
+        "Failure to handle ambiguous commands: CDT randomly selects an object instead of asking for clarification when multiple options exist."
+      ],
+      "limitations": [
+        "Limitations in handling uncertain or ambiguous demands; may produce hallucinated actions in task plans.",
+        "When receiving ambiguous commands (e.g., 'pick up the screwdriver'), CDT fails to interact with humans to clarify which specific item is required.",
+        "May generate hallucinated task plans that erroneously manipulate objects at undefined locations despite IKG providing correct location information.",
+        "Reliance on language similarity-based retrieval may cause misinterpretations from uncertain or ambiguous human commands.",
+        "Future work needed to vectorize IKG and fine-tune the LLM agent to reduce reliance on language similarity-based retrieval."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "LLM-based task planning without IKG retrieval (w/o IKG mode, using detailed predefined environment descriptions following Microsoft's research)",
+      "Zero-shot paradigm without IKG retrieval",
+      "Zero-shot paradigm with IKG retrieval",
+      "Few-shot paradigm without IKG retrieval"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Refining the retrieval process by vectorizing IKG to reduce reliance on language similarity-based retrieval",
+      "Fine-tuning the LLM agent to mitigate misinterpretations caused by uncertain or ambiguous human commands",
+      "Handling uncertain demands and ambiguous commands (e.g., clarifying which specific object is required among several options)",
+      "Reducing hallucinated actions in task plans generated by the LLM agent"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

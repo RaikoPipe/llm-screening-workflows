@@ -1,0 +1,239 @@
+{
+  "title": "OptiMUS: Scalable Optimization Modeling with (MI)LP Solvers and Large Language Models",
+  "doi": "10.48550/ARXIV.2402.10172",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Preprocessor agent that converts natural language descriptions of optimization problems into structured problems with parameters, clauses, background information, and eliminates redundant/incorrect constraints.",
+          "role": "other",
+          "specialized_role": "preprocessor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Manager agent that coordinates the work of formulation, programming, and evaluation agents. At each step, it reviews the conversation history and chooses the next agent and assigns a task to it. Inspired by AutoGen.",
+          "role": "orchestrator",
+          "specialized_role": "task_coordinator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Formulator agent that writes and corrects mathematical formulations (in LaTeX) for variables and clauses, defines new variables and auxiliary constraints, and updates the connection graph to record which variables and parameters appear in each constraint.",
+          "role": "planner",
+          "specialized_role": "mathematical_formulator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Programmer agent that writes and debugs Python/Gurobi solver code for each clause. It iterates over uncodified clauses, generates code from formulations, and fixes incorrect code reported by the evaluator.",
+          "role": "coder",
+          "specialized_role": "solver_programmer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Evaluator agent that executes the generated code on the data, identifies runtime errors, flags bogus variables or clauses, and reports errors back to the manager with explanations for subsequent fixing.",
+          "role": "other",
+          "specialized_role": "code_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "OptiMUS uses a multi-agent framework where a Manager agent iteratively selects among Formulator, Programmer, and Evaluator agents based on the current conversation history and problem state. The manager assigns tasks and the agents update the structured problem representation (including a connection graph) until the problem is solved. The process starts with a Preprocessor converting the natural language problem into a structured form, followed by iterative agent calls coordinated by the Manager.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A centralized Manager agent coordinates specialized agents (Formulator, Programmer, Evaluator) in an iterative loop. The Manager reviews conversation history and assigns tasks to the most appropriate agent. Agents share a structured problem state and a connection graph, enabling modular and context-aware processing. The loop continues until the problem is solved or the maximum number of agent calls is reached.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "centralized"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "The system is initiated by a human providing a natural language description of an optimization problem. The system processes the problem autonomously through its agent pipeline. Human feedback integration is mentioned as a future direction but is not implemented in the current system.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "optimization",
+    "application_domain_description": "Automated modeling and solving of Mixed-Integer Linear Programming (MILP) and Linear Programming (LP) optimization problems from natural language descriptions, applicable to operations research, supply chain, scheduling, energy, and other domains.",
+    "problem_description": "Formulating and solving optimization problems from natural language descriptions is challenging due to ambiguous terms, long problem descriptions that exceed LLM context limits, large problem data that cannot be passed directly to LLMs, and unreliable LLM outputs. Existing LLM-based approaches fail on complex, real-world problems and lack scalability.",
+    "proposed_solution": "OptiMUS, a modular LLM-based multi-agent system that preprocesses natural language optimization problems into structured representations, maintains a connection graph to track relationships between constraints, variables, and parameters, and uses a Manager-coordinated team of Formulator, Programmer, and Evaluator agents to iteratively formulate, code, and validate optimization problems using Python and Gurobi. The system separates data from problem descriptions to handle large data files and long problem descriptions efficiently.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The paper conducts controlled experiments comparing OptiMUS against baseline methods (Standard Prompting, Reflexion, Chain-of-Experts) on three datasets (NL4OPT, ComplexOR, NLP4LP) using accuracy as the primary metric. Ablation studies evaluate the impact of debugging, LLM choice, and manager quality. Sensitivity analysis examines the effect of maximum agent calls on performance.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "OptiMUS achieves 78.8% accuracy on NL4OPT vs. 64.2% for CoE (previous SOTA), an improvement of over 14 percentage points.",
+        "OptiMUS achieves 66.7% accuracy on ComplexOR vs. 38.1% for CoE, an improvement of over 28 percentage points.",
+        "OptiMUS achieves 72.0% accuracy on NLP4LP vs. 53.1% for CoE, an improvement of nearly 19 percentage points.",
+        "OptiMUS beats previous state-of-the-art methods on existing datasets by over 20% and on the more challenging NLP4LP dataset by 30%.",
+        "Ablation: removing debugging reduces accuracy from 78.7% to 72.3% on NL4OPT, 66.7% to 57.1% on ComplexOR, 71.6% to 58.2% on NLP4LP.",
+        "Ablation: using GPT-3.5 for manager reduces accuracy to 74.9% (NL4OPT), 52.4% (ComplexOR), 53.7% (NLP4LP).",
+        "Ablation: using GPT-3.5 for all agents reduces accuracy to 28.6% (NL4OPT), 9.5% (ComplexOR), 14.4% (NLP4LP).",
+        "Ablation: using Mixtral-8x7B reduces accuracy to 6.6% (NL4OPT), 0.0% (ComplexOR), 3.0% (NLP4LP)."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "OptiMUS prompt length remains stable across datasets (2838\u00b1822 for NL4OPT, 3241\u00b11194 for ComplexOR, 3146\u00b11145 for NLP4LP), while CoE prompt length increases significantly with problem complexity (2003\u00b1456, 3288\u00b1780, 3825\u00b11002)."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "connection-graph (modular context retrieval)": "Keeps prompt length stable across datasets and enables scalability to long and complex problems; without it, prompt length grows with problem complexity as in CoE.",
+        "iterative-reasoning (multi-agent loop with debugging)": "Removing debugging reduces accuracy by 6-13 percentage points depending on dataset; more important for complex datasets.",
+        "chain-of-thought": "Used in formulator and programmer prompts ('Take a deep breath and solve the problem step by step'); contributes to structured reasoning in formulation and coding tasks.",
+        "in-context-learning": "Example-based prompts for programmer agent improve code generation quality.",
+        "conversation-history": "Manager uses full conversation history to select next agent and assign tasks; GPT-3.5 manager degrades performance on complex datasets, showing importance of reasoning over history."
+      },
+      "failure_modes": [
+        "Missing or wrong constraints: OptiMUS generates wrong constraints in preprocessing (e.g., price >= 0 where price is a parameter) or fails to extract all constraints from the description.",
+        "Incorrect model: OptiMUS tackles the problem with an incorrect mathematical model (e.g., defining binary variables for visiting cities instead of links in TSP).",
+        "Coding error: OptiMUS does not generate error-free code even after debugging, often when the LLM is confused by the language used in the problem description."
+      ],
+      "limitations": [
+        "Smaller LLMs (GPT-3.5, Mixtral-8x7B) perform poorly on OptiMUS prompts due to limited generalization and reasoning abilities.",
+        "OptiMUS prompts are more complex and novel compared to standard QA formats, making fine-tuning of smaller models necessary for cost-effective deployment.",
+        "Incorrect modeling is more common on datasets with more complicated problems.",
+        "The system does not yet integrate user feedback into the optimization process.",
+        "Automatic solver selection based on accuracy and runtime requirements is not yet implemented.",
+        "Real-world problems with very long descriptions (e.g., 60-page documentation) remain challenging even for long-context models."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Standard prompting",
+      "Reflexion",
+      "Chain-of-Experts (CoE)"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Fine-tuning smaller LLMs on novel prompt templates to improve performance and reduce cost",
+      "Integrating user feedback into the process to improve agent performance",
+      "Automatically selecting the best solver based on accuracy and runtime requirements",
+      "Enhancing the modular LLM structure using reinforcement learning to teach the manager how to choose the next agent",
+      "Developing LLM-based solutions for complex, industrial-level optimization problems with domain-specific considerations"
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

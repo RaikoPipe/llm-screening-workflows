@@ -1,0 +1,291 @@
+{
+  "title": "LLMs driven fusion AI-AD system for mechanical design: From understanding to generation",
+  "doi": "10.1016/j.aei.2025.103745",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Central Intelligent Agent (CIA) that manages the execution sequence of other design agents, acts as a task allocation center, extracts design flow knowledge, and triggers other agents. It is aware of the knowledge of the design process.",
+          "role": "orchestrator",
+          "specialized_role": "task_coordinator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "retrieval-augmented-generation",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Doubao-Pro / Moonshot (selectable via ZJU Xiansheng platform)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Understanding Agent responsible for processing and memorizing mechanical design knowledge from various representations (tables, charts, formulas, procedural knowledge) and storing it in structured cloud databases.",
+          "role": "retriever",
+          "specialized_role": "knowledge_understanding_agent",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database",
+              "external-models",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Doubao-Pro / Moonshot (selectable via ZJU Xiansheng platform)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "V-Belt Drive Design Agent (VDDA) that integrates designer requirements and parametric inputs through dialogic interactions, executes parametric design of mechanical components based on process logic, data queries, iterative computations and design knowledge.",
+          "role": "planner",
+          "specialized_role": "mechanical_design_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "retrieval-augmented-generation",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Doubao-Pro / Moonshot (selectable via ZJU Xiansheng platform)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Pulley Design and Modeling Agent (PDMA) that retrieves design data from the cloud, converts design data into modeling data, generates VBA modeling statements, and outputs VBA macro text files for SolidWorks to generate 3D models.",
+          "role": "coder",
+          "specialized_role": "modeling_agent",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Doubao-Pro / Moonshot (selectable via ZJU Xiansheng platform)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Crankshaft, connecting rod, and piston design agents used in multi-agent collaborative design of gasoline engine components. These specialized agents handle design calculations and data processing for specific mechanical components.",
+          "role": "other",
+          "specialized_role": "component_design_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Doubao-Pro / Moonshot (selectable via ZJU Xiansheng platform)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-agent collaboration pattern with a Central Intelligent Agent (CIA) acting as orchestrator. The CIA decomposes design tasks, triggers specialized agents (VDDA, PDMA, component design agents) in sequence based on task requirements and success tokens. Agents communicate through cloud data exchange via HTTP requests. The orchestration follows a hierarchical structure where CIA manages the task chain, and specialized agents execute domain-specific workflows. Chain-of-Thought (CoT) workflows decompose complex design problems into verifiable reasoning sequences. The ReAct method is used for workflow control through prompt engineering and knowledge integration.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A task chain collaborative design approach where the CIA orchestrates specialized agents (VDDA, PDMA, component design agents) in a hierarchical manner. The CIA allocates tasks, monitors success tokens, and triggers subsequent agents upon successful completion. Agents store intermediate results in cloud storage and communicate asynchronously via HTTP requests. This reduces knowledge redundancy in single agents and enables complex multi-component mechanical design.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans interact with the AI-AD system through natural language (NLP) as the primary interface, either via a web interface or the SolidWorks (SW) interface. Designers input requirements in natural language, and the system autonomously executes the design process. In the Understanding phase, designers guide agents to understand mechanical design knowledge and commit it to memory. In the Generation phase, designers interact with agents to obtain design outcomes and 3D models. The system advocates a low-code development model, reducing technical obstacles for developers.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui",
+          "image"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "factory_planning",
+    "application_domain_description": "Intelligent mechanical design and CAD (Computer-Aided Design) for manufacturing, specifically targeting the automation of mechanical component design, parametric modeling, and 3D model generation using LLM-based multi-agent systems integrated with SolidWorks.",
+    "problem_description": "Mechanical CAD systems have been slow to achieve true intelligence despite decades of development. Existing approaches (expert systems, KBE, CBR, deep learning) face challenges including absence of systematic frameworks, opaque models, knowledge reuse limitations, and non-standardized interfaces. LLMs offer new opportunities but suffer from hallucinations, black-box nature, low accuracy, and difficulty understanding complex mechanical knowledge represented in tables, charts, and formulas, making reliable integration into CAD systems difficult.",
+    "proposed_solution": "A novel Fusion AI-AD (Artificial Intelligence-Aided Design) architecture driven by LLMs with an 'From Understanding to Generation' operational mechanism. The architecture integrates three components: (1) Knowledge Processing using LLM-based agents on the ZJU Xiansheng platform with multi-intelligence processing for four knowledge categories, RAG with structured databases to eliminate hallucinations, and CoT workflows; (2) Cloud Data Exchange via Alibaba Cloud for storing design data, VBA files, and knowledge graphs; (3) Secondary development of SolidWorks for automated 3D model generation from VBA macro files. Multi-agent collaboration (CIA, VDDA, PDMA, component agents) enables complex mechanical design tasks.",
+    "research_maturity": "prototype",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The paper follows a design science approach, proposing and implementing a novel AI-AD architecture artifact. The system is validated through four case studies: (1) understanding of V-belt type selection chart, (2) comparison with LLMs in limit deviation query accuracy, (3) parametric design of V-belt drive and pulleys, and (4) multi-agent collaborative design of crankshaft-connecting rod-piston assembly. A prototype system is developed and evaluated against traditional programmatic CAD systems.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "AI-AD achieves 100% accuracy in limit deviation queries compared to Deepseek (25% without deep thinking, 73% with deep thinking) and Doubao (45% without deep thinking, 57% with deep thinking)",
+        "Elimination of LLM hallucinations in knowledge understanding through dual-stage RAG with structured database querying instead of vector segmentation",
+        "CoT workflow mechanism effectively mitigates LLM illusions in generation by decomposing complex problems into verifiable reasoning sequences",
+        "Multi-agent collaboration reduces knowledge redundancy in single agents and enables complex multi-component mechanical design"
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "100% accuracy rate in limit deviation queries for AI-AD system across 100 test queries",
+        "Successful autonomous generation of 3D models for V-belt drive pulleys and gasoline engine components (piston, crankshaft, connecting rod)"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG with structured database querying (SQL mapping) eliminates numerical hallucinations; achieves 100% accuracy in limit deviation queries vs 25-73% for standard LLMs",
+        "chain-of-thought": "CoT workflow decomposes complex mechanical design into verifiable reasoning units, enabling progressive hypothesis validation and reducing LLM illusions in generation",
+        "iterative-reasoning": "ReAct method selected as optimal for workflow control through prompt engineering and knowledge integration compared to Plan-and-Execute and Function-Call",
+        "dynamic-decomposition": "Task decomposition into 15 independent workflows for V-belt drive design enables flexible agent scheduling and reduces single-agent knowledge redundancy",
+        "in-context-learning": "Knowledge base stores workflow input-output relationships enabling agents to understand natural language parameter variations (e.g., motor power, input power, P recognized as same parameter)"
+      },
+      "failure_modes": [
+        "LLM hallucinations when handling decimal numerical data in tabular form (e.g., misinterpreting 1.19)",
+        "Selective and conceptual errors when a single agent handles similar knowledge types (e.g., designing and verifying a part)",
+        "Insufficient iterations (max 15) may not resolve highly complex design tasks, requiring multi-agent collaboration or multi-turn dialogue",
+        "LLMs exhibit black-box nature making it difficult to trace specific reasoning paths when directly generating final outputs"
+      ],
+      "limitations": [
+        "LLMs are probabilistic models subject to hallucinations that cannot be fully corrected through pre-training and fine-tuning alone",
+        "Lack of high-quality data in mechanical design field and limited generalization for unseen samples",
+        "Difficulty finding a unified LLM that fully matches industrial design, assembly and simulation requirements",
+        "Complex mechanical knowledge (materials, mechanics, standard selection, modeling) is predominantly in schematic diagrams and multidimensional tables difficult to structure",
+        "Future work needed to integrate intelligent assembly, intelligent concept design and intelligent verification (AI-AD 2.0)"
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Traditional programmatic CAD systems",
+      "Deepseek (without deep thinking)",
+      "Deepseek (with deep thinking)",
+      "Doubao (without deep thinking)",
+      "Doubao (with deep thinking)"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "classification",
+      "generation-quality"
+    ],
+    "identified_research_gaps": [
+      "Integration of intelligent assembly into AI-AD 2.0",
+      "Integration of intelligent concept design into AI-AD 2.0",
+      "Integration of intelligent verification into AI-AD 2.0"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

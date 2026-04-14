@@ -1,0 +1,207 @@
+{
+  "title": "Securing AI Agents: Implementing Role-Based Access Control for Industrial Applications",
+  "doi": "10.48550/ARXIV.2509.11431",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Conversational QA Agent that answers natural language queries from a knowledge base, built using Flowise with open-source LLMs (DeepSeek R1 70B via ChatOllama), PostgreSQL DB Retriever, Redis-backed chat memory, Upstash caching, Ollama Embeddings, and an API Loader ingesting data from edge devices.",
+          "role": "other",
+          "specialized_role": "conversational_qa_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "DeepSeek R1 (70B) via ChatOllama",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Document Retrieval Agent that retrieves industrial manuals and logs, operating under RBAC-enforced access control.",
+          "role": "retriever",
+          "specialized_role": "document_retrieval_agent",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Open-source LLM (Mistral/LLAMA/Microsoft Phi/DeepSeek)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Predictive Maintenance Agent that queries sensor data from edge devices and returns failure probabilities to support industrial maintenance decisions.",
+          "role": "other",
+          "specialized_role": "predictive_maintenance_agent",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Open-source LLM (Mistral/LLAMA/Microsoft Phi/DeepSeek)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The MYWAI platform uses Flowise as a low-code drag-and-drop orchestration framework to build and deploy AI agents. A supervisory multi-agent architecture is supported for complex use cases such as cyber threat hunting, where a supervisory component coordinates multiple specialized agents. For simpler use cases, single-step or retrieval chain patterns are used. The RBAC engine intercepts and validates every agent interaction before execution.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "MYWAI supports multi-agent workflows including a supervisory multi-agent system for cyber threat hunting. A supervisory agent coordinates subordinate specialized agents. Agents cooperate toward shared industrial operational goals under centralized RBAC governance.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human users interact with the MYWAI platform through a UI and API gateway. Users authenticate via two-step verification and are assigned roles (Admin, User, Client) that govern their access to AI agents. Operators, engineers, maintenance teams, and external partners interact with AI agents according to their role-based permissions. Comprehensive logging and audit trails support compliance monitoring and post-event forensic analysis.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review",
+          "risk-based-escalation"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial AI security for AI agents deployed in industrial environments, including predictive maintenance, process optimization, and real-time decision-making powered by LLMs, with a focus on securing these agents via Role-Based Access Control.",
+    "problem_description": "AI agents leveraging LLMs are increasingly embedded in critical industrial infrastructures, making them attractive targets for cyber-attacks such as prompt injection. Traditional cybersecurity measures are insufficient for the dynamic threat landscape of AI-driven systems. There is a need for robust, scalable access control mechanisms that can prevent unauthorized access, prompt injection attacks, and ensure compliance in regulated industrial environments.",
+    "proposed_solution": "A Role-Based Access Control (RBAC) framework tailored for AI agents in industrial settings, integrated into the MYWAI platform. The framework combines two-step (two-factor) authentication with fine-grained role and permission management, enforced via a FastAPI API gateway, PostgreSQL role storage, OAuth 2.0 with JWT tokens, and a centralized logging and audit module. The RBAC engine dynamically evaluates user roles and permissions for every AI agent interaction, and the system supports distributed edge deployment for low-latency enforcement.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The paper implements the RBAC framework on the MYWAI platform and conducts controlled experiments simulating 200 user sessions (including 50 malicious/unauthorized requests) and 1,000 concurrent requests. Three access modes (No Access Control, RBAC-only, RBAC with 2FA) are compared across security enforcement, performance overhead, and resilience against prompt injection attacks.",
+    "validation_methods": [
+      "benchmark",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "RBAC-only blocked 88% of unauthorized requests (44/50); RBAC + 2FA blocked 98% (49/50) compared to 0% with no access control.",
+        "Prompt injection attack success rate reduced from 73% (no control) to 20% (RBAC-only) to 3% (RBAC + 2FA), a >95% reduction relative to baseline.",
+        "RBAC combined with 2FA provides the highest security assurance against unauthorized access and prompt injection."
+      ],
+      "response_time_impact": [
+        "No Access Control: avg latency 32ms, throughput 1240 req/s.",
+        "RBAC-only: avg latency 41ms, throughput 1185 req/s.",
+        "RBAC + Two-Step Authentication: avg latency 55ms, throughput 1100 req/s.",
+        "Performance overhead is measurable but considered acceptable for safety-critical industrial settings."
+      ],
+      "reliability_metrics": [
+        "RBAC + 2FA blocked 49 out of 50 unauthorized requests (98% block rate).",
+        "Only 1 successful prompt injection attack out of 30 attempts under RBAC + 2FA (3% success rate).",
+        "Distributed edge deployment ensures fault tolerance so localized failures do not compromise overall system security."
+      ],
+      "failure_attribution": [
+        "unattributed"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Enables AI agents to access industrial manuals, sensor data, and knowledge bases for real-time decision support; effectiveness governed by RBAC policies preventing unauthorized data access."
+      },
+      "failure_modes": [
+        "1 out of 30 prompt injection attacks succeeded under RBAC + 2FA.",
+        "2 out of 50 unauthorized requests were not blocked under RBAC + 2FA.",
+        "6 out of 50 unauthorized requests not blocked under RBAC-only."
+      ],
+      "limitations": [
+        "Scalability challenges in heterogeneous industrial environments with legacy systems, edge devices, and cloud services.",
+        "Performance overhead introduced by authentication and real-time access control may be problematic at scale in time-sensitive applications.",
+        "User adoption and training challenges for operators with limited technical backgrounds.",
+        "Privacy and data protection concerns when using biometric and contextual data.",
+        "Framework must be continuously updated to counter evolving adversarial threats such as sophisticated prompt injections.",
+        "Discrete role assignment problem requires integer programming or heuristics for near-optimal solution in practice."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "No Access Control",
+      "RBAC-only"
+    ],
+    "evaluation_metric_categories": [
+      "computational-efficiency",
+      "operational-kpi",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Integration of biometric verification (fingerprint, facial recognition, iris scanning) as additional authentication layer",
+      "Adaptive, context-aware authentication using machine learning and real-time contextual data",
+      "Multi-modal authentication combining knowledge-based, possession-based, and inherence-based factors",
+      "Scalability in heterogeneous environments with legacy systems, edge devices, and cloud-based services",
+      "Performance overhead evaluation to balance security with operational efficiency at scale",
+      "User adoption and training for operators with limited technical backgrounds",
+      "Privacy and data protection concerns related to biometric and contextual data",
+      "Countering evolving adversarial threats such as sophisticated prompt injections",
+      "Incorporating stochastic elements (e.g., uncertain threat levels) and real-time data into the RBAC optimization model",
+      "Extension to more complex constraints reflecting evolving industrial requirements"
+    ],
+    "scalability_assessment": "organizational-scalability"
+  },
+  "reasoning": ""
+}

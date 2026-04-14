@@ -1,0 +1,135 @@
+{
+  "title": "Human-Machine Interactive Virtual-Physical Safety Training Method for Manufacturing Workshops Combining Machine Vision and Large Language Model",
+  "doi": "10.2139/ssrn.5379237",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Human-AI interactive question answering agent that integrates knowledge graphs and LLM (DeepSeekV3) to provide personalized knowledge responses to trainees. Built on LangChain RAG framework, it retrieves from both Neo4j graph database and FAISS vector database, parses trainee queries using entity/intent parsing, and generates natural language answers.",
+          "role": "other",
+          "specialized_role": "question_answering_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "DeepSeekV3",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a single-step orchestration pattern where the human-AI interactive question answering module receives trainee queries, performs entity and intent parsing, executes hybrid retrieval from graph and vector databases, constructs a prompt with multi-source knowledge, and generates a final answer via the LLM. The semantic understanding module (YOLOv11) feeds recognized equipment labels into the question answering pipeline as a preprocessing step.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Trainees wearing HoloLens 2 interact with the MR safety training system through gestures and voice commands. They initiate queries to the human-AI question answering module, take photos of equipment to trigger semantic understanding, and navigate through cognitive, control, and operation/maintenance training scenarios. The system provides real-time answers and safety warnings based on trainee actions.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "audio",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Safety training for manufacturing workshop personnel operating industrial equipment (e.g., robotic arms), covering cognitive, operational, and maintenance training scenarios to ensure personnel safety and compliance with Industry 5.0 human-centric manufacturing principles.",
+    "problem_description": "Existing Mixed Reality (MR)-based training methods in manufacturing workshops face two major challenges: (1) difficulty in semantic perception of production equipment, where training content lacks synchronization with real production scenarios and equipment status/spatial relationships cannot be perceived in real time; and (2) lack of personalized and proactive knowledge responses, where standardized instructional approaches overlook differences in trainees' prior knowledge and job roles.",
+    "proposed_solution": "A human-machine interactive virtual-physical safety training method combining machine vision and LLM. It uses YOLOv11 semantic segmentation for equipment recognition and 3D virtual-physical mapping via Vuforia multi-target recognition on HoloLens 2. A knowledge graph (Neo4j) integrated with LLM (DeepSeekV3) via a RAG framework (LangChain) with FAISS vector database enables personalized, interactive knowledge question answering. An entity/intent parsing mechanism with regular expression and fuzzy matching supports accurate query understanding.",
+    "research_maturity": "prototype",
+    "research_methodology": "mixed-methods",
+    "research_methodology_description": "The study combines design science (developing a prototype MR safety training system with semantic understanding and LLM-based Q&A modules), a case study (robotic arm cognition and manipulation training at Henan Provincial Key Laboratory), and a controlled experiment (20 volunteers split into MR training group vs. paper training group, evaluated on knowledge and hands-on tasks).",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "MR training group scored 25.3% higher than paper training group on 'teaching pendant operation' hands-on task",
+        "MR training group scored 26.9% higher than paper training group on 'HMI operation' hands-on task",
+        "MR training group scored 15.8% higher on 'overall cognition' knowledge task",
+        "MR training group scored 8.2% higher on 'parts cognition' knowledge task",
+        "Human-AI interactive Q&A module achieved median scores above 4.5 (out of 5) across MiniMax, Qwen, and DeepSeek evaluators, compared to ~2.5 median for base LLM alone",
+        "YOLOv11 semantic segmentation achieved mAP50(B)=98.9%, mAP50-95(B)=97.2%, precision(B)=97.6%, recall(B)=98.0%"
+      ],
+      "response_time_impact": [
+        "Asynchronous processing and cache optimization introduced to improve entity/intent parsing efficiency",
+        "Network latency from PC-deployed semantic understanding module affects real-time performance (acknowledged limitation)"
+      ],
+      "reliability_metrics": [
+        "One Euro Filter reduced angular velocity standard deviation from 0.35\u00b0 to 0.08\u00b0 per frame (~77% reduction in rotational fluctuation)",
+        "Virtual-physical fusion peak angular velocity suppressed below 0.2\u00b0 per frame after filtering",
+        "YOLOv11 model mAP50(M)=98.9%, mAP50-95(M)=95.8% for mask segmentation"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG with dual knowledge sources (graph + vector database) significantly outperformed base LLM alone, raising median Q&A quality scores from ~2.5 to >4.5 out of 5",
+        "in-context-learning": "Customized prompt templates integrating structured node information and unstructured text paragraphs with conversation history improved response coherence and domain specificity"
+      },
+      "failure_modes": [
+        "Pose fusion failure when image target tracking is interrupted (mitigated by data integrity verification mechanism)",
+        "Missed matches or misrecognition in entity/intent parsing when trainee input contains misspelled words or vague expressions (addressed by fuzzy matching fallback)",
+        "Base LLM generates irrelevant responses or hallucinated content without external knowledge grounding"
+      ],
+      "limitations": [
+        "Equipment recognition model deployed on external PC causes network latency affecting real-time performance; lightweight local deployment on HoloLens 2 proposed as future work",
+        "Semantic understanding module operates only at device level, not component level; finer granularity planned for future development",
+        "Human-AI interactive Q&A relies on explicit voice queries; future work aims to integrate real-time user state monitoring for proactive guidance"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Traditional paper-based training (printed manuals and equipment manuals)",
+      "Base Large Language Model (without knowledge graph augmentation)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "retrieval-quality",
+      "generation-quality",
+      "human-evaluation",
+      "task-completion",
+      "operational-kpi"
+    ],
+    "identified_research_gaps": [
+      "Equipment recognition model is deployed on an external PC and network latency affects real-time performance; a lightweight version should be deployed locally on HoloLens 2",
+      "Current semantic understanding module operates exclusively at the device level; future development aims to refine capability to the component level for enhanced training granularity",
+      "Current human-AI interactive question answering module relies on explicit voice queries; future iterations will integrate with real-time user states for proactive guidance"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,185 @@
+{
+  "title": "Agentic AI for Intent-Based Industrial Automation",
+  "doi": "10.48550/ARXIV.2506.04980",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Root agent responsible for processing user intent expressed in natural language, decomposing it into structured components (expectations, conditions, targets, context, information), reasoning and planning the action plan, and delegating tasks to specialized sub-agents or invoking tools directly.",
+          "role": "orchestrator",
+          "specialized_role": "intent_decomposer_and_orchestrator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "chain-of-thought",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Gemini 2.0 Flash",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Data agent responsible for retrieving engine telemetry data and providing RUL (Remaining Useful Life) predictions from the CMAPSS dataset. Has access to tools: get_engine_data_json and predict_engine_rul.",
+          "role": "retriever",
+          "specialized_role": "telemetry_data_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Gemini 2.0 Flash",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Maintenance agent responsible for identifying engines near failure and planning preventive maintenance, including scheduling downtime, assigning teams, and estimating per-engine workload. Has access to tools: suggest_maintenance_action, estimate_maintenance_cost, assign_maintenance_staff, and schedule_maintenance_task.",
+          "role": "planner",
+          "specialized_role": "maintenance_planner",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Gemini 2.0 Flash",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "A hierarchical multi-agent architecture using Google ADK with AutoFlow orchestration. A root agent decomposes user intent and delegates tasks to specialized sub-agents (data_agent and maintenance_agent). The root agent can also invoke tools directly (e.g., stop_engine). Sub-agents use modular tools to interact with industrial data and execute domain-specific tasks. The workflow can be sequential or conditional based on agent outputs.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The root agent orchestrates specialized sub-agents in a hierarchical manner. It decomposes the user's intent, delegates data retrieval to the data_agent, and based on the results, decides whether to invoke the maintenance_agent for preventive action or directly stop critical engines. Agents cooperate toward the shared goal of maintaining engine health and preventing unexpected failures.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human operators interact with the system through natural language input, expressing high-level business or operational intentions without needing technical knowledge of underlying systems. The system abstracts technical complexity, allowing operators to focus on higher-level tasks requiring critical thinking and creativity. The framework is designed to simplify HMI in alignment with Industry 5.0 human-centric principles.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Predictive maintenance in industrial environments, specifically demonstrated using the CMAPSS aircraft engine dataset to monitor engine health, predict Remaining Useful Life (RUL), and plan preventive maintenance actions.",
+    "problem_description": "Industry 4.0 has introduced exponential data growth and system complexity, making it increasingly difficult for human operators to manage industrial systems effectively. Traditional HMIs are complex, require extensive training, and do not align with the human-centric, sustainable, and resilient principles of Industry 5.0. There is a gap between the technical complexity of automation systems and the need for intuitive human interaction.",
+    "proposed_solution": "A conceptual framework integrating Agentic AI with the intent-based paradigm, enabling human operators to express high-level goals in natural language. A multi-agent architecture using LLM-based agents (implemented with Google ADK and Gemini 2.0 Flash) decomposes intents into structured components (expectations, conditions, targets, context, information) and orchestrates specialized sub-agents with modular tools to execute domain-specific industrial tasks autonomously.",
+    "research_maturity": "prototype",
+    "research_methodology": "proof-of-concept",
+    "research_methodology_description": "A proof of concept was implemented using the CMAPSS dataset and Google Agent Developer Kit (ADK) to demonstrate the feasibility of intent decomposition, agent orchestration, and autonomous decision-making in a predictive maintenance scenario. The PoC uses a controlled subset of 20 engines and validates the system's ability to decompose high-level intentions into actionable steps.",
+    "validation_methods": [
+      "case study",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "System successfully decomposed a natural language intent into structured components (expectations, conditions, targets, context, information) and generated a consolidated predictive maintenance plan covering all 20 engines.",
+        "Additional tests demonstrated correct system responses to multiple data point queries without requiring operator knowledge of engine protocols or operational manuals.",
+        "The system autonomously identified critical engines (RUL=16) for immediate shutdown, high-priority engines (RUL=28, 50) for repair, and low-priority engines for monitoring."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [],
+      "failure_attribution": [
+        "context-insufficiency",
+        "unattributed"
+      ],
+      "ce_technique_effectiveness": {
+        "dynamic-decomposition": "Successfully decomposed natural language intent into structured components (expectations, conditions, targets, context, information) enabling actionable planning.",
+        "chain-of-thought": "Root agent performed coordinated reasoning between agents to evaluate engine statuses and generate maintenance plans."
+      },
+      "failure_modes": [
+        "Sensitivity to prompt phrasing observed during testing; small changes in prompts often led to different outcomes.",
+        "Hallucination control is a concern for LLM-based agentic systems.",
+        "Consistency and predictability of actions are challenges identified."
+      ],
+      "limitations": [
+        "Information security and data privacy concerns for production deployment.",
+        "Explainability of AI decisions is a challenge present in every AI application.",
+        "Data quality concerns covering reliability, accuracy, privacy, and trust.",
+        "Energy expenditure of LLM-based systems.",
+        "Prompt engineering sensitivity affecting predictability and consistency.",
+        "PoC uses synthetic CMAPSS dataset rather than real-world industrial data.",
+        "Controlled subset of only 20 engines used to reduce complexity.",
+        "RUL values taken directly from dataset ground truth rather than predictive modeling.",
+        "Hallucination control not fully addressed.",
+        "Scalability to production environments not yet validated."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Integration of external sub-agents and tools to expand the range of actionable tasks in industrial contexts",
+      "Testing with real-world datasets and implementation in actual industrial environments",
+      "Exploration of alternative LLM architectures and fine-tuned SLMs adapted for industrial automation contexts",
+      "Benchmarking methodologies to evaluate system performance, accuracy, and benefits of Agentic AI in real-world applications",
+      "Addressing information security and data privacy concerns",
+      "Addressing energy expenditure concerns",
+      "Improving explainability of AI decisions",
+      "Hallucination control and consistency/predictability of agent actions",
+      "Effective prompt engineering to reduce sensitivity to prompt phrasing",
+      "Improving data quality covering reliability, accuracy, privacy, and trust",
+      "Evolving the proof of concept into a production-ready system"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,130 @@
+{
+  "title": "GFIA: Generative Fault Image Analysis via vision\u2013language model its application to train bogie transmission system",
+  "doi": "10.1016/j.jvcir.2025.104482",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "GFIA (Generative Fault Image Analysis) is a vision-language model fine-tuned from InternVL2.5-8B for fault analysis in train bogie transmission systems. It takes structured grayscale images (converted from multi-channel sensor signals) and domain-specific instruction prompts as input, then generates fault type classifications along with root cause explanations and corrective action recommendations.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_analyst",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "InternVL2.5-8B",
+            "finetuning_datasets": [
+              "human-annotated",
+              "real-world"
+            ],
+            "finetuning_dataset_description": "BTU (Bogie Transmission Unified Fault Dataset): 8100 structured grayscale images (270x270) converted from 18-channel vibration sensor data collected from a scaled metro train bogie test bench. The dataset covers 6 health states (fault types) across motor, gearbox, and left axlebox components, with expert-curated instruction-based annotations including fault types, root causes, and corrective solutions. Fine-tuning was performed using LoRA (rank=8, alpha=32) on the LLM component only."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Single-step inference: a structured grayscale image derived from multi-channel sensor signals is passed together with a standardized domain-specific instruction prompt to the GFIA model, which produces a structured fault analysis report in one forward pass.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human experts curated the fault dataset annotations (fault types, causes, and solutions) used for supervised fine-tuning. The system is designed to assist maintenance engineers by providing structured fault analysis reports; humans initiate the analysis by providing sensor data. Expert knowledge is embedded in the training data rather than in real-time interaction.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "image",
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis and analysis of train bogie transmission systems, including traction motors, drive gearboxes, and axleboxes, to ensure safety and reliability of metro rail vehicles.",
+    "problem_description": "Existing fault analysis methods for industrial systems rely on raw sensor signals or predefined fault categories and lack the ability to provide comprehensive interpretation of failures (root causes, corrective actions). Vision-language models are not designed for industrial fault reasoning and struggle to associate fault symptoms with engineering knowledge. Additionally, time-series signals from sensors must be converted to a visual format compatible with VLMs.",
+    "proposed_solution": "GFIA (Generative Fault Image Analysis): a vision-language model fine-tuned from InternVL2.5-8B using LoRA. Multi-channel sensor signals are transformed into structured grayscale images by segmenting, reshaping, and concatenating 18-channel vibration data into 270x270 matrices. A domain-specific dataset (BTU) with expert-annotated fault types, causes, and solutions is constructed for supervised fine-tuning. The model integrates image and language modalities to classify faults and generate structured diagnostic reports including root causes and corrective measures.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison of GFIA against multiple state-of-the-art vision-language models (InternVL2-8B, Qwen2-VL-7B-Instruct, Ovis2-8B, MiniCPM-V-2.6-8B, LLaVa-V1.6-Mistral-7B-hf) and traditional deep learning methods (BDC few-shot learning, Evolvable Graph Neural Network) on the constructed BTU dataset, using accuracy, precision, recall, and F1-score metrics. Ablation experiments on different image resolutions (90x90, 180x180, 270x270) and training steps were also conducted.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GFIA achieves average diagnostic accuracy exceeding 99.9% for motor faults, 100% for gearbox faults, and exceeding 99.8% for left axlebox faults.",
+        "GFIA outperforms best competing VLM (MiniCPM-V-2.6-8B at 76.36% on M2) with 99.93% on the same fault code.",
+        "GFIA achieves 100% node accuracy for motor and gearbox vs. BDC (97.62%, 88.51%) and Evolvable Graph (97.41%, 94.17%).",
+        "Overall system accuracy: GFIA 99.93% vs. BDC 93.30% and Evolvable Graph 96.84%.",
+        "GFIA achieves Precision, Recall, and F1-score of 100% for motor and gearbox, and 99.93% for left axlebox, far exceeding all baselines.",
+        "GFIA additionally provides fault root cause and corrective solution in natural language, which traditional methods cannot."
+      ],
+      "response_time_impact": [
+        "Total training time: 1.855 hours on a single NVIDIA GeForce RTX 4090 GPU for 9,981 steps over 3 epochs."
+      ],
+      "reliability_metrics": [
+        "GFIA achieves near-perfect accuracy (>99.8%) across all fault categories and components on the BTU test set.",
+        "Model converges to near 100% accuracy even at low image resolution (90x90)."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Standardized domain-specific instruction prompts with expert-curated fault descriptions enabled the model to learn structured fault reasoning and generate professional diagnostic reports.",
+        "chain-of-thought": "The model generates structured responses including fault type, root cause, and corrective solution, demonstrating step-by-step reasoning capability over fault images."
+      },
+      "failure_modes": [
+        "Baseline VLMs without fine-tuning produce near-random or inconsistent fault classifications (e.g., InternVL2-8B achieves only 38.69% on M0, close to random for 3-class problem).",
+        "General-purpose VLMs struggle to associate fault symptoms in grayscale images with engineering knowledge, leading to incomplete or misleading diagnoses."
+      ],
+      "limitations": [
+        "Model is based on a laboratory setup and may not generalize to real-world conditions with low signal-to-noise ratio, instability, and significant interference.",
+        "Setting LoRA parameters r and alpha poses a challenge as both significantly impact training efficiency and cost.",
+        "The model is solely intended for fault classification tasks involving time-series signals and is not applicable to fault diagnosis methods involving fusion of different data types (e.g., images, audio, video combined)."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "InternVL2-8B",
+      "Ovis2-8B",
+      "MiniCPM-V-2.6-8B",
+      "LLaVa-V1.6-Mistral-7B-hf",
+      "Qwen2-VL-7B-Instruct",
+      "BDC (Brownian Distance Covariance-based few-shot learning)",
+      "Evolve Graph (Evolvable Graph Neural Network)",
+      "InternLM2.5-7B-chat",
+      "InternVL3-8B"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality"
+    ],
+    "identified_research_gaps": [
+      "Gap between laboratory conditions and practical working conditions (low signal-to-noise ratio, instability, interference, signal contamination)",
+      "Difficulty in setting optimal LoRA parameters r and alpha for training efficiency and cost",
+      "Model is limited to fault classification of time-series signals and cannot fuse different types of data for complex system fault diagnosis",
+      "Need for enhanced generalization and cross-domain capabilities and adaptability to various working conditions",
+      "Need for dynamic adaptation algorithms to select optimal LoRA parameters",
+      "Need to fuse different types of data to handle fault diagnosis for complex systems more effectively",
+      "Need to integrate model algorithms with on-site experience to enhance interpretability, generalization, and stability"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

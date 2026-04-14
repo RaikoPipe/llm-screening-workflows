@@ -1,0 +1,223 @@
+{
+  "title": "Implementing Agentic AI Into ERP Software",
+  "doi": "10.1109/ACCESS.2025.3621887",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Central Orchestrator that coordinates and manages the activities of various AI agents operating within the ERP system. It oversees task allocation, facilitates inter-agent communication, maintains a global view of the system's state, resolves conflicts between agents, and aligns individual actions with overarching system objectives.",
+          "role": "orchestrator",
+          "specialized_role": "central_orchestrator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Multiple LLMs (GPT, Mistral, Gemini via Access Service)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Content-based AI agents defined declaratively via design-time files (e.g., YAML). They run centrally within the Conversational AI & Agent Runtime, which manages and stores their state. They target cross-system scenarios where a declarative approach is sufficient.",
+          "role": "other",
+          "specialized_role": "content_based_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Multiple LLMs (GPT, Mistral, Gemini via Access Service)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Code-based AI agents built using coding (e.g., Java, ABAP classes). They operate outside of the Conversational AI & Agent Runtime, processed on ERP platform infrastructure, and follow interface rules for interoperability. They aim for sophisticated logic with processing of local ERP assets including private methods, business and configuration data, analytical and search models.",
+          "role": "other",
+          "specialized_role": "code_based_agent",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "database",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Multiple LLMs (GPT, Mistral, Gemini via Access Service)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a Central Orchestrator that instruments both content-based and code-based agents. The orchestrator decomposes tasks, coordinates agent activities, manages inter-agent communication, and resolves conflicts. Content-based agents run within the Conversational AI & Agent Runtime while code-based agents run on the ERP platform. The Access Service with its Orchestration Service provides a pipeline for grounding, data masking, and content filtering. Agent execution involves iterative reasoning steps with a configurable Maximum Thinking Steps limit.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A Central Orchestrator coordinates both content-based and code-based agents in a centralized manner. The orchestrator allocates tasks, facilitates inter-agent communication, maintains global system state, and resolves conflicts. Agents can delegate tasks to each other based on expertise (role-playing). The hybrid approach allows content-based and code-based agents to coexist and complement each other across ERP modules.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "centralized"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans interact with AI agents primarily through conversational chat interfaces embedded in ERP applications. The system is designed with humans in the loop for legal compliance. Complex cases or those requiring judgment beyond defined parameters are escalated to human staff. The framework provides explainability tools including execution trace visualization showing each step the agent took. Human caseworkers can interact with AI agents via natural language chat to review recommendations and approve actions such as credit note issuance.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "real-time-monitoring",
+          "risk-based-escalation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Enterprise Resource Planning (ERP) systems spanning all core business processes including finance, supply chain management, manufacturing, services, procurement, human resources, sales, and marketing. The primary evaluated use case is dispute management for billing discrepancies in subscription-based services.",
+    "problem_description": "ERP systems are highly complex platforms managing tens of thousands of business processes and storing data in thousands of tables, comprising hundreds of millions of lines of code. There is no systematic framework for integrating agentic AI into ERP systems, creating a gap between theoretical AI concepts and practical ERP implementation. Existing literature does not address practical implementation methodologies for integrating agentic AI within complex ERP architectures, lacks standardized approaches for agent development and operations in ERP contexts, and fails to address scaling agent-based systems to enterprise-level operations.",
+    "proposed_solution": "A comprehensive framework for systematically implementing agentic AI applications within ERP systems. The solution architecture includes: an Agent Runtime for managing content-based agents, a Conversational AI Runtime for dialogue management, a Knowledge Graph for structured information representation, a Central Orchestrator for multi-agent coordination, an Access Service with Orchestration Service (RAG, content filtering, data masking), and a DevOps Framework with Intelligent Scenarios and Prompt Templates. The framework supports both content-based (declarative) and code-based agents, providing standardized development and operations across diverse ERP modules.",
+    "research_maturity": "production",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The research employs design science methodology combined with requirement engineering. Business requirements were extracted from 26 real-world ERP agentic AI use cases, validated through expert workshops and customer interviews. A solution architecture was designed to address these requirements, then implemented as a concrete framework on SAP's ERP platform (ABAP). The framework was evaluated by applying it to real-world scenarios including dispute management, and has been incorporated into SAP's core ERP product.",
+    "validation_methods": [
+      "case study",
+      "field deployment"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "AI agent achieved 81.7% accuracy in dispute classification, compared to 97.3% for non-agentic approach in controlled testing scenarios",
+        "67% reduction in operational expenses per resolved dispute",
+        "Batch processing of 1000 historical dispute records completed in 0.9 hours versus estimated 128 human-hours for equivalent non-agentic approach"
+      ],
+      "response_time_impact": [
+        "81% of simple billing discrepancy cases resolved within sub-1000ms target threshold",
+        "Complex multi-contract disputes averaged 3,100ms processing time, within the 3000ms specification for complex interactions",
+        "Load testing with 50 to 500 concurrent cases showed average response times increasing from 847ms to 2,340ms respectively (linear scaling)",
+        "Agent Runtime overhead: estimated 1.2GB additional memory per 100 concurrent agents and 1-2% CPU increase for agent orchestration",
+        "Network bandwidth: 50-80KB per agent execution for inference API calls, response payloads 2-15KB",
+        "Inference cost: $0.002-0.008 per agent execution depending on prompt complexity and model tier"
+      ],
+      "reliability_metrics": [
+        "Framework successfully deployed in production environments and incorporated into SAP's core ERP product",
+        "Framework applied across numerous agentic AI use cases spanning different ERP domains"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "tool-failure",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG via Orchestration Service enables grounding of agent responses with relevant ERP data, improving contextual accuracy",
+        "iterative-reasoning": "Maximum Thinking Steps constraint controls agent reasoning depth; iterative execution with trace visualization supports debugging and optimization"
+      },
+      "failure_modes": [
+        "12.3% of dispute management failures due to incomplete email parsing",
+        "5.8% from invalid contract data references",
+        "3.2% from generative AI model timeouts during peak processing periods"
+      ],
+      "limitations": [
+        "Long-term operational effects including sustainability of AI model updates and maintenance challenges not systematically explored",
+        "Organizational and human factors such as change management, user acceptance, AI oversight, and governance not addressed",
+        "Added abstraction of agent runtimes, orchestration layers, knowledge graph integration increases system complexity and computational resource consumption",
+        "Security controls, explainability features, content filtering, and lifecycle management create additional administrative and development burdens",
+        "AI agent accuracy (81.7%) does not outperform non-agentic approach (97.3%) in controlled testing",
+        "Long-term maintenance aspects including AI model drift, changing language capabilities, and evolving security vulnerabilities not extensively evaluated",
+        "Research focused primarily on technical and architectural considerations rather than organizational change management"
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "non-agentic approach (human-based dispute resolution)",
+      "rule-based methods"
+    ],
+    "evaluation_metric_categories": [
+      "computational-efficiency",
+      "operational-kpi",
+      "task-completion",
+      "classification"
+    ],
+    "identified_research_gaps": [
+      "Long-term maintenance and sustainability of agentic AI applications in ERP systems, including AI model drift and evolving security vulnerabilities",
+      "Organizational change management aspects of AI adoption, including training requirements, role transformations, and governance structures",
+      "Extending the framework to accommodate multimodal agents that can process visual, audio, and textual inputs simultaneously",
+      "Comprehensive methodologies for testing and quality assurance specific to agentic AI in ERP contexts",
+      "Cross-agent collaboration patterns and coordination mechanisms within enterprise contexts, including multi-agent orchestration within ERP constraints",
+      "Advanced model monitoring mechanisms for bias detection, performance degradation, and ethical deviation",
+      "Scalability refinements for complex multi-agent systems in enterprise environments"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

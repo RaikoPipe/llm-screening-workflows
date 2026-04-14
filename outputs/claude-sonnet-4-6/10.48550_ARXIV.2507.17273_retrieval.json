@@ -1,0 +1,304 @@
+{
+  "title": "Leveraging Knowledge Graphs and LLM Reasoning to Identify Operational Bottlenecks for Warehouse Planning Assistance",
+  "doi": "10.48550/ARXIV.2507.17273",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Query classifier that routes incoming user questions to either the QA Chain (operational queries) or the Iterative Reasoning Chain (investigative/bottleneck queries).",
+          "role": "orchestrator",
+          "specialized_role": "query_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Step Generation module that translates natural language operational queries into structured analytical steps, decomposing complex questions into simpler sub-queries each aimed at extracting relevant information via a single targeted Cypher query.",
+          "role": "planner",
+          "specialized_role": "step_generator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Cypher Generation module that formulates formal Cypher queries against the Neo4j knowledge graph based on structured steps provided by the Step Generation module.",
+          "role": "coder",
+          "specialized_role": "cypher_query_generator",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Query Execution and Correction Module that programmatically executes Cypher queries against the Neo4j KG and incorporates an error-handling self-reflection loop to detect and correct query errors.",
+          "role": "other",
+          "specialized_role": "query_executor_with_self_reflection",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Answer Synthesis (QA) module that receives and processes query results from the KG, interprets initial patterns, and synthesizes coherent answers for operational queries.",
+          "role": "summarizer",
+          "specialized_role": "answer_synthesizer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Iterative Reasoning module for investigative bottleneck queries that decomposes the main problem and sequentially generates sub-questions one at a time, dynamically refining the analytical path based on intermediate findings from the KG.",
+          "role": "planner",
+          "specialized_role": "iterative_bottleneck_reasoner",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "dynamic-decomposition",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "query-decomposition",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Summarizer module that performs final answer synthesis for investigative queries, interpreting aggregated graph data to identify bottleneck patterns, suggesting causal factors by traversing KG relationships, and delivering a comprehensive diagnostic summary.",
+          "role": "summarizer",
+          "specialized_role": "diagnostic_summarizer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a dual-path orchestration graph. Incoming queries are first classified as operational or investigative. Operational queries follow a linear QA Chain: Step Generation \u2192 Cypher Generation \u2192 Query Execution with self-reflection loop \u2192 Answer Synthesis. Investigative bottleneck queries activate an Iterative Reasoning Chain where a Reasoning module generates sub-questions sequentially, each sub-question leverages the full QA Chain for evidence collection, and the loop continues until a sufficiency condition is met, after which a Summarizer produces the final diagnostic answer.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Multiple specialized LLM modules cooperate in a centralized pipeline. The orchestrator (classifier) routes tasks to either the QA Chain or the Iterative Reasoning Chain. Within each chain, modules pass outputs sequentially. The Iterative Reasoning module acts as a sub-orchestrator, repeatedly invoking the QA Chain for each sub-question until sufficient evidence is gathered.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human warehouse planners and analysts pose natural language questions to the system. The system is designed as a planning assistant where humans initiate queries about operational performance or bottleneck investigations. Human expert analyses are used as qualitative benchmarks for comparison. No automated feedback loop or human-in-the-loop correction mechanism is described during system operation.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "warehouse_management",
+    "application_domain_description": "Warehouse operations management focusing on unloading, internal transport, and storage of incoming packages, with emphasis on identifying operational bottlenecks and inefficiencies through analysis of discrete event simulation outputs.",
+    "problem_description": "Extracting actionable insights from complex and voluminous Discrete Event Simulation (DES) output data for warehouse operations is challenging. Traditional statistical methods provide only surface-level insights and fail to reveal root causes of bottlenecks arising from complex interactions between system components. There is a gap in applying Knowledge Graph technology to structure and analyze DES output data, and in using LLM-based agents to perform iterative, evidence-driven bottleneck diagnosis over such KGs.",
+    "proposed_solution": "A novel framework integrating a Knowledge Graph (built from DES output logs using a custom schema in Neo4j) with a dual-path LLM reasoning agent (GPT-4o via LangChain). The agent uses a QA Chain with step-wise decomposition, Cypher query generation, self-reflection, and answer synthesis for operational queries, and an Iterative Reasoning Chain with sub-questioning, evidence accumulation, and diagnostic summarization for investigative bottleneck queries.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The framework is evaluated on data generated from an in-house DES model of a warehouse unloading scenario. Performance on 25 operational questions is measured using Pass@k metrics comparing three methods (Direct QA, Direct QA + Self-Reflection, Step-wise Guide). Three investigative bottleneck scenarios with deliberately introduced inefficiencies are evaluated qualitatively, comparing the iterative LLM agent against a baseline method and human expert analysis.",
+    "validation_methods": [
+      "simulation",
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Step-wise Guide achieves average Pass@1 of 0.82 vs 0.73 for Direct QA + SR and 0.41 for Direct QA.",
+        "Step-wise Guide achieves average Pass@4 of 1.00 vs 0.80 for Direct QA + SR and 0.56 for Direct QA.",
+        "In Scenario 1, the iterative agent precisely identified the AGV-to-FL transfer stage as the bottleneck (instances up to 2300s vs 423s average) while the baseline only broadly attributed delays without isolating the main bottleneck.",
+        "In Scenario 2, the agent pinpointed AuroraFarms as the primary driver with specific utilization metrics (worker as low as 2.6%, AGV peaks at 86%), while the baseline provided only generic averages without identifying specific entities.",
+        "In Scenario 3, the agent identified FL_00's dual inefficiency (highest average waiting time ~333s and longer movement time ~152s vs 123s global average), providing a more comprehensive diagnosis than the baseline."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Pass@4 of 1.00 achieved by Step-wise Guide across all operational stages (Supplier, Worker, AGV, Forklift, Package).",
+        "Pass@1 of 0.82 average for Step-wise Guide across all operational stages."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "dynamic-decomposition": "Step-wise decomposition of queries into structured sub-steps significantly improved Pass@1 (0.82 vs 0.73 for SR baseline) and Pass@4 (1.00 vs 0.80), enabling localized error detection and correction at each step.",
+        "iterative-reasoning": "Iterative sub-questioning in the Reasoning Chain enabled evidence-driven bottleneck diagnosis surpassing both baseline methods and matching or exceeding human expert analysis in precision and comprehensiveness.",
+        "chain-of-thought": "Self-reflection at each step (within Step-wise Guide) enabled localized error correction, improving over post-answer reflection in Direct QA + SR baseline.",
+        "retrieval-augmented-generation": "KG-grounded retrieval via Cypher queries provided factual, structured evidence to ground LLM reasoning and reduce hallucination in diagnostic outputs."
+      },
+      "failure_modes": [
+        "Direct QA fails to correctly associate multiple facts in a single query (e.g., shortest discharge time + package count), returning incorrect package count of 1 instead of 33.",
+        "Direct QA produces syntax errors on complex group-by aggregation queries (e.g., packages per worker).",
+        "Step-wise Guide incorrectly concludes information is unavailable for 'for each' type group-by-aggregate queries, failing to map entity types correctly.",
+        "Both baselines compute incorrect AGV travel time (178s vs correct 455s) due to misidentification of journey scope or incorrect aggregation path.",
+        "LLM-generated Cypher queries may have minor variability despite temperature 0.0 due to top_p sampling and multi-step reasoning dynamics."
+      ],
+      "limitations": [
+        "Initial KG schema design requires careful upfront domain expertise and engineering effort.",
+        "Absolute reliability of LLM-generated Cypher queries and nuanced accuracy of synthesized explanations require ongoing evaluation, especially for novel or ambiguous scenarios.",
+        "Generalizability of the KG schema and agent has been validated only within the described warehouse unloading context; applicability to vastly different DES models or broader warehouse processes is not exhaustively demonstrated.",
+        "Step-wise Guide has limitations with complex aggregation queries requiring group-by operations, as shown in the worker package count failure case.",
+        "No rigorous benchmarking methodology for investigative question-answering capabilities has been developed yet."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Direct QA (single-pass Cypher query generation followed by answer synthesis)",
+      "Direct QA + Self-Reflection (single-pass Cypher generation with post-answer self-reflection)",
+      "Human expert analysis"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "retrieval-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Exploration of other advanced reasoning-focused LLM architectures or state-of-the-art alternatives to enhance diagnostic depth and efficiency",
+      "Expanding application to wider array of warehouse operations beyond unloading (e.g., slotting design, order picking, loading, inventory management)",
+      "Developing rigorous benchmarking methodologies for investigative question-answering capabilities to formally quantify performance in bottleneck identification tasks",
+      "Validating generalizability of KG schema and agent to vastly different DES models or broader warehouse processes",
+      "Potential for analyzing larger-scale supply chain simulations",
+      "Improving step generation and KG traversal logic to better handle complex aggregation queries",
+      "Ongoing evaluation of absolute reliability of LLM-generated Cypher queries and nuanced accuracy of synthesized explanations for novel or ambiguous scenarios"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

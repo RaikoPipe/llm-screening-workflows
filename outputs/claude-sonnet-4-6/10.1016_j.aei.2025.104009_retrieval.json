@@ -1,0 +1,138 @@
+{
+  "title": "A MoE-LLM-based multisensor flexible fusion fault diagnosis method for rotating machinery",
+  "doi": "10.1016/j.aei.2025.104009",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A single MoE-LLM-based agent that processes multisensor signals (vibration, acoustic, current) through a multisensor embedding layer, applies sparse Mixture of Experts mechanism within a Transformer LLM backbone, and outputs fault diagnosis results with textual explanations.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_agent",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Three multisensor rotating machinery datasets: Intelligent Bearing (IB) dataset, BJTU-A dataset (subset of BJTU train bogie dataset), and Motor Bearing (MB) dataset. These include vibration, acoustic, and current signals with various fault types and severity levels. Fine-tuning uses LoRA with curriculum learning staged training strategy."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Single-step orchestration where the MoE-LLM processes multisensor input embeddings through a fixed pipeline: multisensor embedding layer \u2192 MoE-LLM Transformer blocks \u2192 output fault diagnosis response. No iterative loops or multi-agent coordination.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "The system is used in an experimental research context. Humans provide labeled sensor data for training and evaluation. No explicit real-time human oversight or interaction modality beyond providing input data and prompts is described.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis of rotating machinery (bearings, gears, motors) in industrial systems using multisensor data fusion with LLMs for predictive maintenance.",
+    "problem_description": "Existing intelligent fault diagnosis methods for rotating machinery are limited to single-type sensor signals and lack effective modeling of complementary and synergistic information across multiple sensors. LLM-based diagnostic methods are further restricted to uni-signal inputs and rigid input representations that cannot flexibly handle signal absence or heterogeneity, limiting applicability in complex and dynamic industrial environments.",
+    "proposed_solution": "A MoE-LLM-based multisensor flexible fusion fault diagnosis method comprising: (1) a multisensor embedding layer that maps various sensor signal combinations into unified LLM-compatible feature embeddings via CNN feature extractors and connector networks; (2) a sparsely activated Mixture of Experts (MoE) mechanism with uni-signal and fusion-signal expert subnetworks integrated into selected Transformer blocks; and (3) a curriculum learning-based staged training strategy (pre-training extractors, aligning features, fine-tuning experts, LoRA-based task fine-tuning) to enhance transferability across scenarios.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison of the proposed MoE-LLM method against multiple baseline and state-of-the-art methods on three publicly available multisensor rotating machinery datasets (IB, BJTU-A, MB). Ablation studies evaluate individual components (MoE layers, connector networks, training strategies, text prompts). Hyperparameter studies assess the impact of K (active experts) and LoRA rank r. Domain shift experiments test transferability.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Proposed method achieves 97.87%/97.85% accuracy/F1 on IB dataset, outperforming best baseline Res-GTLA-Net (97.30%/97.58%) and LLM-based BearLLM (82.29%/82.01%).",
+        "On BJTU-A dataset, proposed method achieves 99.76%/99.76% accuracy/F1, outperforming TAR (99.44%/99.44%) and all LLM-based baselines.",
+        "On MB dataset, proposed method achieves 99.95%/99.95% accuracy/F1, outperforming TAR (99.89%/99.89%) and LLMFB-2 (98.86%/98.87%).",
+        "MoE layers improve average accuracy from 91.56% to 92.24% on IB dataset across signal configurations.",
+        "Curriculum learning staged training improves average accuracy from 82.93% (w/o stage 3) to 89.24% (full staged) on IB dataset.",
+        "Under domain shift, proposed method achieves 96.87%/96.85% on IB, 97.78%/97.78% on BJTU-A, 99.97%/99.97% on MB, significantly outperforming LLMFB-1, LLMFB-2, and BearLLM.",
+        "Text prompts improve average accuracy from 87.74% (no prompt) to 89.80% (with task description prompt) on IB dataset.",
+        "Combining vibration and acoustic signals yields 97.87% accuracy on IB vs. 95.78% (vibration only) and 83.08% (acoustic only)."
+      ],
+      "response_time_impact": [
+        "Inference latency of proposed method is 0.0411 s/sample, comparable to BearLLM (0.0297 s/sample) and LLMFB-1 (0.0500 s/sample).",
+        "LoRA fine-tuning keeps training time nearly constant (~11 min per epoch) regardless of rank r from 4 to 32.",
+        "Model with pretrained MoE layers converges faster and more stably than without pretraining."
+      ],
+      "reliability_metrics": [
+        "Standard deviation of accuracy across runs is consistently low (e.g., \u00b10.22% on IB, \u00b10.03% on BJTU-A, \u00b10.01% on MB for proposed method).",
+        "Proposed method requires only 10% of target domain samples for effective fine-tuning under domain shift."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Text prompts with task description (Prompt 2) improve average accuracy by ~2% over no-prompt baseline on IB dataset; prompts with explicit fault category constraints (Prompt 3) show slightly lower performance than Prompt 2, possibly due to cognitive burden on the small 1.5B model.",
+        "chain-of-thought": "Curriculum learning staged training progressively increases task complexity, improving average accuracy from 41.06% (end-to-end) to 89.24% (full staged training) on IB dataset."
+      },
+      "failure_modes": [
+        "Misclassification between different severity levels of rolling element faults and normal state on IB dataset due to weak fault signatures of ball defects.",
+        "Confusion between motor short circuit and motor shaft bending on BJTU-A dataset.",
+        "Confusion among different severities of outer race faults and occasional misidentification of inner race faults as ball faults on MB dataset.",
+        "Prompt with explicit fault category constraints causes unstable training on small LLM due to simultaneous fault type and severity classification demands."
+      ],
+      "limitations": [
+        "Framework currently limited to vibration, acoustic, and current signals; extending to temperature or image data introduces additional challenges.",
+        "Adopted LLM backbone is relatively small (1.5B parameters) and may not fully leverage large-scale pre-trained language models.",
+        "Number of expert sub-networks grows exponentially (2^M) with the number of sensor types, limiting scalability.",
+        "Model does not explicitly address temporal misalignment or asynchronous sampling across sensors.",
+        "End-to-end training without staged curriculum learning leads to poor convergence."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Fusion-Add",
+      "Fusion-Con",
+      "Fusion-Attn",
+      "MCFormer",
+      "Res-GTLA-Net",
+      "SiT",
+      "TST",
+      "DFormer",
+      "TAR",
+      "LLMFB-1",
+      "LLMFB-2",
+      "BearLLM"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Extending the framework to other signal types such as temperature or image data, which may introduce additional challenges due to heterogeneous feature distributions and distinct sampling characteristics",
+      "The adopted LLM backbone is relatively small in scale (1.5B parameters) and may not fully leverage the potential of large-scale pre-trained language models",
+      "As the number of sensor signal types increases, the required number of expert sub-networks may grow exponentially, limiting the model's scalability",
+      "The model does not explicitly address potential temporal misalignment or asynchronous sampling across signals, which may occur in real-world industrial scenarios",
+      "Developing diagnostic frameworks based on larger-scale pre-trained LLMs and incorporating more efficient parameter adaptation methods",
+      "Designing more compact and adaptive expert selection and routing mechanisms to enhance the scalability of the MoE structure",
+      "Supporting asynchronous or event-driven sensor data to improve applicability in complex real-world environments"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

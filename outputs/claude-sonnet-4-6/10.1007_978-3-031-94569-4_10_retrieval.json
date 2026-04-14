@@ -1,0 +1,176 @@
+{
+  "title": "A Conversational Framework for Faithful Multi-perspective Analysis of Production Systems",
+  "doi": "10.1007/978-3-031-94569-4_10",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Gateway LLM that routes user natural language questions to the appropriate branch (simulation, verification, or out-of-scope rejection) and generates human-readable answers from reasoning engine results.",
+          "role": "orchestrator",
+          "specialized_role": "question_router_and_answer_generator",
+          "context_engineering": {
+            "memory_types": [],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "gpt-4o-mini (default for qualitative evaluation; also tested with Llama, Mistral, Qwen, Gemma variants)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Translator LLM for Simulation that converts natural language questions into JSON files containing simulation task parameters compatible with the SimPy-based digital twin.",
+          "role": "other",
+          "specialized_role": "nl_to_simulation_task_translator",
+          "context_engineering": {
+            "memory_types": [],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-4o-mini (default; also tested with Llama, Mistral, Qwen, Gemma variants)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Translator LLM for Verification that converts natural language questions into TCTL properties expressed in UPPAAL-specific query notation for formal verification against the PTA model.",
+          "role": "other",
+          "specialized_role": "nl_to_formal_verification_query_translator",
+          "context_engineering": {
+            "memory_types": [],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-4o-mini (default; also tested with Llama, Mistral, Qwen, Gemma variants)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The framework uses an orchestration graph where the Gateway LLM first routes the user's question to either the Simulation Translator LLM or the Verification Translator LLM. The selected Translator LLM generates a machine-readable JSON, which is dispatched to the corresponding reasoning engine (SimPy digital twin or UPPAAL verifier). Results are returned to the Gateway LLM for answer generation.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three specialized LLMs cooperate: the Gateway LLM orchestrates routing and answer generation, while two Translator LLMs handle domain-specific formalization tasks. Each agent has a distinct role with no competition between them.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Non-technical users (e.g., plant managers, operators) interact with the framework via natural language requests. The framework abstracts away technical details of reasoning engines. A qualitative evaluation involved 14 participants who tested the system and provided feedback via survey. Future work proposes allowing expert users to review and refine LLM-generated translations.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Analysis of production systems through simulation and formal verification, supporting plant managers and operators in decision-making about production processes, machine utilization, order scheduling, and behavioral guarantees.",
+    "problem_description": "Production systems require reliable diagnostic and prognostic analysis, but existing reasoning tools (simulation, formal verification) require highly skilled users, operate in isolation, and create a technological barrier for non-technical domain experts. Manual data selection and interpretation are time-consuming and error-prone, limiting effective multi-perspective analysis.",
+    "proposed_solution": "A conversational framework that interposes a natural language interface between users and reasoning engines. Three specialized LLMs handle question routing (Gateway LLM), simulation task formalization (Translator LLM for Simulation), and formal verification query generation (Translator LLM for Verification). Reasoning is performed by a SimPy-based digital twin and UPPAAL model checker. Results are translated back to natural language for the user.",
+    "research_maturity": "prototype",
+    "research_methodology": "mixed-methods",
+    "research_methodology_description": "The paper combines a quantitative evaluation (accuracy of LLMs across routing and translation tasks using 300-sample synthetic datasets, tested over 5 runs with multiple open-source and proprietary models) with a qualitative user study (survey with 14 participants evaluating coherence, understandability, relevance, and usefulness of framework responses on a Likert scale).",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "gpt-4o-mini achieved 100% routing accuracy, 99.56% simulation translation accuracy, and 96.78% verification translation accuracy.",
+        "Qwen2.5-7B-Instruct achieved 100% routing accuracy, 85.00% verification translation accuracy among open-source models.",
+        "Qualitative evaluation showed no participant rated understandability below 4 on a 5-point Likert scale.",
+        "Framework enables multi-perspective analysis combining simulation and formal verification through a single natural language interface."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Routing accuracy ranged from 45.66% (Llama-3.2-1B) to 100% (Qwen2.5-7B, gpt-4o-mini) across tested models.",
+        "Simulation translation accuracy ranged from 16.67% (Llama-3.2-1B) to 99.56% (gpt-4o-mini).",
+        "Verification translation accuracy ranged from 0.78% (Llama-3.2-1B) to 96.78% (gpt-4o-mini).",
+        "Each evaluation step repeated 5 times to ensure robustness against statistical variability."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Few-shot ICL with carefully engineered prompts proved sufficient for all three LLM roles without fine-tuning, achieving high accuracy especially for proprietary models like gpt-4o-mini."
+      },
+      "failure_modes": [
+        "Smallest models (Llama-3.2-1B-Instruct) failed to generalize across diverse question patterns in routing and translation tasks.",
+        "Occasional responses did not entirely align with users' expectations in relevance.",
+        "Some answers lacked depth required to be fully actionable.",
+        "Framework does not retain context of previous questions (no conversational memory), limiting multi-turn interaction.",
+        "Verification tasks are less accessible to users without automata theory background."
+      ],
+      "limitations": [
+        "Rapid advancements in LLM development may render results obsolete over time.",
+        "Statistical variability in LLM outputs for identical prompts.",
+        "Qualitative evaluation participants were AI/CS academics, not domain experts in production systems.",
+        "Framework currently handles single reasoning engine requests per query; multi-engine unified analysis not yet supported.",
+        "No guided interaction feature to help users refine questions when framework fails to answer.",
+        "No conversational mode retaining context of previous interactions.",
+        "Scalability to larger-scale automata of production processes not yet investigated.",
+        "Simulation parameters and automaton must be provided by a domain expert rather than being LLM-generated."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "classification",
+      "task-completion",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Expanding the framework with additional reasoners for advanced analyses",
+      "Leveraging reasoning tool feedback to enhance problem formulation accuracy through expert review and automatic feedback loops",
+      "Exploring larger-scale automata of production processes",
+      "Investigating potential bottlenecks in the reasoning engines to enhance scalability and performance",
+      "Exploring new solutions for interpreting requests involving multiple reasoning engines at once and unifying their results into a cohesive output",
+      "Conducting a comprehensive qualitative evaluation involving experts in production systems and real users from industry",
+      "Supporting guided interaction features to help users refine their questions",
+      "Enabling conversational mode that retains context of previous questions and answers",
+      "Enhancing accessibility for verification tasks for users without automata theory background"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

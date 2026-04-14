@@ -1,0 +1,181 @@
+{
+  "title": "The Impact of Large Language Models on Task Automation in Manufacturing Services",
+  "doi": "10.1016/j.procir.2025.03.071",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Text correction agent that uses GPT-3.5-turbo to automatically correct spelling and grammar errors in reply emails for technical service incidents.",
+          "role": "other",
+          "specialized_role": "text_corrector",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "gpt-3.5-turbo-0125",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Summarization agent that uses GPT-4 to generate concise summaries (100, 200, or 500 words) of customer request and solution message exchanges for technical service incidents.",
+          "role": "summarizer",
+          "specialized_role": "text_summarizer",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "gpt-4-0125-preview",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Question answering agent using RAG architecture. Retrieves relevant historical incident records from a Chroma vector database and uses GPT-3.5-turbo to generate context-aware answers to synthetic customer inquiries.",
+          "role": "retriever",
+          "specialized_role": "rag_question_answerer",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-3.5-turbo-0125",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Three separate single-step pipelines are implemented for three distinct cognitive tasks: text correction, summarization, and question answering. Each pipeline operates independently. The question answering pipeline uses a RAG-based single-step orchestration where a vector search retrieves relevant chunks from Chroma DB and the result is inserted into a prompt template before being sent to the LLM.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human technical service agents initiate queries and customer requests. Manual validation is performed by researchers comparing LLM outputs against human-generated solutions. The system is designed to assist human support agents by automating text correction, summarization, and question answering, freeing them to focus on complex tasks.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Technical service and support for production machinery manufacturers, including handling customer inquiries about machine configuration, troubleshooting outages, installation procedures, and maintenance activities.",
+    "problem_description": "Manual activities in manufacturing technical service\u2014such as correcting text in reply emails, summarizing customer communication exchanges, and answering recurring customer queries\u2014are time-consuming and knowledge-intensive. It remains unclear which of these cognitive tasks can be fully automated using LLMs, and there is insufficient research validating LLM automation potential with real customer data in manufacturing service contexts.",
+    "proposed_solution": "A prototyping approach using real customer incident data to validate LLM-based automation of three cognitive tasks: (1) text correction using GPT-3.5-turbo, (2) text summarization using GPT-4, and (3) question answering using a RAG architecture with Chroma DB vector database, OpenAI text-embedding-3-small embeddings, LangChain framework, and GPT-3.5-turbo for response generation.",
+    "research_maturity": "prototype",
+    "research_methodology": "proof-of-concept",
+    "research_methodology_description": "Prototyping methodology using 15 real customer technical service requests. Three prototypes are built and validated: text correction (typos introduced and corrected), summarization (cosine similarity and manual analysis of summaries at 100/200/500 words), and question answering (10 synthetic queries per incident, vector search relevance, and cosine distance analysis of LLM responses against historical records).",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Text correction: Almost all typos were eliminated by the automated process without changing wording or message content.",
+        "Summarization: Cosine similarities between summaries and source texts ranged from 0.63 to 0.86, increasing with longer summaries.",
+        "Question answering: Vector search returned 100% relevant chunks when retrieving 1 chunk, 95% for 2 chunks, and 87% for 3 chunks.",
+        "Question answering: Mean cosine distance of LLM responses to relevant original request chunks was 0.5, versus 0.9 for nearest irrelevant chunks."
+      ],
+      "response_time_impact": [
+        "Summarization saves substantial processing time for customer service agents; time saved per incident ranged from approximately 0.38 to 11.68 minutes depending on summary length and incident complexity.",
+        "Automation of question answering minimizes time agents spend searching for solutions in large datasets."
+      ],
+      "reliability_metrics": [
+        "GPT-4 produced summaries with average word count of 100.33 words at 100-word specification.",
+        "GPT-4 produced significantly shorter text than specified at 500-word specification (average: 268.4 words).",
+        "GPT-3.5-turbo showed significant text length deviations in summarization compared to GPT-4."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG with vector search achieved high relevance of retrieved chunks (100% for k=1, 95% for k=2, 87% for k=3) and LLM responses showed low cosine distance to relevant historical records (mean 0.5), demonstrating effective grounding of answers in historical data.",
+        "in-context-learning": "Providing context via prompt template improved accuracy and relevance of question answering responses."
+      },
+      "failure_modes": [
+        "Ambiguously formulated customer requests led to higher cosine distance to relevant chunks and lower separation from irrelevant chunks (e.g., Inc4).",
+        "GPT-4 failed to adhere to specified word count for longer summaries (500-word target produced average of 268.4 words).",
+        "Knowledge hallucination identified as a challenge for LLMs in manufacturing service contexts.",
+        "Reliability of LLM-generated output remains a challenge for fully automated systems."
+      ],
+      "limitations": [
+        "Small sample size of 15 customer requests may not fully capture variability of real-world scenarios.",
+        "Dataset limited to IT-related topics (software, hardware, network), not covering all manufacturing machine operation issues.",
+        "Challenges with ambiguous inputs, knowledge hallucination, and seamless integration with human workflows remain unresolved.",
+        "Scalability of solutions in diverse manufacturing environments not yet evaluated.",
+        "Long-term impact on operational performance not assessed."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Human technical support agents (manual text correction, summarization, and question answering by human experts)",
+      "gpt-3.5-turbo-0125 compared against gpt-4-0125-preview for summarization text length accuracy"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "retrieval-quality",
+      "human-evaluation",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Scalability of LLM solutions in diverse manufacturing environments",
+      "Long-term impact on operational performance",
+      "Mitigating knowledge hallucination challenges",
+      "Improving prompt engineering for ambiguous inputs",
+      "Refining LLM training with domain-specific data",
+      "Ensuring seamless integration with human workflows",
+      "Addressing limitations from small sample size used in prototyping",
+      "Handling ambiguous inputs in question answering tasks"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

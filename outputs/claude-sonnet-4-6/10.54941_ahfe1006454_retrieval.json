@@ -1,0 +1,159 @@
+{
+  "title": "MetaBPL: Fault Detection in Business Logic Systems",
+  "doi": "10.54941/ahfe1006454",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Main fault detection agent that ingests business/manufacturing documents, retrieves relevant background knowledge from a vector database, detects discrepancies, classifies faults against a predefined taxonomy, assesses severity and impact, and performs self-reflection to validate its analysis.",
+          "role": "monolithic",
+          "specialized_role": "fault_detector",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLaMA 3.2 8B",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Data synthesis agent that automatically generates interdependent organizational production documents (BOM, Work Instructions, QA Policy, etc.) based on dynamically constructed prompts, with consistency checks via a feedback loop using a vector database.",
+          "role": "other",
+          "specialized_role": "document_generator",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLaMA (local, hosted on Ollama server)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "MetaBPL uses a sequential pipeline orchestration. The fault detection pipeline processes document chunks step-by-step: background retrieval, discrepancy detection, fault classification, severity/impact assessment, and self-reflection. The data synthesis pipeline also follows a sequential order starting from foundational documents and progressing to dependent ones, with consistency checks after each generation step.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans provide hand-written general document definitions and product descriptions used as inputs to the data synthesis pipeline. Fault taxonomies and ground truth fault injections are manually created by humans. The system is designed to reduce reliance on manual fault detection, but human experts define the fault taxonomy and evaluate outputs. No real-time human-in-the-loop interaction during automated pipeline execution is described.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Fault detection in business process logic systems, specifically targeting manufacturing and business operations quality management, including compliance with standards like ISO-9000, and analysis of organizational documents such as Bills of Materials, Work Instructions, Quality Assurance Policies, and Traveler Documents.",
+    "problem_description": "Business logic systems in manufacturing and defense-critical workflows are heterogeneous, complex, and governed by both formal standards and implicit human knowledge. Vulnerabilities and faults in these systems can cause massive financial losses (e.g., product recalls exceeding $10M, downtime costing $1M/hour). Manual identification of discrepancies requires scarce domain expertise, and there is a lack of proactive, automated solutions for real-time, large-scale fault detection.",
+    "proposed_solution": "MetaBPL is a framework integrating an LLM agent with a RAG architecture tailored for fault detection in business processes. It retrieves relevant context from a vector database (regulatory excerpts, standards, internal documentation), dynamically generates fault detection queries, identifies discrepancies, classifies faults against a predefined taxonomy, assesses severity and impact, and performs self-reflection for quality control. A synthetic data generation pipeline is also proposed to create benchmark organizational documents with injected faults for evaluation.",
+    "research_maturity": "prototype",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The authors design and implement the MetaBPL framework as an artifact, construct a synthetic benchmark with controlled fault injection, and evaluate the system using quantitative metrics (fault detection rate, ROUGE scores, cosine similarity) on the generated benchmark corpus.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "MetaBPL detects 44.8% of injected faults (13/29) across 18 unique fault types.",
+        "Fault location accuracy is relatively high (cosine similarity: 0.5133, ROUGE-1: 0.4718), effectively pinpointing faulty sections.",
+        "Fault explanation shows moderate alignment with human-written ground truth (cosine similarity: 0.2457, ROUGE-1: 0.3525)."
+      ],
+      "response_time_impact": [
+        "Pipeline processes the benchmark dataset in under 2.5 hours using LLaMA 3.2 8B on a remote AWS server, averaging approximately 5 minutes per input document."
+      ],
+      "reliability_metrics": [
+        "Fault detection rate: 44.8% (13 out of 29 faults detected).",
+        "Fault explanation cosine similarity: 0.2457; ROUGE-1: 0.3525; ROUGE-2: 0.1601; ROUGE-L: 0.2549.",
+        "Fault location cosine similarity: 0.5133; ROUGE-1: 0.4718; ROUGE-2: 0.4156; ROUGE-L: 0.4521.",
+        "Context retrieval cosine similarity: 0.1701; ROUGE-1: 0.2434; ROUGE-2: 0.1367; ROUGE-L: 0.1917."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Enables context-aware fault detection by retrieving relevant background knowledge; however, retrieved context quality is weak (cosine similarity: 0.1701, ROUGE-1: 0.2434), indicating need for improvement in supporting information selection.",
+        "chain-of-thought": "Self-reflection step (reviewing discrepancy explanation, fault classification, and impact assessment together) provides additional quality control and consistency validation.",
+        "in-context-learning": "Dynamic query formulation based on document contents and predefined fault taxonomy enables informed fault classification."
+      },
+      "failure_modes": [
+        "False positives detected, though detailed error analysis was not conducted; most appeared reasonable given the synthetic nature of the benchmark.",
+        "Context retrieval quality is weak, limiting the quality of supporting information for fault detection.",
+        "Fault explanation clarity is limited, with only moderate alignment to human-written ground truth.",
+        "LLM hallucinations are a risk, motivating future neuro-symbolic integration."
+      ],
+      "limitations": [
+        "Benchmark consists of artificially generated organizational documentation rather than real human-written text, which may affect generalizability.",
+        "Only 44.8% fault detection rate, leaving more than half of injected faults undetected.",
+        "Context retrieval quality is weak, highlighting the need for better supporting information selection.",
+        "No detailed false positive error analysis was conducted.",
+        "Fault taxonomy and benchmark are small-scale (7 test cases, 29 faults, 18 fault types).",
+        "Risk of LLM hallucinations in fault explanations and classifications."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "retrieval-quality",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Expanding fault taxonomies to cover more fault types",
+      "Refining self-reflection mechanisms to improve explanation clarity",
+      "Integrating real-time monitoring capabilities",
+      "Improving context retrieval quality for better supporting information selection",
+      "Extending MetaBPL into a neuro-symbolic fault detection pipeline using BPMN, NLP, SMT Solvers, and BDD-based model checkers",
+      "Reducing false positives and negatives due to LLM hallucinations through symbolic methods"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,144 @@
+{
+  "title": "Optimization of Large Language Models with Multimodal Data Training for Fault Diagnosis in Wind Turbine Systems",
+  "doi": "10.1109/PEED63748.2025.00038",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic hybrid CNN-LLM agent that processes multimodal sensor data (vibration, acoustic, thermal, visual) through a CNN for feature extraction and fault classification, then uses an LLM to generate human-readable diagnostic reports with fault type identification and corrective action recommendations.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_and_report_generation",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified, GPT-based referenced in literature)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "The LLM is trained/fine-tuned using multimodal fault diagnosis data collected from 36 operational 2.5MW wind turbines, comprising 12,480 synchronized samples across three fault categories: bearing failure, gearbox malfunction, and blade damage."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step pipeline: multimodal sensor data is collected and preprocessed, features are extracted via WPT and MFCCs, fused through cross-modal attention gates into a unified feature vector, classified by the CNN, and then passed to the LLM to generate a diagnostic report. The flow is sequential and automated without iterative agent loops.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "The system generates human-readable diagnostic reports for wind turbine technicians, providing fault type identification, severity assessments, and actionable maintenance recommendations. Human technicians (n=12) evaluated report clarity and actionability. The system is designed to assist operators in fault resolution through an AI dialogue interface, improving decision-making support.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "real-time-monitoring"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Predictive maintenance and fault diagnosis for wind turbine systems, targeting mechanical, electrical, and control system failures to reduce maintenance costs and downtime.",
+    "problem_description": "Wind turbines are subject to diverse faults (bearing failure, gearbox malfunction, blade damage) that lead to costly maintenance and downtime. Traditional single-modality diagnostic methods relying on predefined thresholds are limited in capturing the full range of fault types, are vulnerable to noise and varying conditions, and lack interpretability for technicians.",
+    "proposed_solution": "An integrated multimodal fault diagnosis system combining a hybrid CNN-LLM architecture. The CNN processes fused vibration, acoustic, thermal, and visual sensor data using wavelet packet transform and MFCCs for feature extraction, cross-modal attention for fusion, and supervised classification. The LLM converts the diagnostic output into human-readable reports with fault identification and corrective action recommendations, deployed in real-time via SCADA integration.",
+    "research_maturity": "pilot",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The study conducts controlled experiments on a dataset from 36 operational wind turbines (12,480 samples), comparing the proposed CNN-LLM hybrid against SVM and DNN baselines using accuracy, F1-score, AUC-ROC, BLEU, ROUGE-L, and METEOR metrics. Ablation studies quantify component contributions. Field deployment over three months validates real-world operational impact.",
+    "validation_methods": [
+      "benchmark",
+      "field deployment"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "CNN-LLM hybrid achieved 91.5% overall fault classification accuracy, outperforming SVM (84.8%) by 6.7% and DNN (88.3%) by 3.2%",
+        "AUC-ROC of 0.96 vs SVM 0.88 and DNN 0.91",
+        "F1-scores: bearing 0.93, gearbox 0.91, blade 0.91",
+        "Cross-modal attention improved gearbox fault detection F1-score by 5.9%",
+        "LLM integration enhanced blade damage recall by 2.3%",
+        "LLM-generated reports achieved BLEU-4 of 0.84, ROUGE-L of 0.76, METEOR of 0.60",
+        "Human evaluation: report clarity 4.2/5.0 and actionability 4.4/5.0, vs template-based 2.8/5.0",
+        "Outperforms GE Predix (86.2%) and Siemens MindSphere (88.7%) in accuracy"
+      ],
+      "response_time_impact": [
+        "Mean fault detection latency of 8.7 minutes",
+        "Mean inference latency of 320ms (exceeds 250ms industry real-time threshold for pitch control)",
+        "4.5 hours/week downtime reduction compared to SCADA-only systems",
+        "GE Predix latency 520ms, Siemens MindSphere 480ms, proposed 320ms"
+      ],
+      "reliability_metrics": [
+        "93.2% true positive rate at 5% false alarm rate for bearing faults",
+        "23.4% reduction in maintenance costs over three-month field deployment",
+        "56% fewer emergency repairs over three-month field deployment",
+        "<5ms inter-sensor alignment error achieved via SCADA timestamps and DTW"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "LLM fine-tuned on real-world wind turbine fault data achieved BLEU-4 of 0.84 and high technician actionability ratings (4.4/5.0)"
+      },
+      "failure_modes": [
+        "Performance degradation under heavy rain: blade F1-score drops to 0.78",
+        "320ms mean latency exceeds 250ms real-time threshold for pitch control in high-speed wind conditions",
+        "Insufficient labeled data for rare or compound faults"
+      ],
+      "limitations": [
+        "Mean inference latency of 320ms exceeds 250ms industry real-time threshold for pitch control",
+        "Performance degrades under extreme weather conditions, particularly heavy rain",
+        "Reliance on high-quality labeled data; obtaining sufficient fault samples for rare or compound faults is difficult",
+        "Weather sensitivity affecting visual and acoustic processing",
+        "Deployment maturity trails commercial alternatives (GE Predix, Siemens MindSphere)"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "SVM (Support Vector Machine)",
+      "DNN (Deep Neural Network)",
+      "GE Predix",
+      "Siemens MindSphere",
+      "Template-based diagnostic reports",
+      "SCADA-only systems",
+      "Single-modality approaches"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "computational-efficiency",
+      "operational-kpi",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Reducing inference latency below 250ms threshold for real-time pitch control via neuromorphic computing or lightweight model architectures",
+      "Improving robustness under extreme weather conditions (e.g., heavy rain) for visual and acoustic processing",
+      "Addressing reliance on high-quality labeled data, especially for rare or compound faults, through physics-informed data augmentation, federated learning, and self-supervised learning",
+      "Edge deployment optimization through model compression and quantization",
+      "Extension of the framework to other renewable energy systems (solar farms, hydroelectric plants)",
+      "Integration of digital twin technology for scaling predictive maintenance",
+      "Advancements in LLM interpretability and multimodal fusion techniques for human-machine collaboration"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

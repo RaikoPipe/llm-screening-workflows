@@ -1,0 +1,202 @@
+{
+  "title": "Chat with MES: LLM-driven user interface for manipulating garment manufacturing system through natural language",
+  "doi": "10.1016/j.jmsy.2025.02.008",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Request Re-writer agent that preprocesses user inputs by identifying and disambiguating named entities using a vector database of registered entities from the production database, replacing ambiguous references with standardized entity names.",
+          "role": "other",
+          "specialized_role": "entity_disambiguator",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Multi-step Dynamic Operations Planner that decomposes complex user requests into a chain of basic executable operations (SQL, Tool invocations, Thought steps) with parameter placeholders, using few-shot learning to incorporate production guidelines.",
+          "role": "planner",
+          "specialized_role": "operations_planner",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Response Generator that consolidates intermediate results from all executed operations and produces a coherent textual response in markdown format for the user.",
+          "role": "summarizer",
+          "specialized_role": "response_generator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The CWM system uses a sequential orchestration graph where user input flows through three stages: (1) Request Re-writing for entity disambiguation, (2) Multi-step Dynamic Operations Planning and Execution where a planner decomposes the task and executes SQL, Tool, and Thought operations step-by-step with dynamic parameter retrieval, and (3) Response Generation that summarizes all intermediate results. The LangChain framework coordinates tool invocations.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three specialized agents operate in a linear pipeline: the Request Re-writer preprocesses input, the Operations Planner decomposes and executes multi-step operations, and the Response Generator produces the final output. Each agent passes its output to the next in sequence.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Workers and managers interact with the CWM system through a conversational text interface (Dify chatbot page) using natural language. The system is human-initiated and designed to replace the traditional GUI. The paper discusses a proposed confirmation step where users review planned operations before execution, assigning responsibility to the user upon confirmation. The system may ask clarifying questions when entity information cannot be matched.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "risk-based-escalation"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Garment Manufacturing Execution System (MES) control and manipulation, covering order management, production task assignment, material allocation, inventory management, and production planning in garment factories.",
+    "problem_description": "Traditional GUI-based MES interfaces impose high development and maintenance costs on developers and significant learning costs and operational complexity on workers. Replacing GUI with LLM-based natural language interfaces introduces challenges: (1) ambiguous and non-standardized user inputs leading to incorrect database operations, and (2) complex multi-step manufacturing tasks requiring precise, sequential database operations and tool invocations that current LLMs cannot reliably handle.",
+    "proposed_solution": "Chat with MES (CWM): an LLM agent system integrating GPT-4o into MES as a natural language interface. Two key innovations: (1) Request Re-writer that uses a vector database of registered entities and RAG to disambiguate and standardize user inputs; (2) Multi-step Dynamic Operations Planning and Execution that pre-plans a chain of SQL, Tool, and Thought operations with few-shot learning to incorporate production guidelines, then executes them step-by-step with dynamic parameter retrieval.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "A simulated garment MES with a relational database of 16 tables and 312 records was developed. A benchmark dataset of 55 manually designed requests covering common MES operations was created. CWM was evaluated against baseline models (GPT-3.5, GPT-4o as Text2SQL) using execution accuracy as the primary metric. Ablation studies assessed the contribution of each component (Request Re-writer, Multi-step Operations, Tool operations, Thought operations) and the impact of different foundation LLMs.",
+    "validation_methods": [
+      "simulation",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "CWM achieves 80% execution accuracy vs. GPT-4o baseline at 60% (20% improvement)",
+        "CWM achieves 80% execution accuracy vs. GPT-3.5 baseline at 25.5%",
+        "Request Re-writer contributes approximately 9.1% accuracy improvement over CWM without re-writer (70.9%)",
+        "Multi-step Dynamic Operations Planning and Execution contributes approximately 18.2% accuracy improvement over CWM without multi-step operations (61.8%)",
+        "Removing Tool operations reduces accuracy from 80% to 65%",
+        "Removing Thought operations reduces accuracy from 80% to 67%",
+        "CWM with GPT-3.5 achieves only 16% accuracy, lower than GPT-3.5 alone (25.5%)"
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "CWM execution accuracy: 80% on 55 manually designed requests",
+        "GPT-4o baseline execution accuracy: 60%",
+        "GPT-3.5 baseline execution accuracy: 25.5%",
+        "CWM without re-writer: 70.9%",
+        "CWM without multi-step operations: 61.8%"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Request Re-writer using RAG for entity disambiguation contributes ~9.1% accuracy improvement by eliminating Information Deviation errors",
+        "dynamic-decomposition": "Multi-step Dynamic Operations Planning and Execution contributes ~18.2% accuracy improvement by reducing Wrong CoT and Wrong Syntax errors",
+        "chain-of-thought": "Thought operations within multi-step planning enable mathematical calculations and complex reasoning; removing them reduces accuracy from 80% to 67%",
+        "in-context-learning": "Few-shot learning with 3 representative examples injects production guidelines and database schema knowledge into the planner"
+      },
+      "failure_modes": [
+        "Information Deviation: LLM fails to identify correct entity information from user input (e.g., 'PolyU' vs 'Hong Kong Polytechnic University')",
+        "Wrong CoT: LLM fails to comprehend user intention or constructs incorrect logical chain",
+        "Wrong Syntax: Syntax errors in generated SQL commands or tool invocation statements",
+        "Else: Other errors such as mathematical calculation errors",
+        "GPT-3.5 based CWM fails to generate syntactically correct SQL commands"
+      ],
+      "limitations": [
+        "Accuracy improvement through more precise workflows or additional few-shot examples requires significant manpower and cannot be easily generalized to other MES systems",
+        "Complex workflows and lengthy prompts lead to high LLM token consumption (CWM uses ~436K tokens vs ~311K for GPT-4o baseline)",
+        "Responsibility for incorrect operations by the LLM agent is unclear; proposed confirmation step not yet implemented",
+        "Free interaction mode may lead users to provide insufficient information, requiring repeated clarification",
+        "System is still far from applicable in real factory settings and replacing traditional GUI interfaces",
+        "CWM with weaker foundation models (GPT-3.5) performs worse than the model alone, indicating strong dependency on model capability"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "GPT-3.5 (Text2SQL baseline)",
+      "GPT-4o (Text2SQL baseline)",
+      "CWM without Request Re-writer",
+      "CWM without Multi-Step Dynamic Operations Generation"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Balancing execution accuracy, generality, and token usage \u2014 improving accuracy via more precise workflows or few-shot examples requires significant manpower and cannot be easily generalized to other MES systems",
+      "Determining responsibility for incorrect operations performed by the LLM agent, including incorporating confirmation functions and counterfactual inference",
+      "Designing an optimal human-AI chatting interface that is universally applicable, human-centered, and suitable for manufacturing environments, accounting for different stakeholder roles (customers, production managers, workers)",
+      "Evolving CWM into a more extensible and dynamic framework that can understand database schema and production guidelines at lower cost",
+      "Reducing high LLM token consumption caused by complex workflows and lengthy prompts"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

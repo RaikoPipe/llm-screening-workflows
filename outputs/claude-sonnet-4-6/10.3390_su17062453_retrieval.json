@@ -1,0 +1,215 @@
+{
+  "title": "SustAI-SCM: Intelligent Supply Chain Process Automation with Agentic AI for Sustainability and Cost Efficiency",
+  "doi": "10.3390/su17062453",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Perception module agent that ingests both structured and unstructured data from various sources including real-time sources (logistics, supplier performance records, demand fluctuation patterns) and processes data for the core agentic AI module.",
+          "role": "retriever",
+          "specialized_role": "data_ingestion_agent",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Custom Transformer (SustAI-SCM)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Dataset from a multinational logistics company operating across 30 countries, including procurement transactions (350,000 records), logistics and transportation data (1,200,000 records), and carbon footprint/sustainability indicators (900,000 records) collected over six months."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Agentic AI core module serving as the decision-making engine built using a transformer model with transfer learning and reinforcement learning for real-time adaptability. It autonomously refines procurement, logistics, and inventory management decisions by considering multiple interdependent factors.",
+          "role": "orchestrator",
+          "specialized_role": "decision_making_agent",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "dynamic-decomposition",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Custom Transformer (SustAI-SCM) with ADAMW optimizer, 8 encoder blocks, 12 attention heads, 512 dimensions",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Fine-tuned via transfer learning (supervised and unsupervised) on supply chain dataset comprising procurement transactions, logistics records, and sustainability indicators from a multinational logistics company. Also includes hundreds of case studies and research papers on sustainable supply chains."
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Action execution module that translates AI-generated insights into actionable supply chain tasks\u2014adjusting procurement schedules, rerouting logistics for lower carbon emissions, or dynamically managing warehouse inventory.",
+          "role": "other",
+          "specialized_role": "action_execution_agent",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Custom Transformer (SustAI-SCM)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Operates based on decisions from the agentic AI core trained on supply chain operational data from a multinational logistics company."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The SustAI-SCM framework uses a multi-agent orchestration where the Agentic AI Core acts as the central orchestrator coordinating the Perception Module and Action Execution Module. The system operates in a continuous loop: perception ingests data, the agentic AI core makes decisions using transformer-based reasoning with reinforcement learning, and the action execution module implements those decisions. The system self-corrects inefficiencies in real time without requiring human intervention.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The framework integrates multiple specialized agents (perception, decision-making, action execution) that cooperate within a centralized agentic AI core. The orchestrator coordinates data flow from perception to decision making to action execution, with reinforcement learning enabling continuous improvement across all agents.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "The SustAI-SCM framework is designed to operate with minimal human intervention. It autonomously makes supply chain decisions, adjusts logistics, and optimizes procurement. Human oversight is primarily post-deployment monitoring. Future work mentions adding user-customizable optimization weights through an interactive interface for project managers.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "real-time-monitoring"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Sustainable supply chain management encompassing procurement automation, logistics optimization, inventory management, carbon footprint reduction, and cost efficiency across multinational distribution networks.",
+    "problem_description": "Conventional supply chain automation relies on static, rule-based systems that lack adaptability and fail to dynamically adjust to changing operational constraints. Standard AI models operate in isolation for specific tasks (e.g., demand forecasting) without accounting for interdependencies between procurement, logistics, and inventory, resulting in inefficiencies, resource misallocation, and inability to optimize in real time while meeting sustainability goals.",
+    "proposed_solution": "SustAI-SCM is an agentic AI framework integrating a custom transformer-based model with reinforcement learning and transfer learning to autonomously automate supply chain processes. It consists of three modules: a Perception Module for multi-source data ingestion, an Agentic AI Core for context-aware decision making across interdependent supply chain variables, and an Action Execution Module for translating decisions into operational actions. The system continuously learns and self-corrects to optimize procurement, logistics, and inventory while minimizing carbon footprint and operational costs.",
+    "research_maturity": "pilot",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The framework was deployed in an experimental distribution center of a real multinational logistics company operating across 30 countries. Historical data from six months of company operations were used to replicate the real-world deployment environment. Performance was evaluated through before-and-after comparisons of key operational metrics including fuel consumption, supplier selection time, warehouse overstocking, delivery efficiency, CO2 emissions, and cost components.",
+    "validation_methods": [
+      "case study",
+      "field deployment"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "97.11% accuracy in classifying supply chain tasks from context",
+        "96.98% precision in task classification",
+        "96.44% recall in task classification",
+        "96.56% F1 score in task classification",
+        "28.4% total operational cost reduction",
+        "30.3% reduction in CO2 emissions",
+        "26.0% reduction in fuel consumption",
+        "21.8% reduction in warehouse overstocking",
+        "27.2% improvement in average delivery efficiency",
+        "31.4% improvement in procurement/supplier selection efficiency",
+        "51.9% reduction in manual labor costs"
+      ],
+      "response_time_impact": [
+        "Single query inference time under 200ms across all tasks (130-180ms)",
+        "100 simultaneous queries inference time under 250ms (195-245ms)",
+        "Processing time of 1.2s for 50,000 events, 62.5s for 2,500,000 events"
+      ],
+      "reliability_metrics": [
+        "Automation rate of 91.5% at 50,000 events, declining to 85.5% at 2,500,000 events",
+        "Error rate of 2.1% at 50,000 events, increasing to 4.4% at 2,500,000 events",
+        "Training convergence achieved after approximately 8 days, 14 hours, and 39 minutes"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "unattributed"
+      ],
+      "ce_technique_effectiveness": {
+        "iterative-reasoning": "Enables real-time self-correction of inefficiencies; system actively adjusts logistics planning when excessive emissions detected rather than just reporting",
+        "in-context-learning": "Transfer learning from supply chain case studies and research papers enables domain-specific decision making",
+        "dynamic-decomposition": "Multi-agent architecture decomposes supply chain optimization into procurement, logistics, and inventory sub-tasks handled by specialized agents"
+      },
+      "failure_modes": [
+        "CPU utilization exceeds 85% beyond 2,000,000 supply chain events indicating hardware constraints",
+        "Automation rate degrades under heavy workloads (from 91.5% to 85.5%)",
+        "Error rate increases with workload volume (from 2.1% to 4.4%)"
+      ],
+      "limitations": [
+        "Limited generalization across industries: dataset derived from logistics and procurement domains; performance in pharmaceuticals or perishable goods supply chains untested",
+        "Significant computational overhead: requires high-performance GPUs and cloud computing resources, not feasible for SMEs",
+        "Energy consumption of AI-driven systems may offset some environmental benefits achieved through process optimization",
+        "Real-time adaptability challenges under extreme workloads",
+        "No user-customizable optimization weights in current implementation"
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Traditional rule-based supply chain management systems",
+      "Conventional AI models (task-specific, isolated)",
+      "Before-deployment baseline metrics from the multinational logistics company"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency",
+      "operational-kpi",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Lack of real-time adaptability in AI-driven supply chain models",
+      "Isolated task automation leads to inefficiencies in sustainability",
+      "Inability to align AI-driven decision making with carbon footprint reduction strategies",
+      "Limited generalization across industries (e.g., pharmaceutical or perishable goods supply chains)",
+      "Computational overhead and energy consumption of transformer-based models",
+      "Need for expanding industry-specific training datasets",
+      "Need for energy-efficient AI optimization (lightweight transformer architectures, quantization)",
+      "Need for user-customizable optimization weights via interactive interface",
+      "Need for reducing training time through efficient architectures and model distillation"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

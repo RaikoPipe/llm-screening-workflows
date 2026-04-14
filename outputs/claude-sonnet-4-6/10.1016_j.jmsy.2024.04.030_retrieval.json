@@ -1,0 +1,235 @@
+{
+  "title": "LLM enabled generative collaborative design in a mixed reality environment",
+  "doi": "10.1016/j.jmsy.2024.04.030",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM-based multi-agent simulating the Engineer stakeholder role, responsible for assessing material choosing, technical feasibility and structural integrity in design proposals.",
+          "role": "other",
+          "specialized_role": "domain_expert_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-turbo-0623",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "LLM-based multi-agent simulating the Designer stakeholder role, responsible for defining product appearance, usability, and overall user experience.",
+          "role": "other",
+          "specialized_role": "domain_expert_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-turbo-0623",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "LLM-based multi-agent simulating the Merchant stakeholder role, responsible for setting product direction, analyzing the market, and defining product price.",
+          "role": "other",
+          "specialized_role": "domain_expert_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-turbo-0623",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "LLM-based multi-agent simulating the Consumer stakeholder role, responsible for offering end-user reactions, focusing on usability, functionality, and satisfaction with the proposed design.",
+          "role": "other",
+          "specialized_role": "domain_expert_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-turbo-0623",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Core LLM orchestrator that analyzes design sessions, transforms them into design semantics, generates design proposals, executes quantitative evaluation, and produces specialized prompts for GAI tools (DALL-E 3, MVDream).",
+          "role": "orchestrator",
+          "specialized_role": "design_proposal_generator_and_evaluator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-turbo-0623",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-agent collaboration pattern where an LLM orchestrator coordinates multiple role-specific agents (Engineer, Designer, Merchant, Consumer) in an iterative self-collaborative design mechanism. The orchestrator decomposes design tasks, distributes them to specialized agents for evaluation, collects scores via a quantitative evaluation method, and iterates until a satisfactory design proposal is produced. The output then feeds into GAI tools (DALL-E 3 for 2D, MVDream for 3D) in the H2M stage.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "LLM-based multi-agents representing four stakeholder roles (Engineer, Designer, Merchant, Consumer) cooperate to evaluate and refine design proposals through simulated design sessions. Each agent contributes domain-specific evaluations weighted by stakeholder importance at each design stage. The orchestrating LLM aggregates scores and drives iterative refinement until an adaptive threshold is met.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "centralized"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans initiate the process by providing design instructions and review feedback. In the M2M stage, LLM-based multi-agents autonomously simulate stakeholder discussions. In the H2M stage, actual stakeholders review GAI-generated 2D and 3D conceptual schemes, provide feedback for iteration, and interact with the MR environment (physical 3D-printed model augmented with AR projections). In the H2H stage, stakeholders collaborate throughout the entire design process supported by AI-generated artifacts and the MR environment.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "image",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "factory_planning",
+    "application_domain_description": "Collaborative product design process involving multiple stakeholders (consumers, designers, engineers, merchants) for developing physical products, demonstrated through a children's heart education product case study.",
+    "problem_description": "In collaborative design, diverse stakeholder backgrounds cause misunderstandings and communication barriers, leading to delays in design delivery and decreased creativity. Existing technologies (MR/AR/VR and AI) applied independently have limitations: AI-generated objects lack detailed visual information, and MR requires significant time to create realistic virtual objects. There is also insufficient precision in GAI-generated visual schemes due to lack of specificity in design prompts.",
+    "proposed_solution": "The AI-augmented Multimodal Collaborative Design (AI-MCD) framework integrates LLM, Generative AI, and Mixed Reality technologies across three collaboration stages: (1) Machine-to-Machine (M2M) using LLM-based multi-agents to simulate stakeholder roles, generate design proposals, and produce specialized prompts via an iterative quantitative evaluation mechanism; (2) Human-to-Machine (H2M) using GAI tools (DALL-E 3 for 2D, MVDream for 3D) and MR (3D printing + AR) for immersive prototype review; and (3) Human-to-Human (H2H) collaboration enabled throughout by the M2M and H2M outputs.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "Two prototype systems (M2M and H2M collaboration prototypes) were developed and validated through a case study involving the design of a science-education product on the human heart for children. The case study demonstrated the framework's workflow and compared modeling efficiency between professionals and novices using traditional vs. AI-MCD approaches.",
+    "validation_methods": [
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "LLM-based multi-agents demonstrated professional expertise and logical coherence in design discussions, producing refined and enhanced design proposals through internal collaborative sessions.",
+        "Comparative analysis across multiple product types showed multi-agents' ability to enhance and detail designs through iterative internal collaborative design sessions.",
+        "The quantitative evaluation method with stakeholder weight assignment and sentiment semantic scoring enables objective selection of the best design proposal."
+      ],
+      "response_time_impact": [
+        "Modeling efficiency improved by 500% for professional users (from 10 hours to 2 hours average).",
+        "Modeling efficiency improved by 1000% for novice users (from 30 hours to 3 hours average).",
+        "The framework significantly reduces time and resource costs in the collaborative design process."
+      ],
+      "reliability_metrics": [],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "iterative-reasoning": "The iterative prompting mechanism enables LLM to refine design proposals through multiple rounds until an adaptive threshold score is met, producing more precise and professional design prompts for GAI.",
+        "dynamic-decomposition": "Decomposing the collaborative design process into M2M, H2M, and H2H stages, and further into functional phases (design semantics transformation, proposal generation, quantitative evaluation), clarifies responsibilities and reduces collaboration complexity.",
+        "in-context-learning": "Predefined rules, standards, and stakeholder role definitions embedded in prompts enable LLM-based multi-agents to simulate domain-expert behavior without fine-tuning."
+      },
+      "failure_modes": [
+        "3D GAI generation overlooks detail information such as product materials, functions, and colors, requiring manual refinement.",
+        "AI-generated design objects face limitations in presenting detailed visual information such as product size and structure."
+      ],
+      "limitations": [
+        "The 3D model generation still requires significant effort to produce detailed 3D models.",
+        "The self-collaborative design mechanism does not eliminate the need for human interaction entirely; more research is needed on human-machine interaction in GAI design.",
+        "Future work is needed to develop novel evaluation and iteration methodologies extending self-collaborative design scope to 2D or 3D for more precise and comprehensive evaluation."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Traditional modeling (manual 3D modeling by professionals and novices)"
+    ],
+    "evaluation_metric_categories": [
+      "computational-efficiency",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "More research attention is needed for human-machine interaction in the GAI design field",
+      "Much effort is still needed in the generation of detailed 3D models",
+      "Future work may aim to develop novel evaluation and iteration methodologies, extending the self-collaborative design's scope to 2D or 3D for more precise and comprehensive evaluation and iteration of design proposals"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

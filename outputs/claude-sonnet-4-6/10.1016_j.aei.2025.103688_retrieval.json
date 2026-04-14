@@ -1,0 +1,136 @@
+{
+  "title": "DR-RAG: Domain-Rule-based Retrieval-Augmented Generation for aviation digital model design",
+  "doi": "10.1016/j.aei.2025.103688",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Main DR-RAG agent that handles knowledge retrieval and generation for aviation design questions. It uses a binary classifier to determine rule type, retrieves candidate rules from the knowledge graph using BFS or DFS strategies, ranks rules by confidence scores, and generates answers via prompt templates fed to an LLM.",
+          "role": "monolithic",
+          "specialized_role": "knowledge_retrieval_and_generation",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "reranking",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Multiple (Llama-3-8B-Instruct, GPT-4o-mini, Qwen-7B, DeepSeek-R1)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The DR-RAG system follows a single orchestration graph pipeline: (1) a domain knowledge graph is constructed from structured and unstructured data using a hybrid R2D-LLM approach; (2) rules are mined from the knowledge graph using Apriori and PrefixSpan algorithms; (3) a binary classifier determines the rule type for incoming queries; (4) rules are retrieved via BFS (association) or DFS (sequential) and ranked by confidence scores; (5) prompt templates integrate rules with the query for LLM reasoning; (6) the LLM generates XML-formatted design reports; (7) these are visualized in a digital twin on the 3DEXPERIENCE platform; (8) simulation feedback is fed back into the knowledge graph, closing the loop.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Domain experts review the results of entity extraction and knowledge graph construction to improve reliability and quality. The system generates XML reports that are imported into the 3DEXPERIENCE platform for visualization, where designers can inspect and use the design suggestions. Human designers interact with the system by submitting design queries and reviewing generated design suggestions and digital twin visualizations.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "pre-action-validation"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Aviation manufacturing design and maintenance, specifically supporting aircraft design decisions, component relationship reasoning, manufacturing process sequencing, and maintenance knowledge retrieval using knowledge graphs, rule-based reasoning, and digital twin technology.",
+    "problem_description": "Aviation design and manufacturing involve highly complex processes requiring extensive domain knowledge. Traditional design methods relying on manual calculations and limited tools are inefficient and error-prone. LLMs suffer from hallucinations and outdated knowledge, static knowledge graphs cannot incorporate real-time data, and existing RAG models struggle with complex causal and sequential reasoning. Digital twin technology lacks seamless integration with LLMs and knowledge graphs, limiting dynamic feedback for adaptive design decisions.",
+    "proposed_solution": "DR-RAG (Domain-Rule-based Retrieval-Augmented Generation) is proposed as a closed-loop framework that: (1) constructs a dynamic domain knowledge graph from multi-source structured and unstructured aviation data using a hybrid R2D-LLM extraction approach; (2) mines association and sequential rules from the knowledge graph using Apriori and PrefixSpan algorithms; (3) employs a binary classifier to select the appropriate rule type for each query, retrieves and ranks candidate rules by confidence scores, and integrates them into LLM prompts via structured templates; (4) integrates a digital twin on the 3DEXPERIENCE platform to visualize design outcomes and feed simulation feedback back into the knowledge graph for continuous improvement.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments comparing DR-RAG against baseline methods (Standard Prompting, Standard RAG, GNN-RAG, RuleRAG) on two custom aviation QA datasets (Association Question Set with 138 QAs and Sequential Question Set with 47 processes) using four LLM backbones (Llama-3-8B-Instruct, GPT-4o-mini, Qwen-7B, DeepSeek-R1), evaluated with Recall@10 and Hits@1 metrics. A case study of aircraft wing design is also presented.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "DR-RAG achieves highest Recall@10 (75.43%\u201377.42%) and Hits@1 (51.40%\u201357.41%) on the Association Question Set across all four LLM backbones, outperforming RuleRAG, GNN-RAG, Standard RAG, and Standard Prompting.",
+        "DR-RAG achieves highest Recall@10 (62.51%\u201365.63%) and Hits@1 (42.14%\u201348.67%) on the Sequential Question Set across all four LLM backbones.",
+        "DR-RAG achieves 66% recall and 68% precision in XML report generation, surpassing RuleRAG (62% recall, 64% precision) and GNN-RAG (60% recall).",
+        "In a wing design case study, DR-RAG reduced design iteration time and resulted in improvement in fuel efficiency compared to initial designs."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "XML report generation recall: DR-RAG 66%, RuleRAG 62%, GNN-RAG 60%.",
+        "XML report generation precision: DR-RAG 68%, RuleRAG 64%."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Standard RAG improves over Standard Prompting by ~9-11% Recall@10 on association tasks, demonstrating that basic retrieval augmentation helps but is insufficient for complex domain reasoning.",
+        "graph-traversal": "GNN-RAG using graph neural networks for knowledge graph traversal further improves Recall@10 by ~7-9% over Standard RAG on association tasks.",
+        "reranking": "Rule ranking by confidence scores in DR-RAG contributes to highest Hits@1 scores across all configurations, outperforming RuleRAG which also uses rule-based retrieval.",
+        "in-context-learning": "Prompt templates integrating ranked rules with original questions guide LLM to generate more accurate and domain-relevant answers, contributing to DR-RAG's superior performance over all baselines."
+      },
+      "failure_modes": [
+        "LLM hallucination in XML report generation leading to incorrect or missing attributes.",
+        "Standard Prompting fails due to insufficient domain-specific knowledge in pre-trained models.",
+        "Static knowledge graphs struggle to incorporate real-time data without the dynamic update mechanism.",
+        "XML generation errors where generated content deviates from expected format, requiring multi-step error handling."
+      ],
+      "limitations": [
+        "Cannot yet use large-scale quantitative experiments to systematically prove how the digital twin contributes to enhancing design accuracy or reducing development time.",
+        "XML report generation performance is not yet perfect, with DR-RAG achieving only 66% recall and 68% precision.",
+        "The system's performance in broader aviation contexts beyond the tested datasets has not been validated.",
+        "Future work needed to integrate multi-modal data to enrich knowledge graph semantics.",
+        "Rule mining algorithms and digital twin data integration need further improvement for better structured output quality."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Standard Prompting",
+      "Standard RAG",
+      "GNN-RAG",
+      "RuleRAG"
+    ],
+    "evaluation_metric_categories": [
+      "retrieval-quality",
+      "generation-quality"
+    ],
+    "identified_research_gaps": [
+      "Integrating multi-modal data to enrich knowledge graph semantics",
+      "Expanding applications to broader aviation contexts",
+      "Adding more quantitative experiments to systematically prove how digital twin contributes to enhancing design accuracy or reducing development time",
+      "Enhancing rule mining algorithms",
+      "Expanding the integration of digital twin data to further improve performance of structured XML output generation"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

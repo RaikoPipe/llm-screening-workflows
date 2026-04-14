@@ -1,0 +1,253 @@
+{
+  "title": "City-LEO: Toward Transparent City Management Using LLM with End-to-End Optimization",
+  "doi": "10.48550/ARXIV.2406.10958",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Problem Matcher agent that matches user natural language queries with appropriate area-specific agents (callable tool APIs). It determines the suitable domain-specific agent based on the user's query.",
+          "role": "orchestrator",
+          "specialized_role": "problem_matcher",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Query-relevant objective (QR-obj) generator that formulates natural language queries into convex objective functions for the E2E optimization model. It generates Gurobi-compatible code for the objective function and uses a code safeguard to iteratively check the output.",
+          "role": "planner",
+          "specialized_role": "objective_function_generator",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Problem Tailor agent that scopes down the full-scale optimization model by identifying relevant decision variables and parameterizing irrelevant ones based on historical data. It uses LLM-generated SQL to retrieve query-relevant operational information and generates Gurobi constraint code.",
+          "role": "planner",
+          "specialized_role": "problem_scoper",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "E2E model executor that runs the Random Forest-based MIP optimization model with the scoped-down problem and QR-obj. It integrates the pre-trained random forest with Gurobi MIP solver to generate optimal decisions.",
+          "role": "other",
+          "specialized_role": "optimization_solver",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Response Prompter that converts optimal solutions and satisfaction scores into a comprehensible form for end-users through conversational dialogue.",
+          "role": "summarizer",
+          "specialized_role": "response_generator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "City-LEO follows a sequential orchestration graph where the Problem Matcher first identifies the relevant area-specific agent, then the QR-obj Generator formulates the objective function, followed by the Problem Tailor scoping down the problem, then the E2E model solves the optimization, and finally the Response Prompter delivers results. The process iterates until the satisfaction factor is positive or maximum iterations are reached.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents operate in a centralized, sequential pipeline where each agent passes its output to the next. The Problem Matcher orchestrates the overall flow by routing to area-specific agents. The iterative loop between Problem Tailor and E2E model allows for refinement until user satisfaction is achieved.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "City operators and EBS system managers submit natural language queries to City-LEO. The system processes these queries and returns operational decisions in a comprehensible form. Human operators initiate the process and review the generated solutions. The system is designed to lower the expertise barrier for city operators in urban governance through conversational interactions.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "transportation_management",
+    "application_domain_description": "Urban electric bike sharing (EBS) system operations management, specifically optimizing e-bike rebalancing and battery swapping operations to mitigate supply-demand imbalance in smart city transportation.",
+    "problem_description": "City operators face challenges in using OR tools for urban management due to intransparency, expertise barriers, and the difficulty of simultaneously achieving relevance (matching complex user queries) and accuracy (optimal solutions). Existing LLM-based OR approaches either lack accuracy (LLMs as optimizers) or lack relevance and flexibility (LLM agents with deterministic MIP models).",
+    "proposed_solution": "City-LEO, an LLM-based agent integrated with End-to-End (E2E) optimization. The system uses a pre-defined full-scale optimization model, leverages LLM reasoning to scope down the problem based on user queries, and integrates a pre-trained Random Forest with MIP optimization (RBS-E2E) to handle uncertainty and generate decisions directly from feature data. The agent framework includes a Problem Matcher, QR-obj Generator, Problem Tailor, E2E Model executor, and Response Prompter.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The paper conducts numerical experiments using real-world data from the Pronto Cycle Share system in Seattle (283,143 trip records). Two types of tests are performed: relevance evaluation (measuring similarity between LLM-generated objective functions and ground-truth using Jaro-Winkler distance) and accuracy evaluation (comparing City-LEO against a full-scale baseline model in terms of global suboptimality, local satisfaction gain, and CPU time) under various locality settings and query types.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "City-LEO achieves 0.90 text similarity and 0.61 result similarity without prompts in out-of-sample relevance tests",
+        "With 9 Q&A prompt instructions, text similarity reaches 0.97 and result similarity 0.91 in out-of-sample tests",
+        "City-LEO outperforms FULL model in satisfying user requirements for query-relevant parking spots (more available e-bikes with higher SOC)",
+        "With linear QR-obj at 40% locality, global suboptimality is only 0.62% while local satisfaction gain is 2.44-7.18%",
+        "With nonlinear QR-obj (NLP-obj-1), City-LEO solves in 94.92s while FULL fails within 1 hour (66% optimality gap)",
+        "Local satisfaction gains are consistently positive for linear objectives across all locality settings"
+      ],
+      "response_time_impact": [
+        "City-LEO is approximately 16.26% faster than FULL model on average for linear objectives",
+        "For NLP-obj-1 at 20% locality, City-LEO takes 94.92s vs FULL's 3600s timeout",
+        "For NLP-obj-2 at 20% locality, City-LEO takes 85.21s vs FULL's 520.99s",
+        "Computational time increases with locality level for nonlinear objectives (e.g., NLP-obj-1 from 94.92s at 20% to 624.80s at 80%)"
+      ],
+      "reliability_metrics": [
+        "Random forest accuracy: 93.92% on training set, 58.22% on test set",
+        "Global suboptimality consistently below 1% for linear query-relevant objectives across all locality settings",
+        "Out-of-sample global suboptimality maintained at lower levels, suggesting less overfitting"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Increasing Q&A prompt instructions from 0 to 9 improves text similarity from 0.90 to 0.97 and result similarity from 0.61 to 0.91 in out-of-sample tests",
+        "iterative-reasoning": "Iterative satisfaction factor-based loop allows City-LEO to refine parameterization decisions and improve solution quality across iterations",
+        "chain-of-thought": "Step-by-step thought process breakdown enables accurate extraction of domain, objective function, and constraint generation from natural language queries"
+      },
+      "failure_modes": [
+        "LLM may generate incorrect Gurobi syntax requiring code safeguard correction",
+        "Nonlinear objectives lead to higher global suboptimality (up to 11.96%) compared to linear objectives",
+        "Negative local satisfaction gain observed for some nonlinear objective settings (e.g., -7.50% for NLP-obj-2 at 60% locality)",
+        "Low test set accuracy of random forest (58.22%) may limit E2E model performance"
+      ],
+      "limitations": [
+        "City-LEO provides suboptimal solutions compared to full-scale optimization when scoping down the problem",
+        "Higher global suboptimality for nonlinear query-relevant objectives",
+        "Random forest test accuracy is relatively low (58.22%), potentially limiting solution quality",
+        "Framework currently tested only on EBS system; generalizability to other urban systems not fully validated",
+        "Future work needed for dynamic data inputs and real-time decision-making capabilities",
+        "Feedback loops from implemented decisions not yet incorporated"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "FULL (full-scale E2E optimization model without scoping-down operations)",
+      "Gurobi solver (direct MIP solving)"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "computational-efficiency",
+      "operational-kpi",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Integrating more dynamic data inputs and real-time decision-making capabilities to further enhance responsiveness and accuracy",
+      "Extending the framework to incorporate feedback loops from implemented decisions to refine prescriptive accuracy and user satisfaction",
+      "Creating a continuously improving system that adapts to the evolving urban landscape"
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

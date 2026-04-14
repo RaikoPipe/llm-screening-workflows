@@ -1,0 +1,129 @@
+{
+  "title": "Align knowledge with time-series: Cross-modal domain knowledge activation for LLM-enabled zero-shot fault diagnosis",
+  "doi": "10.1016/j.jprocont.2025.103534",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A fine-tuned LLM (Qwen2.5-3B-Instruct) that processes fault diagnosis reports and text descriptions to generate domain-specific knowledge embeddings for zero-shot fault diagnosis. It handles both text-based fault symptom analysis and cross-modal alignment with time-series data.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_knowledge_encoder",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-3B-Instruct",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "1038 groups of Chinese fault descriptions extracted from existing fault diagnosis reports from a real 1000 MW ultra-supercritical thermal power plant, containing fault symptoms, fault causes, and fault repair methods. Constructed into question-and-answer format using prompt engineering with role play, task requirements, and fault symptoms as input, and fault cause analysis and repair strategies as output. Fine-tuned using LoRA parameter-efficient fine-tuning."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step pipeline where the fine-tuned LLM processes text fault descriptions and a cross-modal transformation module (AKT) aligns time-series data with the text modality. The pipeline includes: (1) LLM fine-tuning with domain documents, (2) cross-modal transformation of time-series to text space using attention over a feature library, (3) cross-modal matching via the LLM transformer blocks, and (4) knowledge distillation to align modalities for zero-shot classification.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "Human experts provide fault diagnosis reports used for fine-tuning the LLM. In the attribute-enabled baseline paradigm, human experts annotate 21 fault attributes per category. The proposed LLM-enabled paradigm reduces human annotation burden by leveraging existing diagnostic documents instead of requiring structured attribute annotation. Human experts may optionally further select and refine fault text content, though this is not required by the proposed method.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Zero-shot fault diagnosis for industrial equipment in a real 1000 MW ultra-supercritical thermal power plant, targeting identification of unseen fault categories (those without labeled training samples) using LLMs fine-tuned on domain-specific fault diagnosis reports.",
+    "problem_description": "Existing zero-shot fault diagnosis (ZSFD) methods rely on manually annotated fault attributes to identify unseen fault categories, which is labor-intensive, requires multidisciplinary expert teams, and scales poorly with the number of fault categories. Additionally, the domain shift problem (DSP) arises because models trained on seen faults do not generalize well to unseen faults due to lack of training samples. Current industrial LLM methods either cannot handle time-series data or are limited to supervised (seen-category) diagnosis.",
+    "proposed_solution": "The paper proposes AKT (Align Knowledge with Time-series), an LLM-enabled zero-shot fault diagnosis paradigm. It fine-tunes Qwen2.5-3B-Instruct using LoRA on domain-specific fault diagnosis reports via prompt engineering (role play, task requirements, fault symptoms). A cross-modal transformation module aligns time-series sensor data with the text modality using a feature library of textual fault symptoms and cross-modal attention. A knowledge distillation strategy further aligns the two modalities by matching classification logits from time-series and text inputs, enabling unseen fault text descriptions to substitute for unavailable unseen fault samples and address the DSP.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison on a real industrial dataset from a 1000 MW ultra-supercritical thermal power plant with 14 fault categories and 593 process variables. The proposed AKT method is compared against attribute-enabled zero-shot baselines (ESZSL, ALE, FDAT, SCE), few-shot supervised methods (SVM, LR, RF) with 5/10/50 unseen samples, and an LLM-based temporal baseline (ChatTS). Ablation studies and visualization analyses (cosine similarity matrices, feature alignment) are conducted to validate individual components.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "AKT achieves an average unseen fault diagnosis accuracy of 73.89% across four train/test splits, compared to the best attribute-enabled zero-shot method ESZSL at 64.06%, representing a 9.83% improvement.",
+        "AKT outperforms the LLM-based temporal baseline ChatTS (48.03%) by 25.86% in average unseen fault accuracy.",
+        "AKT achieves competitive performance compared to few-shot methods requiring 10 unseen category samples (average 74.00%).",
+        "Fine-tuned LLM description embeddings show inter-class similarity patterns similar to expert-annotated fault attributes, validating the LLM-enabled paradigm."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Results are averaged over five runs for robustness.",
+        "Four different train/test splits (Groups A-D) are used with 11 seen and 3 unseen fault categories each."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning (role play + task requirements prompts)": "Ablation No. 1 shows that removing LLM fine-tuning reduces average accuracy from 73.89% to 45.09%, demonstrating the critical importance of domain knowledge injection via prompts and fine-tuning.",
+        "retrieval-augmented-generation (feature library cross-modal attention)": "Ablation No. 3 shows that removing text symptom input (and thus cross-modal matching) reduces accuracy from 73.89% to 41.02%, confirming the necessity of cross-modal alignment.",
+        "knowledge distillation strategy": "Ablation No. 4 shows that removing knowledge distillation reduces accuracy from 73.89% to 66.45%, indicating its benefit for modality alignment.",
+        "information retention loss": "Ablation No. 2 shows that removing information retention loss reduces accuracy from 73.89% to 50.60%, confirming its importance for preserving time-series information after transformation."
+      },
+      "failure_modes": [
+        "Pre-trained LLM without fine-tuning generates generic, non-specific fault analysis that is not applicable in industrial practice (hallucination on specialized domain).",
+        "ChatTS, despite handling both time-series and text, lacks alignment strategies for zero-shot tasks and performs poorly (48.03% average accuracy).",
+        "Narrower inter-class similarity range in LLM embeddings compared to binary attributes may negatively impact classification if domain fine-tuning is insufficient."
+      ],
+      "limitations": [
+        "Requires sufficient fault description documents for fine-tuning the LLM; may require cooperation to obtain necessary documents.",
+        "As an LLM-based approach, requires significant computational resources for fine-tuning.",
+        "Generalization ability to more complex or diverse industrial processes has not been tested.",
+        "Optional manual selection of fault text content (removing redundant information) could further improve performance but was not included to minimize annotation burden."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "ESZSL",
+      "ALE",
+      "FDAT",
+      "SCE",
+      "SVM (linear)",
+      "Logistic Regression (LR)",
+      "SVM (rbf)",
+      "Random Forest (RF)",
+      "ChatTS"
+    ],
+    "evaluation_metric_categories": [
+      "classification"
+    ],
+    "identified_research_gaps": [
+      "Improving the quality of diagnosis reports and extracting key information from them to further enhance the professionalism of fine-tuned large models",
+      "Introducing manual verification methods or LLMs to automatically verify inconsistent knowledge in diagnostic reports",
+      "Testing the generalization ability of the proposed LLM-based method in more complex or diverse processes",
+      "Reducing the reliance of LLM-based methods on computing resources by adopting smaller-scale LLMs",
+      "Designing knowledge distillation methods to enable small models to achieve performance similar to large models in professional fields"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

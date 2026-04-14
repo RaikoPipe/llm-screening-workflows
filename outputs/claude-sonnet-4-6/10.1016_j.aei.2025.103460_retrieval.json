@@ -1,0 +1,266 @@
+{
+  "title": "Probing a novel machine tool fault reasoning and maintenance service recommendation approach through data-knowledge empowered LLMs integrated with AR-assisted maintenance guidance",
+  "doi": "10.1016/j.aei.2025.103460",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Responsible for preprocessing real-time machine tool data, filling missing values, removing outliers, and determining whether there are data anomalies. Initiates bidding process to other agents when anomalies are detected.",
+          "role": "orchestrator",
+          "specialized_role": "data_preprocessing_and_task_analysis",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Llama 3 (8B) - industrial fine-tuned",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "Fault and maintenance scene graph data integrated with machine tool fault logs, maintenance work orders, and process parameter manuals. Synthetic samples generated to augment multiple fault data (10x real data size)."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Determines the specific part of the machine tool that generates abnormal data (e.g., CNC tool) based on fault location information provided by the data preprocessing agent.",
+          "role": "other",
+          "specialized_role": "fault_location",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Llama 3 (8B) - industrial fine-tuned",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Machine tool fault location data from manufacturing workshop scene graphs including fault phenomena, fault locations, and causal relationships."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Analyzes the root cause of the fault based on fault location information (e.g., diagnosing tool breakage as the cause of CNC tool fault).",
+          "role": "other",
+          "specialized_role": "fault_diagnosis",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Llama 3 (8B) - industrial fine-tuned",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Machine tool fault diagnosis data including fault causes, fault phenomena, and causal chain data from manufacturing workshop scene graphs."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Provides maintenance suggestions based on diagnostic information (e.g., replacing the tool and checking the cutting force). Leverages multimodal LLM capabilities to formulate comprehensive maintenance solutions and presents final decisions.",
+          "role": "other",
+          "specialized_role": "maintenance_service_recommendation",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "conversation-history",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search",
+              "reranking"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "function-calling",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Llama 3 (8B) - industrial fine-tuned",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "Maintenance operation data, maintenance expert knowledge, historical maintenance cases, and maintenance work orders from manufacturing workshops."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "A multi-agent collaborative system where a data preprocessing and task analysis agent acts as orchestrator, initiating a bidding process among specialized agents (fault location, fault diagnosis, maintenance recommendation). Agents interact through negotiation protocols with a conflict resolution mechanism using evidence weight fusion. The system follows a hierarchical structure where the orchestrator decomposes tasks and coordinates specialized agents, with a final feedback loop updating the industrial LLM knowledge base.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents collaborate through a bidding-based negotiation protocol. The data preprocessing agent initiates tenders, specialized agents bid based on their capabilities, and a conflict resolution mechanism using evidence weight fusion resolves disagreements. When consensus cannot be reached (~5% of cases), local model fine-tuning corrects the erring agent. Final results are fed back to update the knowledge base.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Maintenance personnel interact with the system via AR glasses (HoloLens 2) using voice commands to describe fault phenomena. The industrial LLM processes these inputs and returns fault reasoning results and maintenance recommendations displayed visually in the AR environment. Personnel can seek remote expert guidance for unknown faults. After maintenance, records are added to the scene graph for self-learning. Human experts also contribute domain knowledge to the scene graph construction.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review",
+          "risk-based-escalation"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "audio",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Machine tool fault reasoning and maintenance service recommendation in manufacturing workshops, including fault diagnosis, root cause analysis, and AR-assisted visual maintenance guidance for CNC machine tools.",
+    "problem_description": "Complex machine tools in manufacturing workshops are prone to various faults, but existing methods fail to effectively utilize knowledge for fault causality reasoning and maintenance service provision. Multi-source heterogeneous data (sensor data, maintenance experience, manuals) is difficult to integrate. Single-agent architectures struggle with real-time collaborative diagnosis. Additionally, maintenance personnel lack intuitive visual guidance, leading to low efficiency and potential misoperations when consulting paper-based manuals.",
+    "proposed_solution": "A novel approach integrating: (1) a fault and maintenance scene graph for causal relationship reasoning among fault occurrences, locations, causes, and maintenance operations; (2) a data-knowledge empowered industrial LLM built on Llama 3 with prompt-based fine-tuning and GraphRAG integration; (3) multi-agent collaborative fault detection with bidding-based negotiation and conflict resolution; and (4) AR-assisted visual maintenance guidance using improved ORB-SLAM2-based tracking and registration on HoloLens 2 glasses.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Comparative experiments conducted in a standard machining workshop environment with various machine tools. The proposed industrial LLM is compared against state-of-the-art LLMs (Gemini 1.0 Pro, Gemini 1.0 Ultra, Claude 3 Sonnet, Claude 3 Opus, Llama 3, GPT 4.0) across multiple fault scenarios, sensor error conditions, and data loss rates. AR-assisted maintenance is evaluated with ten personnel of varying skill levels across four maintenance tasks of different difficulty levels.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Proposed industrial LLM achieves fault reasoning accuracy of 96.21%, 95.88%, 96.34%, and 97.12% across four scenarios, outperforming GPT 4.0 (93.21%, 92.67%, 92.88%, 91.56%) and base Llama 3 (90.19%, 89.99%, 90.55%, 90.88%).",
+        "Maintenance recommendation accuracy of 95.17%, 94.32%, 95.01%, and 96.12% across four scenarios, outperforming all compared LLMs.",
+        "Under low-noise sensor conditions (5% Gaussian noise), proposed LLM achieves 90.51% fault reasoning accuracy vs 85.57% for GPT 4.0.",
+        "Under strong-noise conditions (15% Gaussian noise), proposed LLM achieves 81.78% fault reasoning accuracy vs 79.23% for GPT 4.0.",
+        "Under 20% data loss, proposed LLM achieves 88.52% fault reasoning accuracy vs 76.69% for GPT 4.0.",
+        "Scene graph integration substantially improves fault reasoning accuracy of industrial LLM compared with basic Llama 3 across six random datasets of 1000 production data samples each.",
+        "AR-assisted maintenance shows significant advantages particularly in complex tasks (Task No. 4), with improved maintenance experience and efficiency scores across all four maintenance tasks."
+      ],
+      "response_time_impact": [
+        "Single-node inference delay is 87 ms, lower than the 200 ms real-time threshold required by industrial control scenarios.",
+        "Traditional CNC tool fault maintenance process exceeds 1 hour; proposed method compresses overall maintenance time to 35 minutes, demonstrating over 40% greater effectiveness."
+      ],
+      "reliability_metrics": [
+        "Proposed industrial LLM maintains optimal performance under severe data corruption (15% Gaussian noise, 20% data loss).",
+        "Multi-agent conflict resolution handles ~95% of cases through evidence weight fusion; remaining ~5% trigger local model fine-tuning.",
+        "HoloLens 2 battery life reduced from 2.5h at normal temperature to 1.8h at 35\u00b15\u00b0C; processor computing power drops 15% due to heat dissipation but maintains good tracking performance.",
+        "Speech recognition error rate of device microphone array is 5% under workshop noise exceeding 85 dB."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "GraphRAG integration with fault and maintenance scene graph enables accurate retrieval of matching entity association information and historical maintenance cases, significantly improving fault reasoning and maintenance recommendation accuracy over base Llama 3.",
+        "dynamic-decomposition": "Multi-agent bidding-based task decomposition enables parallel specialized processing of fault location, diagnosis, and maintenance recommendation, improving efficiency and handling multi-source heterogeneous data.",
+        "in-context-learning": "Prompt-based fine-tuning with role configuration enables industrial LLM to show outstanding performance in fault location, fault diagnosis, and maintenance service recommendation, outperforming original Llama 3 without fine-tuning.",
+        "chain-of-thought": "Multi-hop reasoning with logical constraints from scene graph (component dependencies, maintenance step priorities) enables elimination of unreasonable paths and accurate fault causal chain deduction."
+      },
+      "failure_modes": [
+        "Evidence contradiction between agents (e.g., fault location agent identifies CNC tool while fault diagnosis agent diagnoses spindle fault) requiring conflict resolution mechanism.",
+        "~5% of multi-agent conflicts cannot be resolved by evidence weight fusion, requiring local model fine-tuning.",
+        "General LLMs without domain fine-tuning show pronounced accuracy decline under 20% data loss conditions.",
+        "AR glasses experience reduced battery life and computing power degradation in high-temperature environments."
+      ],
+      "limitations": [
+        "Computing resource requirements: relies on cloud API call mode for GPT-4o fine-tuning, which may limit real-time edge deployment.",
+        "AR hardware cost: Microsoft HoloLens 2 costs $3,500 per unit, which may limit scalability.",
+        "Battery life of AR glasses reduced in high-temperature workshop environments (from 2.5h to 1.8h).",
+        "Speech recognition error rate of 5% under high workshop noise (>85 dB) may affect voice command parsing.",
+        "Dynamic embedding update algorithm requires deep updates when incremental data volume exceeds 10%, which may introduce latency.",
+        "Knowledge distillation for long-term scene graph evolution runs monthly, limiting real-time knowledge incorporation of newly discovered fault associations."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Gemini 1.0 Pro",
+      "Gemini 1.0 Ultra",
+      "Claude 3 Sonnet",
+      "Claude 3 Opus",
+      "Llama 3 (base, without fine-tuning)",
+      "GPT 4.0",
+      "Original EPnP algorithm (for AR tracking comparison)",
+      "Traditional maintenance process without AR"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "regression",
+      "operational-kpi",
+      "human-evaluation",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Past research efforts primarily centered on evaluating fault classification accuracy, overlooking methods for explaining root causes of various faults; maintenance experience and knowledge are difficult to reuse effectively; multi-source heterogeneous data such as fault data, maintenance experience, and maintenance manuals are difficult to integrate together for better fault reasoning.",
+      "General LLMs lack effective understanding of specific scenarios (such as machine tool faults and maintenance), resulting in limited fault reasoning capabilities and difficulty integrating actual application needs of fault location, fault diagnosis, and maintenance service recommendations; single-agent architectures are difficult to handle multi-source heterogeneous data and maintenance recommendation requirements in industrial scenarios.",
+      "Augmented reality can roughly locate virtual objects in real scenes but struggles to accurately map parts to be replaced in real scenes; tracking and registration capabilities need improvement for accurately mapping invisible maintenance guidance information to the physical world, especially for complex faulty components requiring numerous operations."
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

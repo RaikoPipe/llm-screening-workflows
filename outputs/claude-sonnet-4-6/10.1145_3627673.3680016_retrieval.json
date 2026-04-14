@@ -1,0 +1,219 @@
+{
+  "title": "RCAgent: Cloud Root Cause Analysis by Autonomous Agents with Tool-Augmented Large Language Models",
+  "doi": "10.1145/3627673.3680016",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "The controller agent is the main LLM-based agent responsible for coordinating actions in the thought-action-observation loop. It manages tool invocations, processes observations via OBSK, and produces final RCA reports.",
+          "role": "orchestrator",
+          "specialized_role": "root_cause_analysis_coordinator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Vicuna-13B-V1.5-16K",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "The Code Analysis Tool is an expert agent that recursively reads and analyzes code files from the code repository. Given a class name, it searches the corresponding file, analyzes it, suggests related classes, and summarizes all relevant code files for the controller agent.",
+          "role": "summarizer",
+          "specialized_role": "code_analyzer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Vicuna-13B-V1.5-16K",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "The Log Analysis Tool is an expert agent that performs in-context RAG on log data. It splits logs into lines, builds a weighted graph based on cosine similarity, clusters lines using Louvain community detection, and feeds chunks to an LLM for analysis with hallucination filtering.",
+          "role": "retriever",
+          "specialized_role": "log_analyzer",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Vicuna-13B-V1.5-16K",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "RCAgent uses a ReAct-style thought-action-observation loop orchestrated by a controller agent. The controller agent coordinates information-gathering tools (data querying functions) and analytical tools (expert agents: code analysis and log analysis). The system uses OBSK for observation management, JsonRegen for structured output, error handling for stabilization, and Trajectory-level Self-Consistency (TSC) for aggregating multiple trajectory samples.",
+        "orchestration_pattern": [
+          "re-act",
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The controller agent orchestrates expert agents (code analysis and log analysis) as specialized tools. The controller delegates domain-specific tasks to expert agents and integrates their outputs into the overall RCA reasoning process. Expert agents are invoked on demand by the controller.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "RCAgent is deployed in Alibaba Cloud's Real-time Compute Platform for Apache Flink. It analyzes Out-of-Domain (OoD) anomalous jobs that existing automatic SRE tools cannot handle. Jobs labeled as platform responsibility by RCAgent, along with RCA results, are handed to the SRE team for human diagnosis. The SRE team also proofreads LLM-generated annotations and provides helpfulness scores. A feedback mechanism is incorporated to identify issues in PaaS and IaaS layers.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "risk-based-escalation"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Cloud Root Cause Analysis (RCA) for anomalous stream processing jobs on Alibaba Cloud's Real-time Compute Platform for Apache Flink, targeting site reliability engineering and AIOps.",
+    "problem_description": "Anomalies in cloud computing systems (e.g., unrecoverable failures, hanged jobs) severely impact customer experience and may violate SLAs. Existing AIOps approaches face challenges including poor data quality, shifting data distributions, laborious annotation, and privacy concerns. LLM-based approaches either rely on expensive fine-tuning or do not leverage autonomous agent capabilities. Key challenges for LLM agents in cloud RCA include data privacy (cannot use external APIs), context length (logs and data are enormous), and action validity (less capable local LLMs generate invalid actions).",
+    "proposed_solution": "RCAgent: a tool-augmented autonomous LLM agent framework for cloud RCA using a locally deployed Vicuna-13B model. It features: (1) OBSK (Observation Snapshot Key) for context length management via a key-value store; (2) information-gathering tools with semantically minimalist interfaces; (3) LLM-based expert agents (code analysis and log analysis tools); (4) JsonRegen for structured output stabilization; (5) error handling mechanisms; and (6) Trajectory-level Self-Consistency (TSC) for aggregating multiple trajectory samples to improve performance.",
+    "research_maturity": "production",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The paper conducts controlled experiments comparing RCAgent against baselines (ReAct, XGBoost, fine-tuned T5, LLM Summary) on an offline dataset of 161 annotated anomalous Flink jobs and online OoD jobs. Ablation studies evaluate individual components. The system is also deployed in production at Alibaba Cloud with human evaluation by SRE teams.",
+    "validation_methods": [
+      "benchmark",
+      "field deployment",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "RCAgent outperforms ReAct by +8.71 METEOR on root cause prediction and +6.52 METEOR on solution prediction",
+        "TSC (LLM) achieves best scores: 16.49 METEOR, 91.67 EmbScore, 34.43 BLEURT, -5.40 BARTScore, 5.47 G-Correctness on root cause prediction",
+        "TSC (LLM) achieves 16.45 METEOR, 39.18 BLEURT, -3.94 BARTScore, 5.69 G-Helpfulness on solution generation",
+        "On OoD online jobs, RCAgent with TSC achieves 15.72 METEOR, 26.79 NUBIA, 35.72 BLEURT, -5.29 BARTScore, 4.36 G-Correctness, 82.06% responsibility precision, and 2.92 H-Helpfulness",
+        "RCAgent outperforms non-agent approaches (XGBoost, fine-tuned T5, LLM Summary) on OoD jobs despite agent instability challenges",
+        "Self-consistency performance plateaus around 20 samples; LLM aggregation outperforms embedding voting"
+      ],
+      "response_time_impact": [
+        "Resource consumption scales nearly linearly with data amount (Pearson Correlation p-value < 0.05)",
+        "No substantial performance degradation as data amount grows (p=1.0 based on Kruskal-Wallis H-test)"
+      ],
+      "reliability_metrics": [
+        "RCAgent achieves 99.38% Pass Rate within 15 steps vs 86.33% for ReAct",
+        "RCAgent achieves 7.93% Invalid Rate vs 22.82% for ReAct",
+        "Removing JsonRegen drops Pass Rate significantly; removing OBSK maintains Pass Rate above 90%",
+        "Nucleus sampling collapses stability to 70.19% Pass Rate and 44.80% Invalid Rate",
+        "Replacing information-gathering tools with SQL interface drops Pass Rate by 33.54% with 70.95% Invalid Rate"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "context-formatting",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "iterative-reasoning (ReAct loop)": "Core framework enabling thought-action-observation cycles; baseline ReAct achieves 6.44 METEOR on root cause vs RCAgent's 15.15",
+        "retrieval-augmented-generation (Log Analysis Tool)": "In-context RAG with Louvain clustering for log analysis significantly improves evidence quality; removing LLM experts drops METEOR from 15.15 to 9.60",
+        "in-context-learning (TSC)": "Trajectory-level Self-Consistency with LLM aggregation improves all metrics; +1.34 METEOR and +0.25 G-Correctness over base RCAgent on root cause",
+        "OBSK (context management)": "Removing OBSK causes -1.90 BLEURT and -0.69 G-Correctness on root cause prediction; evidence METEOR drops from 28.10 to 17.79",
+        "JsonRegen (structured output)": "Removing JsonRegen causes significant malformed output and loss of valid trajectories; Pass Rate drops from 99.38% to 85.71%"
+      },
+      "failure_modes": [
+        "Duplicate invocation of stateless tools with same arguments",
+        "Trivial input to expert agents",
+        "Early finalizing without thorough investigation",
+        "Malformed JSON output from LLM requiring regeneration",
+        "Error propagation in tool invocation chains",
+        "Nucleus sampling leads to unstable trajectories with high invalid rates",
+        "Hallucination in log analysis (filtered via Levenshtein distance check)"
+      ],
+      "limitations": [
+        "Uses locally deployed Vicuna-13B instead of more powerful external models like ChatGPT due to privacy constraints, trading off model capability for security",
+        "Self-consistency performance plateaus around 20 samples, limiting further gains",
+        "Agent instability may explain ReAct being worse than traditional methods on some OoD tasks",
+        "Context length remains a fundamental challenge even with OBSK mitigation",
+        "Human evaluation H-Helpfulness of 2.92 (out of 5) indicates only moderate support for RCA, not full automation"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "ReAct",
+      "XGBoost",
+      "Finetune T5",
+      "LLM Summary",
+      "RCACopilot"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "retrieval-quality",
+      "computational-efficiency",
+      "human-evaluation",
+      "task-completion",
+      "operational-kpi"
+    ],
+    "identified_research_gaps": [
+      "Adoption of LLM agents in the AIOps field with noisy and lengthy data remains limited",
+      "No interactive environment built upon realistic cloud RCA tasks existed prior to this work",
+      "Utilizing Self-Consistency on ReAct style trajectories was not well-defined",
+      "Aggregating sampled open-ended multi-step generation like RCA with LLM agents is underexplored",
+      "Action validity challenges for less sufficiently aligned LLMs in open-ended generation",
+      "Context length limitations for agent usage in realistic cloud environments",
+      "Privacy concerns associated with using external LLM APIs with cloud system data"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

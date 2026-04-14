@@ -1,0 +1,140 @@
+{
+  "title": "Empowering LLMs by hybrid retrieval-augmented generation for domain-centric Q&A in smart manufacturing",
+  "doi": "10.1016/j.aei.2025.103212",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A hybrid RAG agent that retrieves information from both a knowledge graph (Neo4j) and a vector store, applies semantic alignment with domain constraints, and generates domain-specific Q&A responses for smart manufacturing and DfAM tasks.",
+          "role": "monolithic",
+          "specialized_role": "hybrid_rag_qa_agent",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "knowledge-graph",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step orchestration pattern where a user query triggers a layered hybrid retrieval pipeline: (1) KG-based retrieval via Neo4j graph traversal, (2) vector-based retrieval via semantic similarity search if KG results are insufficient, (3) semantic alignment with domain constraints, and (4) prompt-engineered generation using the LLM to produce a final answer.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Domain experts are involved in curating the initial document corpus, validating the constructed knowledge graph (reviewing mapped triplets, nodes, and edges), and conducting a human-in-the-loop validation step to ensure truthfulness and relevance of the knowledge base. End users interact with the system via natural language queries.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Domain-centric question answering for smart manufacturing, specifically applied to Design for Additive Manufacturing (DfAM), supporting decision-making around material selection, process optimization, geometric design, and performance metrics.",
+    "problem_description": "LLMs face domain gaps, hallucinations, and outdated knowledge in smart manufacturing Q&A. Conventional vector-based RAG lacks precision for domain-specific relationships, while KG-based RAG struggles with scalability and handling unstructured data. Neither approach alone is sufficient for accurate, context-aware responses in complex manufacturing domains.",
+    "proposed_solution": "A hybrid KG-Vector RAG framework that integrates structured knowledge graph metadata (Neo4j) with unstructured vector embeddings (text-embedding-3-small). The system constructs a metadata-enriched KG from domain corpora, applies semantic alignment via domain-specific constraints and terminology injection, and employs a layered hybrid retrieval strategy combining KG graph traversal with vector similarity search, enhanced by prompt engineering, to generate comprehensive domain-specific responses.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "A controlled comparative experiment evaluating four RAG strategies (vector-based, graph-based, KG-Vector hybrid, KG-Vector with prompt engineering) across three LLMs (GPT-4o, GPT-4o mini, DeepSeek V2) on a DfAM dataset of 69 publications, using generic metrics (exact match, context precision, latency) and domain metrics (LLM-as-judge scoring).",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o with KG-Vector RAG + PE achieved 77.8% exact match accuracy, up from 63.4% with vector-only RAG.",
+        "GPT-4o with KG-Vector RAG + PE achieved 76.5% context precision, up from 69.8% with vector-only RAG.",
+        "GPT-4o mini with KG-Vector RAG + PE achieved 75.5% EM and 74.2% CP.",
+        "DeepSeek V2 with KG-Vector RAG + PE achieved 74.8% EM and 73.9% CP.",
+        "Domain metric (LLM-as-judge): GPT-4o with KG-Vector + PE achieved highest average score of 7.83/10.",
+        "Incremental improvement observed across all LLMs moving from vector-only to KG-only to hybrid to hybrid+PE."
+      ],
+      "response_time_impact": [
+        "Vector-based RAG (Group 1) had lowest latency: DeepSeek V2 at 3.84s, GPT-4o mini at 6.07s, GPT-4o at 7.01s.",
+        "KG-based RAG (Group 2) increased latency: DeepSeek V2 at 4.86s, GPT-4o mini at 8.22s, GPT-4o at 9.46s.",
+        "Hybrid KG-Vector RAG (Group 3) further increased latency: DeepSeek V2 at 5.79s, GPT-4o mini at 9.99s, GPT-4o at 10.96s.",
+        "KG-Vector RAG with PE (Group 4) had highest latency: DeepSeek V2 at 8.67s, GPT-4o mini at 14.37s, GPT-4o at 16.33s.",
+        "Prompt engineering introduces additional pre-processing steps that increase latency substantially."
+      ],
+      "reliability_metrics": [
+        "Three separate trial scores reported for domain metric evaluation to assess consistency.",
+        "GPT-4o with KG-Vector + PE scored (8.0, 7.5, 8.0) across three trials."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "context-formatting",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Hybrid KG-Vector RAG outperformed both vector-only and KG-only RAG across all metrics and LLMs, demonstrating the value of combining structured and unstructured retrieval.",
+        "in-context-learning": "Prompt engineering (few-shot examples, domain constraints, tailored instructions) further improved EM from 71.x% to 77.8% and CP from 71.x% to 76.5% for GPT-4o.",
+        "chain-of-thought": "Layered retrieval and reasoning process (KG first, then vector if needed, then consolidation) improved recall and accuracy in complex multi-faceted DfAM queries."
+      },
+      "failure_modes": [
+        "Vector-based RAG fails to capture domain-specific relationships and specialized vocabulary, leading to contextually vague results.",
+        "KG-based RAG is limited by KG completeness; if KG lacks certain information, comprehensive responses cannot be generated.",
+        "KG sparsity requires fallback to vector retrieval for queries not fully covered by the KG.",
+        "Prompt engineering increases latency significantly, creating a trade-off between accuracy and response time."
+      ],
+      "limitations": [
+        "The proposed method is tailored to the smart manufacturing domain; knowledge collection and preparation must be adjusted for other domains.",
+        "Keeping KGs up-to-date with emerging domain-specific terms and recent advancements remains a critical challenge.",
+        "Higher latency in hybrid and PE-enhanced approaches may limit suitability for real-time applications.",
+        "The system depends heavily on the quality and relevance of the underlying knowledge base.",
+        "Automated KG update strategies are not yet implemented; manual expert validation is required."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Vector-based RAG",
+      "Graph-based RAG (KG-only)",
+      "General LLMs without RAG (implicit baseline)"
+    ],
+    "evaluation_metric_categories": [
+      "retrieval-quality",
+      "generation-quality",
+      "computational-efficiency",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Adapting the proposed method for broader domain applications beyond smart manufacturing by refining the process of knowledge collection and preparation",
+      "Improving the timeliness of knowledge graphs through automated KG update strategies to integrate emerging domain-specific terms and recent advancements",
+      "Dynamically updating external knowledge sources to improve the system's adaptability and reliability in fast-changing environments"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

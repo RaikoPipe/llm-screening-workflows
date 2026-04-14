@@ -1,0 +1,320 @@
+{
+  "title": "Rethinking Supply Chain Planning: A Generative Paradigm",
+  "doi": "10.48550/ARXIV.2509.03811",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Foundation Model serving as the unified cognitive nucleus of the entire framework, providing fundamental reasoning capabilities for task decomposition and execution. Integrated with short-term memory, long-term memory, RAG, and fine-tuning to transform a general-purpose model into a specialized supply chain expert.",
+          "role": "orchestrator",
+          "specialized_role": "foundation_model_cognitive_nucleus",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "parametric-memory",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (fine-tuned, specific model not named)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Domain-specific supply chain corpora used to align the model's decision logic with supply chain protocols and organizational workflows."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Query Enhancement Module that preprocesses raw user inputs, transforming them into structured, machine-parsable representations. Consists of a Tokenization and Filtering Model and a Slot Classification Model to distill critical planning parameters from unstructured queries.",
+          "role": "other",
+          "specialized_role": "query_enhancer",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM with embedding-based semantic model",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Intent Classification Agent that maps structured inputs onto well-defined supply chain planning contexts. Fine-tuned on domain-specific corpora to navigate linguistic nuances and contextual ambiguities. Categorizes intent into: Inventory Turnover and Planning Diagnostics, In-Stock Rate Monitoring, and Sales/Inventory/Procurement Recommendations.",
+          "role": "other",
+          "specialized_role": "intent_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Fine-tuned LLM (domain-specific)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Domain-specific supply chain corpora for intent classification in supply chain planning contexts."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Task Orchestration Agent that translates classified intents into structured, executable sub-tasks and coordinates their execution. Decomposes user queries into sub-tasks: historical sales data analysis, feature data processing, and plan formulation. Operates iteratively, evaluating results and reconfiguring remaining tasks.",
+          "role": "planner",
+          "specialized_role": "task_orchestrator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition",
+              "iterative-reasoning",
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM with domain-specific prompts",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Supply chain planning SOPs and domain knowledge injected via RAG for task orchestration."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Data Acquisition Agent that retrieves required data according to task descriptions using Text-to-SQL techniques to automatically translate natural language queries into SQL statements. Performs slot extraction, vectorization, and interfaces with dimensional vector databases and API databases.",
+          "role": "retriever",
+          "specialized_role": "data_acquisition_agent",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM with Text-to-SQL capability",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Data Analysis Agent that operates as a specialized code synthesis engine, translating analytical objectives into executable Python scripts. Uses four atomic primitive operations: Filter, Transform, Groupby, and Sort. Employs iterative inference strategy and function calling to invoke pre-validated algorithmic tools such as time-series forecasting and inventory optimization solvers.",
+          "role": "coder",
+          "specialized_role": "data_analysis_code_generator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "iterative-reasoning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "external-models",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (code generation capable)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Instruction-tuning corpora accumulated from atomic code generation steps for continuous fine-tuning and self-evolution."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Plan Correction Agent that monitors plan execution in real time, compares actual daily sales and metrics against planned values, detects abnormal deviations, identifies underlying causes (e.g., lower traffic, underperforming promotions, market shifts), and generates recommendations for plan updates. Enables a dynamic feedback loop for adaptive planning.",
+          "role": "other",
+          "specialized_role": "plan_correction_monitor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (domain-adapted)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The framework uses a multi-agent collaboration pattern with hierarchical orchestration. A Task Management module (Intent Classification + Task Orchestration agents) decomposes strategic intent into executable sub-tasks, which are then executed by Task Execution agents (Data Acquisition + Data Analysis). An iterative execute-evaluate-refine loop dynamically updates the subtask list based on intermediate results. The Plan Correction Agent provides a continuous feedback loop for real-time plan monitoring and adjustment.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents cooperate in a hierarchical structure where the Task Orchestration Agent decomposes and routes tasks to specialized execution agents. Results from execution agents are fed back to the orchestration layer for dynamic task list refinement. The Plan Correction Agent operates as a continuous monitoring loop. All agents share a common cognitive foundation (Foundation Model) and cooperate toward the shared goal of generating and maintaining accurate supply chain plans.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human planners interact with the system through natural language queries to initiate planning tasks. The system interprets user intent, decomposes tasks, and generates plans autonomously, but humans remain in the loop for strategic oversight and final decision-making. The framework is designed to liberate human cognition from routine data preparation to focus on strategic reasoning. Business personnel drive complex planning cycles directly through natural language, and the system provides interactive, agent-supported analytical sessions.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Large-scale e-commerce supply chain planning at JD.com, encompassing sales planning, inventory planning, inbound logistics planning, and operations planning across millions of SKUs and thousands of warehouses.",
+    "problem_description": "Traditional supply chain planning suffers from misalignment of temporal granularity across organizational levels, rigidity of sequential coordination across functional silos, high labor intensity due to repetitive manual tasks, and conflict between structured system requirements and flexible business needs. These limitations result in inefficiencies, delayed decision-making, and inability to adapt to dynamic market conditions in large-scale e-commerce environments.",
+    "proposed_solution": "A Generative AI-powered agentic framework (Supply Chain Planning Agent Framework) that functions as an intelligent organizational interface. The framework comprises Task Management agents (Intent Classification and Task Orchestration) and Task Execution agents (Data Acquisition and Data Analysis), supported by a Foundation Model with RAG, fine-tuning, and short/long-term memory. An iterative execute-evaluate-refine loop enables dynamic subtask refinement, and a Plan Correction Agent provides continuous monitoring and adaptive feedback.",
+    "research_maturity": "production",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The authors collaborated with JD.com to model enterprise planning processes, identify inefficiencies, and design a GenAI-powered agentic framework. The framework was deployed in JD.com's live production environment starting December 2023 and empirically evaluated on over 70,000 SKUs across three business units using year-over-year comparison during the '618' Shopping Festival.",
+    "validation_methods": [
+      "field deployment",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "22% increase in the proportion of plans with accuracy deviation below 5% (Year-over-Year comparison May-June 2024 vs May-June 2023)",
+        "Stock fulfillment rate 2% above historical manual baseline during '618' Shopping Festival",
+        "Estimated GMV uplift of approximately RMB 2 million during the '618' festival due to reduced decision latency"
+      ],
+      "response_time_impact": [
+        "Weekly data processing time reduced by approximately 40%",
+        "Weekly manual workload for planners reduced from 120 minutes to approximately 5 minutes (data requirement description takes 5 minutes; processing fully automated)",
+        "Continuous event-driven loop replaces periodic batch reviews, minimizing stockout durations"
+      ],
+      "reliability_metrics": [
+        "Stock fulfillment rate maintained 2% above historical manual baseline during high-volatility '618' Shopping Festival",
+        "System deployed and continuously refined in live production environment since December 2023"
+      ],
+      "failure_attribution": [],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "RAG enables retrieval of domain SOPs and knowledge base content to ground task orchestration in organizational best practices, improving contextual relevance of generated plans",
+        "chain-of-thought": "CoT reasoning bridges strategic intent and operational execution by semantically interpreting high-level business objectives and logically decomposing them into granular department-specific targets",
+        "dynamic-decomposition": "Dynamic subtask decomposition and iterative refinement allows the system to adapt task sequences based on intermediate results, improving robustness in complex supply chain scenarios",
+        "iterative-reasoning": "Iterative execute-evaluate-refine loop ensures the overarching plan continuously reconstructs itself to align with evolving operational reality"
+      },
+      "failure_modes": [],
+      "limitations": [
+        "Substantial potential remains to further advance the paradigm through reasoning-enhanced foundation models",
+        "Need for deeper integration of domain knowledge",
+        "Need for expanded algorithmic tool capabilities",
+        "Technical complexities beyond basic prompt engineering: robust database design for dynamic retrieval, precise semantic understanding, and rigorous transformation of unstructured inputs into structured formats"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Manual planning baseline (human planners performing weekly data acquisition, processing, and analysis)",
+      "Historical manual baseline (May\u2013June 2023 manual operations used as Year-over-Year comparison)"
+    ],
+    "evaluation_metric_categories": [
+      "operational-kpi",
+      "computational-efficiency",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Developing reasoning-enhanced foundation models for supply chain planning",
+      "Integrating deeper domain knowledge into the agentic framework",
+      "Expanding algorithmic tool capabilities within the framework",
+      "Extending the paradigm beyond planning to the full spectrum of supply chain management (e.g., intelligent sourcing, resilient logistics)",
+      "Advancing toward autonomously orchestrated supply chains"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

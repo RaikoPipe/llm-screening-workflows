@@ -1,0 +1,131 @@
+{
+  "title": "A stepwise intelligence generative method for structured maintenance guidance documents based on knowledge graph augmented LLM",
+  "doi": "10.1016/j.aei.2025.103523",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic LLM-based agent that performs multiple tasks: assists in knowledge graph construction (tokenization and entity alignment), generates structured maintenance guidance documents step-by-step using chain-of-thought prompts, and retrieves relevant knowledge from the knowledge graph to enhance generation.",
+          "role": "monolithic",
+          "specialized_role": "document_generator",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "conversation-history",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Qwen2.5-7B-Instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential orchestration graph: first constructing the knowledge graph with LLM-assisted tokenization and entity alignment, then building chain-of-thought prompts, and finally performing stepwise retrieval-augmented generation. Each step of the maintenance guidance document is generated in a loop, with the LLM queried iteratively per document section (basic info, resource input, process steps) until all steps are complete.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users input the maintenance task name to be generated and initiate the generation process via a structured information system interface. The system generates a structured MGD which users can review and modify through a modular layout interface. Human engineers also provide the initial maintenance guidance document database used for knowledge graph construction.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui",
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Automatic generation of structured maintenance guidance documents (MGDs) for industrial equipment, specifically Baosteel continuous casting equipment, to support maintenance workers with standardized, professional, and structured operational instructions.",
+    "problem_description": "Preparing maintenance guidance documents (MGDs) for industrial equipment is labor-intensive, requiring experienced engineers to manually write thousands of documents per year. Manual preparation leads to quality inconsistencies and difficulties in structured storage. Existing LLM-based document generation methods suffer from inaccurate content and structures that do not match professional requirements, especially for long, structured, domain-specific documents.",
+    "proposed_solution": "A stepwise intelligent generation method combining knowledge graph retrieval augmented generation (GraphRAG) and chain-of-thought (CoT) prompts. The approach: (1) constructs a professional maintenance knowledge graph using LLM-assisted tokenization and entity alignment; (2) builds CoT prompts aligned with the stepwise structure of MGDs; (3) performs hierarchical graph retrieval combined with edit distance similarity matching to find relevant knowledge; and (4) generates structured MGDs step-by-step by combining retrieved graph entity content with CoT prompts as enhanced inputs to the LLM (Qwen2.5-7B-Instruct).",
+    "research_maturity": "pilot",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The method is applied and evaluated in a real-world case study using 25,136 Baosteel continuous casting equipment maintenance guidance documents. 98 randomly selected documents form the test set. The proposed graph-enhanced stepwise method is compared against a traditional single-prompt method and a graph-only retrieval method using content accuracy (Rouge, BLEU-1), structural accuracy, and generation efficiency metrics.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Graph-enhanced method achieves average Rouge-1 F1 of 0.750 vs. 0.746 for single-prompt and 0.646 for graph-only method.",
+        "Graph-enhanced method achieves precision of 0.740 vs. 0.675 for single-prompt and 0.774 for graph-only method.",
+        "Graph-enhanced method achieves BLEU-1 of 0.765 vs. 0.772 for single-prompt and 0.658 for graph-only method.",
+        "Structural accuracy of 100% for graph-enhanced method vs. 65.31% for single-prompt method and 100% for graph-only method.",
+        "Graph-enhanced method reduces outliers and improves stability compared to single-prompt and graph-only methods."
+      ],
+      "response_time_impact": [
+        "Graph-enhanced stepwise method averages 217.42s per document generation vs. 269.63s for single-prompt method, a ~20% improvement in generation efficiency.",
+        "Graph-only method is far faster (3.69s average) as it does not call the LLM, but at the cost of lower recall and F1."
+      ],
+      "reliability_metrics": [
+        "Structural accuracy: graph-enhanced method 100%, single-prompt method 65.31% (34 out of 98 documents had structural deviations).",
+        "Graph-enhanced method shows fewer low-value outliers in accuracy and F1 score box plots compared to single-prompt and graph-only methods."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "GraphRAG significantly improves content precision (0.740 vs 0.675) and structural accuracy (100% vs 65.31%) compared to single-prompt method; reduces dependence on graph coverage compared to graph-only method.",
+        "chain-of-thought": "CoT prompts enable stepwise structured generation, achieving 100% structural accuracy and improving generation efficiency by ~20% over single-prompt method by decomposing long document generation into manageable steps.",
+        "in-context-learning": "Providing matched similar documents as sample prompts in single-prompt method achieves high recall (0.876) but lower precision and structural accuracy compared to graph-enhanced method."
+      },
+      "failure_modes": [
+        "When graph matching knowledge is dissimilar to the task to be generated, generated results are highly dependent on input prompt and may deviate significantly.",
+        "Graph-only method shows large instability (lower recall, more low-value outliers) when no highly similar knowledge exists in the graph.",
+        "Single-prompt method tends to directly copy content from prompt samples rather than reasoning, and frequently fails to produce correctly structured output (34.69% structural failure rate)."
+      ],
+      "limitations": [
+        "Generation accuracy largely depends on the quality and completeness of the constructed knowledge graph.",
+        "When there is a large gap between matched graph knowledge and the task to be generated, the model lacks professional knowledge to compensate.",
+        "Evaluation metrics (precision, recall, F1, BLEU-1) are relatively simple for professional document generation tasks; a more comprehensive evaluation system covering fluency, credibility, and completeness is needed.",
+        "Lack of a professional vocabulary tokenization tool with good effects necessitates use of unit-word-based Rouge-1 and BLEU-1 indices."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Traditional single-prompt method (model definition + task description + edit-distance-retrieved document examples)",
+      "Graph-only retrieval method (hierarchical retrieval + chain-of-thought retrieval without LLM generation)"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Improving coverage and accuracy of the knowledge graph to reduce dependence on graph quality and completeness for generation accuracy",
+      "Introducing more professional knowledge retrieval and prompts in the generation process to improve stability when matched knowledge is dissimilar to the target task",
+      "Developing a more comprehensive evaluation system for generated documents covering fluency, credibility, and completeness beyond simple reference-text comparison metrics",
+      "Building a complete evaluation system that can be applied to automatic review of model-generated results or fine-tuning training of professional models"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

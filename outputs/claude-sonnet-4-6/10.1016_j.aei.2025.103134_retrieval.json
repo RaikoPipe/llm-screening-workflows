@@ -1,0 +1,227 @@
+{
+  "title": "Large language model assisted fine-grained knowledge graph construction for robotic fault diagnosis",
+  "doi": "10.1016/j.aei.2025.103134",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM Assistance in Industrial Nested Named Entity Recognition (assInNNER) - assists in ontology construction by extracting concepts, semantic relationships, and hierarchy from domain texts. Also used to recall non-Silver (negative) samples to improve nested NER performance.",
+          "role": "orchestrator",
+          "specialized_role": "ontology_constructor_and_negative_sample_recall",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Attention-map Aware Keyword Selection for the Industrial Nested Language Model (ANLM) - fine-tuned language model for data augmentation of nested NER tasks. Uses Industrial Nested Label Classification Template (INCT) to generate diverse and balanced training samples.",
+          "role": "other",
+          "specialized_role": "data_augmentation_model",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "mBART-large-50",
+            "finetuning_datasets": [
+              "human-annotated",
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Fine-tuned on industrial robot fault diagnosis maintenance corpus (900 sentences from operational logs, books, and articles) with nested NER annotations using BIO pattern. Training set of 630 sentences used for fine-tuning."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Student module within assInNNER - learns nested entity knowledge from correct knowledge samples (source data + Silver samples) in multi-turn dialogue scenarios to prepare for subsequent label correction tasks.",
+          "role": "other",
+          "specialized_role": "student_learner",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Teacher module within assInNNER - analyzes and summarizes nested information within non-Silver (negative) sample sentences, provides corrections, and generates correctly labeled text in the required format.",
+          "role": "other",
+          "specialized_role": "teacher_corrector",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-stage orchestration pipeline: (1) assInNNER (LLM-based) constructs the ontology and fine-grained KG; (2) ANLM performs data augmentation using INCT templates; (3) CFM filters generated samples into Silver and non-Silver sets; (4) assInNNER's Student-Teacher collaboration recalls high-quality samples from non-Silver datasets. The Student and Teacher modules cooperate in a hierarchical dialogue-based pattern to correct nested entity labels.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The Student and Teacher modules within assInNNER cooperate in a hierarchical manner: the Student module learns nested entity knowledge from correct samples, while the Teacher module reviews and corrects mislabeled non-Silver samples. The overall pipeline is orchestrated sequentially with the assInNNER overseeing ontology construction and negative sample recall.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human experts provide domain knowledge as instruction prompts for LLM-assisted ontology construction. Expert review and data validation are used to ensure accuracy of defined semantic relationships. Human annotators manually annotated 900 sentences for the nested NER corpus using BIO pattern.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial robot fault diagnosis and maintenance in manufacturing environments, focusing on constructing fine-grained knowledge graphs from multi-source maintenance corpora to support fault identification, maintenance scheduling, and root cause determination.",
+    "problem_description": "Constructing fine-grained fault diagnosis knowledge graphs for industrial robots faces challenges due to: (1) complex nested entities in maintenance texts that are difficult to extract; (2) severe scarcity of annotated industrial data; (3) traditional ontology construction relying heavily on subjective expert knowledge; (4) existing data augmentation methods not being directly applicable to nested NER tasks; and (5) imbalanced sample distributions in maintenance corpora.",
+    "proposed_solution": "A LLM-assisted data augmentation framework (ANLM-assInNNER) comprising: (1) assInNNER for LLM-assisted ontology construction with nested concepts; (2) Industrial Nested Label Classification Template (INCT) enabling data augmentation for nested NER; (3) Attention-map Aware Keyword Selection for the Industrial Nested Language Model (ANLM) for generating diverse training samples; (4) Confidence Filtering Mechanism (CFM) for quality control of generated data; and (5) LLM-assisted non-Silver sample recall using a Student-Teacher collaboration pattern to recover high-quality samples from incorrectly augmented data.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments on a real industrial robot fault diagnosis corpus (900 sentences) using 7-fold cross-validation with few-shot settings (5%, 10%, 25% of training data). The proposed ANLM-assInNNER model is compared against baseline models (PromptNER, Binder, DiffusionNER) using Precision, Recall, and F1 metrics. Ablation studies evaluate the contribution of individual components.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Average F1 increase of 8.25% over suboptimal baseline (Binder) in 5% few-shot setting",
+        "Average F1 increase of 3.31% over suboptimal baseline (Binder) in 10% few-shot setting",
+        "Average F1 increase of 1.96% over baseline models in 25% few-shot setting",
+        "ANLM-assInNNER achieved 64.89% F1 at 5% corpus, 70.43% at 10%, and 81.11% at 25%",
+        "Removing ANLM decreased nested NER F1 by 12.85% (5%), 7.41% (10%), and 2.38% (25%)",
+        "Removing LLM-assisted non-Silver recall decreased F1 by 2.03% (5%), 0.61% (10%), and 1.7% (25%)",
+        "Combined ANLM and assInNNER improved F1 by 19.61%, 9.32%, and 4.28% in 5%, 10%, 25% settings respectively",
+        "assInNNER recall of negative samples improved performance by 6.71% (5%), 1.48% (10%), and 1.9% (25%)"
+      ],
+      "response_time_impact": [
+        "assInNNER reduces number of augmentation iterations from N=5 to N=3 by recalling negative samples"
+      ],
+      "reliability_metrics": [
+        "7-fold cross-validation with 5 random samples per fold to reduce data variance impact",
+        "CFM silver threshold set to 0.7 and non-silver threshold to 0.8 for quality filtering"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "LLM-assisted ontology construction using expert knowledge as instruction prompts effectively extracts nested concepts and relationships from domain texts",
+        "chain-of-thought": "Student-Teacher multi-turn dialogue enables step-by-step correction of mislabeled nested entities in non-Silver samples",
+        "dynamic-decomposition": "Task planning in assInNNER breaks down complex nested entity recall into Student learning and Teacher correction subtasks"
+      },
+      "failure_modes": [
+        "LLM can produce nonsensical/meaningless results in complex industrial reasoning tasks",
+        "Data augmentation exacerbates long-tail distribution problem in industrial datasets",
+        "Overfitting occurs in 25% corpus scenario due to excessive sample generation",
+        "Errors in enhancing complex nested entities often originate from mislabeling specific tokens within nested entities",
+        "Silver samples may contain sentences with low pseudo-log-likelihood scores indicating poor semantic coherence"
+      ],
+      "limitations": [
+        "Nested relation extraction not considered, limiting overall KG comprehensiveness",
+        "Effectiveness constrained by quality of training data and potential overfitting from insufficiently diverse augmented datasets",
+        "Performance improvement less significant in 25% scenario due to excessive sample generation causing long-tail distribution issues",
+        "Algorithm performance may vary depending on domain characteristics; scalability to other industrial fault domains requires further investigation",
+        "LLM may not fully capture highly specific and nuanced domain knowledge, especially with scarce or specialized terminology",
+        "Cognitive biases from knowledge acquirers may lead to omission or misinterpretation in ontology construction",
+        "Real-world industrial settings introduce additional challenges related to data variability, noise, and domain-specific complexities"
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "PromptNER",
+      "Binder",
+      "DiffusionNER",
+      "Pre-trained Language Model (baseline without ANLM)"
+    ],
+    "evaluation_metric_categories": [
+      "classification"
+    ],
+    "identified_research_gaps": [
+      "Nested relation extraction is not considered; future work will explore overlap of nested entities and relations under low-resource conditions for joint extraction",
+      "Expanding KG scope by incorporating more diverse data sources and exploring multimodal integration",
+      "Further research needed for more fine-grained fault diagnosis KG incorporating sensor data and historical maintenance records",
+      "Application of overlapping and nested event extraction tasks in real-world industrial scenarios requires further in-depth study",
+      "Enhancing robustness and generalizability of methods to handle complexities of real-world industrial environments including data variability, noise, and domain-specific complexities",
+      "Scalability of the algorithm to other industrial fault domains requires further investigation",
+      "Preventing overfitting in scenarios with larger proportions of training samples (e.g., 25% corpus)"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,156 @@
+{
+  "title": "Large language model-enabled cognitive agent for self-aware manufacturing",
+  "doi": "10.1016/j.jmsy.2025.08.015",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A cognitive agent (CA) that uses GPT-4o as its core reasoning engine, enhanced with RAG from an industrial knowledge graph (IKG), few-shot in-context learning, and tool libraries. It interprets natural language commands, retrieves relevant subgraphs from IKG, generates executable task plans (function call sequences) for robots, handles dynamic incidents, and provides natural language explanations of actions.",
+          "role": "monolithic",
+          "specialized_role": "task_planner",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "conversation-history",
+              "parametric-memory",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a single cognitive agent orchestrated through a sequential pipeline. The pipeline consists of three phases: (1) prompt engineering to instruct the CA with predefined prompts and few-shot examples, (2) IKG-based RAG to establish context awareness by retrieving relevant subgraphs, and (3) dynamic incident handling based on human feedback. The CA generates high-level task plans as function call sequences, which are then translated into low-level robot control commands via tool libraries.",
+        "orchestration_pattern": [
+          "single-step",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human operators provide natural language commands (including voice input) to initiate task planning. After the CA generates a task plan, operators validate it before execution. Operators also provide dynamic feedback about unexpected incidents (e.g., detection errors, grasping errors, object misplacement), which the CA uses to replan. The system translates machine-level task plans into human-understandable natural language explanations to support non-expert operators.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "real-time-monitoring"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "audio"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Self-aware manufacturing at the system level, focusing on robotic task planning (pick-and-place and disassembly) within a lab-scale manufacturing unit using an autonomous mobile robot (AMR) with a manipulator arm.",
+    "problem_description": "System-level automation in manufacturing remains constrained by limited cognitive abilities of current systems. Existing approaches struggle with: (1) semantic representation and understanding of heterogeneous manufacturing resources due to rigid ontologies with limited adaptability, and (2) lack of intuitive natural language interaction between humans and manufacturing systems. General-purpose LLMs lack domain-specific manufacturing expertise, while IKG-powered systems have limited context awareness and rely on predefined structured knowledge.",
+    "proposed_solution": "A LLM-enabled Cognitive Agent (CA) framework for self-aware manufacturing that integrates GPT-4o as its cognitive core with: (1) IKG-based Retrieval-Augmented Generation (RAG) that retrieves focused subgraphs relevant to human commands to establish context awareness, (2) few-shot in-context learning to adapt to task-specific requirements without retraining, (3) specialized tool libraries for robot navigation (Nav2), object detection (Detic), motion planning (MoveIt, RRT, KDL), and robot control (libfranka), and (4) real-time environment modeling via LiDAR-camera fusion SLAM. The CA interprets natural language commands, generates executable task plans as function call sequences, and handles dynamic incidents by retrieving domain-specific solutions from IKG.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments on a lab-scale manufacturing unit with two case studies (pick-and-place and disassembly). The system is evaluated under different modes (with/without IKG retrieval, zero-shot/few-shot paradigms) using quantitative metrics (EXE, GCR, SR, BLEU, ROUGE-1). 10 participants provided 50 natural language commands with dynamic feedback for pick-and-place, and 24 command-feedback pairs for disassembly. Four different LLMs (GPT-4o, GPT-3.5-turbo, LLaMA3.1-70b, Qwen2-72b) are compared.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Few-shot w/ IKG outperforms all other modes: pick-and-place normal command SR 92% vs 62% (zero-shot w/o IKG baseline)",
+        "Few-shot w/ IKG for dynamic feedback pick-and-place: SR 84% vs 0% (zero-shot w/o IKG)",
+        "Few-shot w/ IKG for disassembly normal command: SR 63% vs 0% (zero-shot w/o IKG and w/ IKG)",
+        "Few-shot w/ IKG for disassembly dynamic feedback: SR 42% vs 0% (zero-shot)",
+        "IKG-based RAG improves GCR in dynamic feedback scenarios: 64% (w/ IKG) vs 3% (w/o IKG) in zero-shot pick-and-place",
+        "GPT-4o achieves highest SR across all tasks compared to GPT-3.5-turbo, LLaMA3.1-70b, and Qwen2-72b",
+        "Proposed approach (few-shot w/ IKG) results in fewest task planning errors compared to other modes"
+      ],
+      "response_time_impact": [
+        "Voice input to text conversion: approximately 2 seconds",
+        "Task plan generation: approximately 5 seconds",
+        "Low-level control command generation and transmission to robot: approximately 5 seconds after operator validation",
+        "IKG-based RAG reduces input token size by retrieving only relevant subgraphs, minimizing computational workload and processing time compared to full environment description methods"
+      ],
+      "reliability_metrics": [
+        "Pick-and-place normal command: EXE=94%, GCR=96%, SR=94%, BLEU=82%, ROUGE-1=90% (few-shot w/ IKG)",
+        "Pick-and-place dynamic feedback: EXE=84%, GCR=89%, SR=84%, BLEU=81%, ROUGE-1=87% (few-shot w/ IKG)",
+        "Disassembly normal command: EXE=63%, GCR=100%, SR=63%, BLEU=86%, ROUGE-1=92% (few-shot w/ IKG)",
+        "Disassembly dynamic feedback: EXE=42%, GCR=83%, SR=42%, BLEU=72%, ROUGE-1=84% (few-shot w/ IKG)"
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "IKG-based RAG significantly improves GCR and BLEU/ROUGE-1 scores by providing focused context awareness. In dynamic feedback scenarios, w/ IKG achieves 64% GCR vs 3% w/o IKG (zero-shot). Essential for domain-specific disassembly tasks where zero-shot w/o IKG achieves 0% on all metrics.",
+        "in-context-learning": "Few-shot in-context learning dramatically improves EXE and SR across all modes. For pick-and-place normal command, SR improves from 62% to 94% (w/o IKG) and from 34% to 92% (w/ IKG). For dynamic feedback, SR improves from 0% to 61% (w/o IKG) and from 8% to 84% (w/ IKG). Enables CA to learn action sequencing logic from unrelated examples and generalize to manufacturing tasks."
+      },
+      "failure_modes": [
+        "Action Logical Error (ALE): inappropriate action sequencing or incorrect inference of incident types (e.g., detaching object before grasping)",
+        "Action Missing Error (AME): omission of necessary actions such as detach_from_plane() or valid incident handling plans",
+        "Action Calling Error (ACE): incorrect function arguments violating primitive action specifications or failing to meet human requirements",
+        "Action Hallucinating Error (AHE): fabricated assets, locations, or incidents not defined in the system (e.g., hallucinated 'shelf' location instead of 'Tray 1')",
+        "Ambiguous instruction handling: CA does not seek clarification when multiple options exist (e.g., multiple screwdrivers), arbitrarily selecting one",
+        "Hallucinated plans despite correct IKG retrieval: CA may produce plans referencing undefined locations even when subgraph correctly indicates actual location",
+        "Loop structure omission in disassembly: CA fails to implement iterative loops for loosening all fasteners despite explicit IKG guidance",
+        "Keyword extraction errors in open-source LLMs: hallucinated location keywords disrupt RAG process"
+      ],
+      "limitations": [
+        "Proposed approach exhibits limitations in handling ambiguous instructions without seeking clarification",
+        "CA may generate hallucinated actions even when IKG subgraphs provide correct information",
+        "Abundance of text prompts can dilute CA's focus on specific low-level action logic",
+        "Language similarity-based retrieval may cause misinterpretations from uncertain or ambiguous commands",
+        "Open-source LLMs (LLaMA, Qwen) lack built-in conversation history management, increasing risk of exceeding token limits and 'lost-in-the-middle' problem",
+        "GPT-3.5-turbo shows significantly weaker reasoning, producing hallucinated task plans and frequent function syntax violations",
+        "System validated only at lab-scale; generalization to full production environments not demonstrated",
+        "Reliance on pre-defined robotic primitive action functions limits flexibility to novel action types"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Without IKG retrieval (w/o IKG) with predefined environment descriptions",
+      "Zero-shot LLM-based task planning",
+      "gpt-3.5-turbo",
+      "llama3.1-70b",
+      "qwen2-72b"
+    ],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "generation-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Refining the subgraph retrieval process by vectorizing IKG for fine-tuning LLM to reduce reliance on language similarity-based retrieval",
+      "Mitigating misinterpretations caused by uncertain or ambiguous human commands",
+      "Integration with digital twin technologies to advance toward cognitive digital twins for Self-X manufacturing",
+      "Handling ambiguous instructions without seeking clarification",
+      "Addressing hallucinated actions in task plans"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

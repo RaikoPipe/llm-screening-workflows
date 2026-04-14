@@ -1,0 +1,129 @@
+{
+  "title": "An advanced retrieval-augmented generation system for manufacturing quality control",
+  "doi": "10.1016/j.aei.2024.103007",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Main RAG agent that processes user queries about ceramic tile manufacturing defects, retrieves relevant information from a specialized knowledge base, and generates accurate responses using GPT-3.5-turbo-instruct with domain-specific augmentation.",
+          "role": "monolithic",
+          "specialized_role": "quality_control_assistant",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-3.5-turbo-instruct",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential pipeline: query pre-processing (validation and rewriting), indexing and retrieval (bi-encoder with OpenAI embeddings and Chroma vector store), post-retrieval reranking (cross-encoder ms-marco-MiniLM-L-6-v2), and final response generation (gpt-3.5-turbo-instruct). Document pre-processing is also performed offline to build the knowledge base. The entire pipeline is implemented using LangChain.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users interact with the system through a user interface that allows either selecting a defect from a predefined list or submitting an open-text query. The system validates queries to ensure they are related to ceramic quality management. Human experts also reviewed and corrected the pre-processed dataset manually. A human expert evaluation was used to assess response correctness (YES/NO) in the generation evaluation.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Manufacturing quality control in ceramic tile production, focusing on defect identification, root cause analysis, and solution generation for non-conformities management.",
+    "problem_description": "Traditional quality management information systems are limited in their ability to leverage external domain-specific knowledge effectively. Existing systems rely on keyword search over internal records, lack reasoning capabilities, and cannot provide well-explained, actionable solutions to manufacturing defects. General-purpose LLMs lack the domain-specific precision needed for specialized manufacturing quality control tasks.",
+    "proposed_solution": "An advanced Retrieval-Augmented Generation (RAG) system built with LangChain that combines OpenAI GPT-3.5-turbo-instruct with a curated knowledge base of ceramic tile manufacturing defect literature. The system includes tailored pre-processing (query rewriting, document structuring), semantic retrieval via bi-encoder with Chroma vector store and OpenAI text-embedding-3-large, post-retrieval reranking via a cross-encoder (ms-marco-MiniLM-L-6-v2), and structured prompt-based response generation.",
+    "research_maturity": "prototype",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The authors designed and implemented an advanced RAG system artifact, evaluated it through retrieval hyperparameter optimization (Jaccard similarity, F1-score, Kendall-Tau distance) and generation quality assessment (ROUGE-L metric with human expert validation), and compared results against GPT-4 without domain adaptation to demonstrate the system's effectiveness.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "RAG system achieved a mean ROUGE-L score of 0.6108 vs. 0.2300 for random baseline, indicating significantly higher response quality.",
+        "Domain-adapted RAG system (gpt-3.5-turbo-instruct) outperformed GPT-4 without domain adaptation across all three qualitative query examples, with ROUGE-L scores of 0.59, 0.26, and 0.68 vs. 0.12, 0.089, and 0.12 for GPT-4.",
+        "Human expert evaluation confirmed all three RAG system responses as correct (YES) while all three GPT-4 responses were rated incorrect (NO).",
+        "Retrieval evaluation achieved Jaccard similarity of 92.68% and F1-score of 85.81% under optimal hyperparameter configuration (k=7, mean threshold)."
+      ],
+      "response_time_impact": [
+        "The reranking post-retrieval process improves efficiency and responsiveness by reducing the number of context documents passed to the LLM.",
+        "The system can analyze all information in the dataset in a few minutes in a fully automatic way during generation evaluation."
+      ],
+      "reliability_metrics": [
+        "Mean ROUGE-L real score: 0.6108 (std: 0.1371) vs. random score: 0.2300 (std: 0.05697).",
+        "Minimum non-outlier real ROUGE-L score is close to the third quartile of random scores, confirming consistent superiority.",
+        "Jaccard similarity of 92.68% and F1-score of 85.81% for retrieval under optimal configuration."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Core technique enabling domain specialization; RAG system significantly outperformed standalone GPT-4 on all evaluated queries with ROUGE-L improvements from ~0.1 to 0.59-0.68.",
+        "reranking": "Cross-encoder reranking improved selection of relevant samples, complementing bi-encoder retrieval and reducing noise in LLM context window.",
+        "in-context-learning": "Structured prompt templates with retrieved domain-specific samples enabled accurate, context-aware response generation without model fine-tuning."
+      },
+      "failure_modes": [
+        "Single retrieval may be insufficient for complex problems requiring multi-step reasoning.",
+        "Excessive context without post-retrieval filtering can degrade LLM performance.",
+        "Open queries unrelated to ceramic quality management may cause inadequate tool performance if not properly validated.",
+        "ROUGE-L metric may not fully capture contextual relevance or semantic accuracy in all cases."
+      ],
+      "limitations": [
+        "Knowledge base is limited to external specialized sources; internal company records (historical quality logs, non-conformance reports) are not yet integrated.",
+        "Single once-retrieval strategy used; more sophisticated iterative or adaptive retrieval methods could improve performance on complex queries.",
+        "System currently focused on ceramic tile manufacturing; generalization to other manufacturing domains requires adaptation.",
+        "ROUGE-L metric may not fully capture contextual relevance or semantic accuracy in some cases.",
+        "The system relies on OpenAI's GPT models, which require external API access and incur usage costs."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "GPT-4 without domain adaptation"
+    ],
+    "evaluation_metric_categories": [
+      "retrieval-quality",
+      "generation-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Integration of internal company records (historical quality logs and nonconformance reports) into the knowledge base",
+      "Adoption of more sophisticated retrieval strategies such as iterative or adaptive methods for complex queries",
+      "Extension and adaptation of the system to other manufacturing domains such as automotive, aerospace, or pharmaceuticals"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

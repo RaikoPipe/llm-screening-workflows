@@ -1,0 +1,148 @@
+{
+  "title": "Agentic generative AI for context-aware outlier removal and historical cost optimization in construction",
+  "doi": "10.3389/fbuil.2025.1678156",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A domain-specific GPT-based assistant titled 'Cost Code Data Analyst' that enables project teams to interact with cleaned construction cost and productivity data through natural language. It autonomously interprets ambiguous user queries, identifies relevant cost and job codes, retrieves appropriate data from Firebase via OpenAPI 3.1 specification, and delivers accurate, context-aware responses including statistics and visualizations.",
+          "role": "other",
+          "specialized_role": "business_intelligence_analyst",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "database-querying",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single agentic GPT interface that autonomously orchestrates data retrieval and response generation. The GPT agent, guided by an OpenAPI 3.1 specification, interprets user queries, identifies relevant cost/job codes, queries Firebase, and returns results. The broader pipeline (data ingestion, outlier detection, metric computation) is automated and event-driven within Firebase, feeding the GPT agent with clean data. The GPT acts as a single orchestrating agent for user-facing interactions.",
+        "orchestration_pattern": [
+          "re-act",
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users (estimators and project managers) interact with the system through natural language queries via the GPT-based Cost Code Data Analyst interface. The system responds conversationally with metrics, statistics, and visualizations. Human feedback has been collected from end-users to guide future improvements. The system also supports a monthly automated refresh, but user queries drive the conversational analytics workflow. Users can refine vague queries through a conversational workflow guided by the GPT.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Construction project cost tracking, labor productivity analysis, and historical cost optimization for civil contractors using digital timecards and estimating software.",
+    "problem_description": "Digital timecards in construction are prone to outliers caused by human error, inconsistent reporting, and interface complexity. Traditional outlier detection methods (Z-score, standard Isolation Forest) apply global thresholds that fail to capture the heterogeneous, context-specific nature of construction data, degrading data reliability and limiting the strategic use of historical performance records for cost estimation and bidding.",
+    "proposed_solution": "A context-aware dynamic contamination optimization approach using Isolation Forest that iteratively tunes outlier detection thresholds by learning from estimating practices. Combined with a production-grade agentic AI workflow integrating estimating/field management software with Google Firebase and an OpenAI GPT-based assistant via OpenAPI specifications, enabling conversational querying of cleaned historical cost and productivity data.",
+    "research_maturity": "production",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The authors analyzed historical records from a proprietary construction management and estimating software suite used by a civil contractor in Northeast Florida, spanning 8 years and over 100,000 records. The proposed context-aware Isolation Forest algorithm was validated against Z-score filtering and standard Isolation Forest using KDE plots, standard deviation comparisons, and clustering quality metrics (Silhouette Score, Davies-Bouldin Index, Calinski-Harabasz Score). The agentic AI system was deployed in a production environment and evaluated through user feedback from the contractor's estimating team.",
+    "validation_methods": [
+      "case study",
+      "field deployment",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Context-aware Isolation Forest (CA-IF) produces tighter clustering of standard deviations across cost codes compared to Z-score filtering and standard Isolation Forest.",
+        "CA-IF eliminates extreme variance spikes that appear in Z-score filtering (spikes above 150) and standard Isolation Forest.",
+        "CA-IF better aligns actual productivity distributions with estimator expectations (KDE green curves shift toward blue estimated curves).",
+        "Silhouette Score of 0.733 indicating strong cohesion within clusters and distinct separation between them after outlier removal.",
+        "Davies-Bouldin Index of 0.458 suggesting low inter-cluster overlap and high compactness.",
+        "Calinski-Harabasz Score of 1249.99 reflecting favorable ratio between inter-cluster dispersion and intra-cluster variance.",
+        "Estimators reported the system 'drastically reduced the amount of time spent looking up productions' and allowed more focus on creating value in estimates.",
+        "Context-aware outlier removal described as 'critical to include and very helpful in making the information more accurate and useful for estimators and team'."
+      ],
+      "response_time_impact": [
+        "GPT-based interface allows retrieval of historical production rates in seconds, compared to traditional project-by-project search which was time-consuming and labor-intensive.",
+        "System reduces manual effort in combing through large spreadsheets or datasheets."
+      ],
+      "reliability_metrics": [
+        "GPT outputs were manually cross-checked against corresponding JSON records stored in Firebase, confirming retrieval and interpretation processes consistently returned accurate results.",
+        "The GPT is constrained by OpenAPI 3.1 specification to return only verified data retrieved from the contractor's database, eliminating risk of unsupported interpretations."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "unattributed"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Effective for grounding GPT responses in verified contractor data stored in Firebase, preventing hallucination and ensuring reliable outputs.",
+        "in-context-learning": "Structured knowledge context and behavioral rules embedded in GPT configuration enabled domain-specific responses without fine-tuning.",
+        "iterative-reasoning": "The GPT autonomously interprets ambiguous queries, identifies relevant cost/job codes, and retrieves appropriate data through an agentic control loop."
+      },
+      "failure_modes": [
+        "Model relies heavily on accuracy of estimating team's baseline estimates, which may introduce bias.",
+        "The model currently functions as a post-correction mechanism rather than preventing errors at the source.",
+        "Inconsistent cost code conventions across the organization limit consistency and interpretability of field-to-estimate comparisons.",
+        "GPT does not generate or extrapolate values beyond what is present in Firebase storage, limiting responses when data is absent."
+      ],
+      "limitations": [
+        "Model relies heavily on the accuracy of the estimating team's baseline estimates, which may introduce bias.",
+        "Dataset spans only 8 years, a relatively short period compared to broader historical analyses.",
+        "System developed and validated using dataset of a single contractor; broader applicability not yet tested.",
+        "Current GPT interface uses API calls to cleaned Firebase database rather than a fully fine-tuned domain-specific model.",
+        "Validation has been preliminary, focusing on representative cost codes and early user feedback.",
+        "Model has not been tested across multiple industry collaborators with varying project types, organizational practices, and cost-tracking conventions.",
+        "Cost code conventions are not yet standardized across the organization, limiting data consistency."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Z-score filtering",
+      "Standard Isolation Forest (without contextual tuning)",
+      "IQR thresholds"
+    ],
+    "evaluation_metric_categories": [
+      "regression",
+      "operational-kpi",
+      "human-evaluation",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Model relies heavily on accuracy of estimating team's baseline estimates, which may introduce bias",
+      "Dataset spans only 8 years, a relatively short period; future studies should incorporate full project- and budget-level analysis",
+      "Future work to develop a custom fine-tuned GPT that learns directly from historical data, project records, bid proposals, contractor documents, and project progress reports",
+      "Model has been validated using a single contractor's dataset; broader applicability needs to be tested across multiple industry collaborators with varying project types and cost-tracking conventions",
+      "Need for larger-scale testing across multiple projects and scenarios after planned cost code generalization update",
+      "Incorporating seasonal information to capture weather-related performance trends",
+      "Categorizing production rates by project type and filtering by job size or scope",
+      "Embedding the GPT interface directly into Microsoft Teams for easier day-to-day access",
+      "The model currently functions as a post-correction mechanism rather than preventing errors at the source"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

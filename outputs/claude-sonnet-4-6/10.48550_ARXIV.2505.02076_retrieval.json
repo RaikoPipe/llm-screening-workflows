@@ -1,0 +1,223 @@
+{
+  "title": "Leveraging LLM Agents and Digital Twins for Fault Handling in Process Plants",
+  "doi": "10.48550/ARXIV.2505.02076",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Observes the current state of the physical plant using sensor data, performance monitors, alarm indicators, and diagnostic thresholds. Identifies potential fault symptoms based on deviations from nominal behavior.",
+          "role": "other",
+          "specialized_role": "monitoring_agent",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "none",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Implemented as PlantOperatorCrew. Leverages an LLM-driven approach to synthesize corrective control actions based on the current system state. Consults plant-specific information from the Digital Process Plant Twin, previous interactions, and alternative actions to generate potential corrective control actions.",
+          "role": "planner",
+          "specialized_role": "corrective_action_generator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Implemented as validation_script.py. Assesses the feasibility, safety, and overall effectiveness of the corrective control actions proposed by the Action Agent after simulation. Ensures that any action proposed for real-world deployment adheres strictly to operational protocols and safety standards.",
+          "role": "other",
+          "specialized_role": "action_validator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "none",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Implemented as PlantStrategyCrew. Intervenes when initial corrective control actions fail validation. Iteratively refines the corrective strategy by incorporating feedback from the Simulation until a valid solution is identified.",
+          "role": "other",
+          "specialized_role": "reprompting_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "iterative-reasoning",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / GPT-4o-mini",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The framework uses a closed-loop multi-agent orchestration pattern. A Monitoring Agent detects faults and triggers the Action Agent to generate corrective actions. These are tested in a Digital Twin Simulation, then evaluated by the Validation Agent. If invalid, the Reprompting Agent iteratively refines the actions. The loop continues until a valid corrective action is found or a maximum iteration count is reached, at which point safety systems are triggered. The orchestration is coordinated by a main.py script using CrewAI and a RouterFlow.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents cooperate in a closed-loop feedback structure: Monitoring Agent detects faults, Action Agent proposes corrective actions, Validation Agent checks safety and feasibility, and Reprompting Agent refines actions when needed. A central orchestration script (main.py) coordinates the iterative interaction between agents, the Digital Twin simulation, and the physical plant.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "The framework is designed to progressively reduce human intervention in fault handling. Human operators are replaced by autonomous agents for routine fault detection and corrective action. However, a Safety System acts as a fallback when no valid corrective action can be found after a defined number of iterations, triggering predefined emergency protocols including shutdown procedures or manual intervention. Chain-of-thought prompting ensures transparency and traceability for human oversight.",
+        "human_oversight_mechanism": [
+          "risk-based-escalation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Autonomous fault handling in industrial process plants, specifically controlling and correcting faults (e.g., pipe clogging) in a modular mixing module of a process plant using LLM agents and a Digital Twin.",
+    "problem_description": "Fault handling in process plants is a cognitively demanding, predominantly manual process that relies heavily on human expertise. The same observable symptom may stem from multiple root causes, each requiring a different response. This ambiguity is rarely captured in predefined operator instructions, making human expertise indispensable. Combined with increasing plant complexity and a shortage of experienced operators, there is an urgent need for more autonomous fault handling solutions. LLMs lack plant-specific knowledge and fault handling requires sequential reasoning steps that need structured orchestration.",
+    "proposed_solution": "A methodological framework integrating LLM-based agents with a Digital Process Plant Twin. The framework distributes fault handling responsibilities across four agents: Monitoring Agent, Action Agent, Validation Agent, and Reprompting Agent. The Digital Twin serves both as a structured repository of plant-specific engineering knowledge for agent prompting and as a simulation platform for validation and verification of corrective actions. A tailored prompt engineering strategy based on systems engineering principles (structure, function, behavior) is used to supply agents with plant-specific knowledge.",
+    "research_maturity": "prototype",
+    "research_methodology": "simulation-study",
+    "research_methodology_description": "The framework is evaluated using a simulated mixing module from a benchmark process plant implemented in OpenModelica. Different prompt formats (natural language text, Modelica code, State Machine + P&ID) and two LLM models (GPT-4o and GPT-4o-mini) are compared across metrics including action quality, reprompts needed, and token usage for a pipe clogging fault scenario.",
+    "validation_methods": [
+      "simulation",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o with Text input achieved perfect control performance (15/15 correct actions) with only 1 reprompt.",
+        "GPT-4o with SM+P&ID format achieved 14/15 correct actions with 5 reprompts.",
+        "GPT-4o-mini with SM+P&ID achieved 13/15 correct actions with 9 reprompts.",
+        "GPT-4o-mini with Text achieved 13/15 correct actions with 6 reprompts.",
+        "Structuring prompts according to system engineering principles (structure, function, behavior) contributed to generation of appropriate corrective actions."
+      ],
+      "response_time_impact": [
+        "Fewer reprompts indicate faster decision-making; Text format for GPT-4o required only 1 reprompt indicating excellent loop convergence.",
+        "Modelica Code format required the highest number of reprompts (6 for GPT-4o, 10 for GPT-4o-mini), indicating slower convergence.",
+        "Latency in closed-loop interactions between LLM agents and simulation is identified as a concern for future work."
+      ],
+      "reliability_metrics": [
+        "GPT-4o Text: 15/15 correct actions, 0 incorrect actions, 1 reprompt.",
+        "GPT-4o Modelica Code: 12/15 correct actions, 3 missed pump actions, 6 reprompts.",
+        "GPT-4o SM+P&ID: 14/15 correct actions, 1 missed pump action, 5 reprompts.",
+        "GPT-4o-mini Text: 13/15 correct actions, 2 missed valve actions, 6 reprompts.",
+        "GPT-4o-mini Modelica Code: 12/15 correct actions, 2 incorrect valve actions, 3 missed pump actions, 10 reprompts.",
+        "GPT-4o-mini SM+P&ID: 13/15 correct actions, 1 incorrect valve action, 2 missed valve actions, 9 reprompts."
+      ],
+      "failure_attribution": [
+        "context-formatting",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "chain-of-thought": "Enables transparent and traceable decision-making; supports post-hoc interpretation, validation, and human oversight.",
+        "in-context-learning": "Text-based plant description (natural language) yielded best performance for both GPT-4o (15/15) and GPT-4o-mini (13/15); structured engineering artifacts (SM+P&ID) also performed well.",
+        "iterative-reasoning": "Closed-loop reprompting with simulation feedback enabled iterative refinement of corrective actions, achieving valid solutions in most cases with few reprompts."
+      },
+      "failure_modes": [
+        "Missed pump actions when using Modelica Code format, indicating difficulty interpreting behavioral logic.",
+        "Incorrect valve actions observed with GPT-4o-mini on Modelica Code and SM+P&ID formats.",
+        "Higher reprompt counts with Modelica Code format suggest challenges in interpreting embedded control logic."
+      ],
+      "limitations": [
+        "Study focused on batch production processes; continuous-time systems exhibit more complex dynamics requiring additional domain knowledge and more reprompts.",
+        "Limited context window of current LLMs restricts how much structured content can be processed per iteration.",
+        "RAG may mitigate context window limitations but introduces additional latency.",
+        "Experimental setup only considered a single module; multi-module setups with more actuators and sensors will increase fault handling difficulty.",
+        "Modelica-specific training data may be underrepresented in LLM training datasets, limiting performance with Modelica Code format.",
+        "Token usage varies substantially across representations; Modelica Code leads to highest token consumption (up to 113K)."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "operational-kpi",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Extension to continuous-time systems with more complex dynamics requiring additional domain knowledge and longer latencies",
+      "Addressing limited context window of current LLMs restricting structured content processing per iteration",
+      "Integration of Retrieval-Augmented Generation (RAG) to enable real-time access to structured plant data or documentation",
+      "Incorporating more expressive behavioral models such as differential equation-based descriptions for continuous dynamics",
+      "Complementary sub-symbolic AI methods such as ML-based anomaly detection to strengthen the Monitoring Agent",
+      "Reducing iteration latency in closed-loop interactions through parallelized simulations, targeted state updates, and surrogate or reduced-order models",
+      "Scaling to more complex multi-module setups with greater numbers of actuators and sensors"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

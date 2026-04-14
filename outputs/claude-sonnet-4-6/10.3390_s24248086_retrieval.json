@@ -1,0 +1,129 @@
+{
+  "title": "Knowledge Graph-Based In-Context Learning for Advanced Fault Diagnosis in Sensor Networks",
+  "doi": "10.3390/s24248086",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic agent that performs fault cause analysis by leveraging a domain-specific knowledge graph (DSKG) for in-context learning. It retrieves relevant subgraphs using the LES metric, constructs task-related prompts, and uses LLMs to diagnose fault causes and locations from sensor-derived textual data.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_agent",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "Multiple LLMs (GPT-2-Large, Chinese-Vicuna-7B, Chinese-LLaMA-plus-7B/13B/33B, Chinese-Alpaca-pro-7B/13B/33B, GPT-3.5, GPT-4)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step orchestration pattern: (1) construct the DSKG from fault records using DGCNN, (2) retrieve relevant subgraphs from the DSKG using the LES metric for a given test task, (3) generate task-related prompts from the subgraph, and (4) feed the prompts to an LLM to produce fault diagnosis outputs. The pipeline is sequential and non-iterative.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Domain experts are involved in manual screening and curation of the fault text dataset (reducing 3200 raw records to 948 curated records). Human experts also perform manual evaluation of LLM outputs to determine accuracy of fault cause and location identification. The system itself is triggered by providing fault text inputs for diagnosis.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial equipment fault diagnosis using sensor network data. The system analyzes textual descriptions of faults derived from sensor networks to identify fault causes and locations in industrial equipment such as wind turbines.",
+    "problem_description": "Traditional fault diagnosis methods relying on static rules are insufficient for dynamic industrial equipment faults. LLMs lack domain-specific expertise for accurate fault diagnosis from sensor-derived text, and fine-tuning LLMs is resource-intensive. There is a need for an efficient method to enhance LLM performance in specialized fault diagnosis domains without parameter updates.",
+    "proposed_solution": "KG-ICL (Knowledge Graph-based In-Context Learning): A method that constructs a domain-specific knowledge graph (DSKG) from curated fault records using a dilated gated convolutional neural network (DGCNN) for long-length entity and relationship extraction. A long-length entity similarity (LES) metric retrieves task-relevant subgraphs from the DSKG. These subgraphs are used to generate task-related demonstrations and prompts that are fed to LLMs for fault cause and location analysis, enhancing accuracy without parameter updates.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments comparing three types of ICL demonstrations (no demonstrations, domain-related random demonstrations, and task-related KG-ICL demonstrations) across nine LLMs of varying parameter scales (774M to 1.8T). Experiments include ablation studies on the LES component and cross-validation experiments to assess robustness. Performance is evaluated using accuracy metrics for fault cause and location identification assessed by domain experts.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "KG-ICL task-related demonstrations outperform domain-related demonstrations by 1.1% to 6.9% on Position Correct accuracy across all tested LLMs.",
+        "KG-ICL task-related demonstrations outperform domain-related demonstrations by 1.0% to 2.7% on Cause Correct accuracy across most LLMs.",
+        "Domain-related demonstrations improve over no demonstrations by 1.0% to 11.6% on Position Correct accuracy.",
+        "Domain-related demonstrations improve over no demonstrations by 2.1% to 12.7% on Cause Correct accuracy.",
+        "Overall accuracy increases from 1% to 4.8% with KG-ICL method compared to baseline.",
+        "GPT-4 with KG-ICL achieves ACCCauseCorrect of 0.476 and ACCPositionCorrect of 0.831 at 10-shot.",
+        "LES component consistently improves retrieval accuracy across all models and shot counts compared to sentence embedding similarity alone."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Cross-validation experiments with Chinese-Alpaca-33B across four dataset splits show consistent results: ACCCauseCorrect ranging 0.434-0.444, ACCPositionCorrect ranging 0.725-0.741, confirming robustness."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Consistently improves LLM performance over no demonstrations across all model sizes; domain-related demonstrations improve Position Correct by 1.0-11.6% and Cause Correct by 2.1-12.7%.",
+        "retrieval-augmented-generation": "Task-related demonstrations retrieved via KG-ICL further improve over random domain-related demonstrations by 1.1-6.9% on Position Correct and 1.0-2.7% on Cause Correct.",
+        "knowledge-graph": "DSKG with 1800 entities and 3353 relationships provides structured domain knowledge that enables higher-quality task-relevant demonstrations compared to random domain demonstrations."
+      },
+      "failure_modes": [
+        "GPT-2-Large shows negligible or negative improvement on Cause Correct with KG-ICL vs. no demonstrations, attributed to small parameter scale limiting the benefit of higher-quality demonstrations.",
+        "LLMs may generate responses lacking domain expertise without structured knowledge guidance."
+      ],
+      "limitations": [
+        "Dataset is limited to approximately 948 curated fault records from a specific industrial domain (wind turbines), limiting generalizability.",
+        "Small-scale models (e.g., GPT-2-Large) benefit less from KG-ICL demonstrations due to limited parameter capacity.",
+        "The method requires manual expert curation of fault records for DSKG construction.",
+        "Performance improvements are modest (1-4.8%), suggesting room for further enhancement.",
+        "The approach is demonstrated primarily on Chinese-language fault texts, which may limit applicability to other languages."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "No demonstrations (zero-shot LLMs without any prompts)",
+      "Domain-related demonstrations (random domain-related ICL without knowledge graph)",
+      "Standard ICL with domain-related but not task-specific demonstrations"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "The method's scalability and adaptability to ever-evolving challenges in equipment diagnostics needs further exploration",
+      "Integrating structured knowledge from KGs with LLMs for domain-specific applications beyond equipment diagnostics remains an area worthy of further exploration",
+      "The relatively small parameter scale models (e.g., GPT-2-Large) show limited improvement from higher-quality demonstrations, suggesting further research on how model size affects ICL performance",
+      "The modular and flexible design ensures high scalability but its application to other specialized domains has not been validated"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

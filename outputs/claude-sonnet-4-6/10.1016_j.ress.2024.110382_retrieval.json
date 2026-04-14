@@ -1,0 +1,167 @@
+{
+  "title": "Empirical study on fine-tuning pre-trained large language models for fault diagnosis of complex systems",
+  "doi": "10.1016/j.ress.2024.110382",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A fine-tuned LLM-based fault diagnosis agent that converts sensor data into natural language prompts and classifies system conditions (normal/faulty or fault type) based on monitoring data. Uses LoRA for parameter-efficient fine-tuning on local server.",
+          "role": "monolithic",
+          "specialized_role": "fault_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLaMa-2-7B-chat",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "High-speed train (HST) braking system dataset (300 samples, 39 variables, binary normal/faulty labels) and Tennessee Eastman Process (TEP) simulation dataset (400 training samples, 33 variables, 4 system conditions including 3 fault types). Sensor data converted into natural language prompts following structured templates."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "A fine-tuned closed-source LLM-based fault diagnosis agent accessed via OpenAI API. Fine-tuned on OpenAI's playground for complex system fault diagnosis using structured prompt datasets.",
+          "role": "monolithic",
+          "specialized_role": "fault_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-3.5-Turbo",
+            "finetuning_datasets": [
+              "real-world",
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "High-speed train (HST) braking system dataset (300 samples, 39 variables, binary normal/faulty labels) and Tennessee Eastman Process (TEP) simulation dataset (400 training samples, 33 variables, 4 system conditions including 3 fault types). Sensor data converted into natural language prompts following structured templates. Also augmented with self-instruction data on system operating mechanisms and fault descriptions."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Single-step inference pattern where each agent independently receives a structured natural language prompt containing sensor monitoring data and outputs a fault diagnosis classification. No multi-agent coordination is used; the two LLMs (LLaMa-2 and GPT-3.5-Turbo) are evaluated independently as separate systems.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "The system is designed as a research prototype evaluated by researchers. Humans initiate the diagnosis by providing monitoring samples. The paper discusses explainability limitations, noting that the fine-tuned models cannot reliably justify their decisions when queried, which limits human trust and oversight. No automated human-in-the-loop mechanism is implemented.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis for complex industrial systems, specifically high-speed train (HST) braking systems and chemical plant processes (Tennessee Eastman Process), as part of Prognostic and Health Management (PHM).",
+    "problem_description": "With increasing complexity and interconnectivity of modern industrial systems, effective fault diagnosis is critical for PHM. Traditional ML/DL methods rely on numerical sensor data and ignore semantic context, struggle with heterogeneous data, and lack explainability. Pre-trained LLMs have shown strong comprehension capabilities but have rarely been explored for system fault diagnosis, which involves non-language tabular sensor data.",
+    "proposed_solution": "The paper proposes LLM-diagnosis, a framework that fine-tunes pre-trained LLMs (LLaMa-2 and GPT-3.5-Turbo) for complex system fault diagnosis. Sensor data is converted into structured natural language prompts embedding feature names, values, and task context. LLMs are then fine-tuned using LoRA (for LLaMa-2) or OpenAI's API (for GPT-3.5-Turbo) on these prompt datasets. The approach is evaluated on HST and TEP datasets and analyzed across multiple dimensions including dataset size, normalization, missing values, feature order, feature names, model size, instruction data, and explainability.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison of the LLM-diagnosis framework against ten ML/DL baseline methods (KNN, RF, DT, XGBoost, SVM, CNN, ANN, attention-based, and hybrid methods) on two datasets. Multiple ablation studies investigate the impact of dataset size, model size, data normalization, missing values, feature order, feature names, and instruction data on diagnostic performance.",
+    "validation_methods": [
+      "benchmark",
+      "case study",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "On HST dataset: GPT-3.5-Turbo achieved ACC=0.9500, F1=0.9516, G-mean=0.9521, MCC=0.9020; LLaMa-2 achieved ACC=0.9567, F1=0.9585, G-mean=0.9556, MCC=0.9168, outperforming most baselines including RBF-SVM (ACC=0.85), ANN (ACC=0.9333), and XGBoost (ACC=0.905).",
+        "On TEP dataset: GPT-3.5-Turbo achieved ACC=0.9625, F1=0.9627, G-mean=0.9638, MCC=0.9522; LLaMa-2 achieved ACC=0.9600, F1=0.9601, G-mean=0.9210, MCC=0.9469, competitive with most baselines.",
+        "With only 50 training samples, GPT-3.5-Turbo achieves near 0.9 accuracy on HST dataset, demonstrating strong few-shot learning capability.",
+        "Adding domain-specific instruction data improved GPT-3.5-Turbo on HST from ACC=0.9500 to ACC=0.9667 and on TEP from ACC=0.9625 to ACC=0.9688.",
+        "With 40% missing training feature values, GPT-3.5-Turbo maintains accuracy above 0.85, outperforming all traditional baselines.",
+        "Providing full feature names vs. no feature names improved F1-score by over 13% and MCC by over 25%.",
+        "Data normalization improved ACC by ~5.26% for 300-sample dataset compared to non-normalized input.",
+        "Larger model (LLaMa-2-13B) showed marginal improvement over 7B: ACC 0.95833 vs 0.95667."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Even with missing values in both training and test sets, accuracy remains at 0.9 on HST dataset.",
+        "LLaMa-2-7B and 13B show similar performance, suggesting smaller models are sufficient for considered tasks."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Providing feature names and task context in prompts significantly improves performance; removing feature names reduces F1-score by >13% and MCC by >25%.",
+        "instruction-tuning": "Adding domain-specific instruction data on system operating mechanisms and fault descriptions further improves accuracy on both HST and TEP datasets.",
+        "feature-ordering": "Ordering features from weak to strong correlation with the target improves model adaptability with fewer training epochs compared to reverse ordering."
+      },
+      "failure_modes": [
+        "Hallucination: fine-tuned models generate plausible but incorrect or inconsistent explanations when asked to reason about diagnostic decisions.",
+        "Inability to follow reasoning instructions: models fail to provide step-by-step logical justification for their fault classifications.",
+        "Contradictory outputs: model provides threshold values that contradict input data and reverses its own correct diagnosis when pressed for explanation.",
+        "Performance degradation on TEP multi-class task: LLMs navigate a larger solution space than traditional classifiers, reducing efficiency in multi-class scenarios.",
+        "Sensitivity to feature order: presenting features in decreasing correlation order requires more training steps to reach comparable performance.",
+        "Performance drops with very small datasets (<10 samples): accuracy fluctuates around 0.5."
+      ],
+      "limitations": [
+        "Trustworthiness: LLMs are prone to hallucinations and may not map words to real-world entities as humans do, undermining reliability of diagnostic conclusions.",
+        "Generalizability: applying LLMs to more complex systems may face computational constraints and limited domain-specific expertise.",
+        "Lack of explainability: fine-tuned models cannot reliably reason through or justify their diagnostic decisions.",
+        "Computational burden: fine-tuning and inference with large LLMs adds significant computational overhead, making it unsuitable for resource-constrained systems.",
+        "Domain knowledge scarcity: acquiring sufficient system-specific knowledge for instruction tuning is challenging.",
+        "Multi-class performance: LLMs underperform some baselines (e.g., XGBoost, RF) on the TEP multi-class task due to larger prediction token space and indirect loss computation.",
+        "Data normalization still required: despite language-based modeling, normalization remains important for LLM-diagnosis performance."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "RBF-SVM",
+      "M3SVM",
+      "ANN",
+      "CNN-FC",
+      "CNN-SA",
+      "Decision Tree (DT)",
+      "Random Forest (RF)",
+      "XGBoost",
+      "1D-CNN-XGBoost",
+      "WKNN"
+    ],
+    "evaluation_metric_categories": [
+      "classification"
+    ],
+    "identified_research_gaps": [
+      "Developing methods to understand the rationale behind model predictions and provide insights into the diagnosis process, such as decomposing complex diagnosis into intermediate steps",
+      "Retrieval augmentation and advanced decoding strategies to alleviate hallucination during data curation, training and inference stages",
+      "Efficient strategies for updating models as new data and knowledge become accessible",
+      "Integrating multimodal information (e.g., maintenance logs, manuals, monitoring signals, videos) for more robust fault diagnosis systems",
+      "Addressing trustworthiness and hallucination issues in LLM-based fault diagnosis",
+      "Improving generalizability to more complex systems with computational constraints and limited domain expertise",
+      "Addressing the challenge of developing a one-size-fits-all model given diverse fault behaviors and data characteristics across systems"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,236 @@
+{
+  "title": "Chat-of-Thought: Collaborative Multi-Agent System for Generating Domain Specific Information",
+  "doi": "10.48550/ARXIV.2506.10086",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Oversees the overall interaction and ensures task progression. Selects questions from a predefined question bank and initiates the multi-round chain of interactions.",
+          "role": "orchestrator",
+          "specialized_role": "facilitator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Routes selected questions to the most suitable persona based on contextual understanding and skill alignment.",
+          "role": "orchestrator",
+          "specialized_role": "question_assignment_agent",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Focuses on identifying potential failure modes and their underlying mechanisms for FMEA generation.",
+          "role": "other",
+          "specialized_role": "reliability_engineer",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Reviews generated insights for accuracy and consistency in FMEA outputs.",
+          "role": "other",
+          "specialized_role": "quality_engineer",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Validates outputs to ensure they meet domain-specific standards for FMEA.",
+          "role": "other",
+          "specialized_role": "sme_validator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Synthesizes responses from multiple agents into a cohesive and actionable summary for downstream processing.",
+          "role": "summarizer",
+          "specialized_role": "question_summary_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-agent collaboration pattern where a Facilitator Agent selects questions from a question bank, a Question Assignment Agent routes them to the most suitable specialized persona, the assigned persona generates a response, and a Question Summary Agent synthesizes the outputs. The process iterates across multiple rounds (zero-shot, in-context learning, chain-of-interaction, few-shot) with quality control at the end of each round using a pre-trained classifier and self-BLEU score filtering.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents cooperate in a centralized manner where the Facilitator and Question Assignment agents coordinate the flow of tasks to specialized domain expert agents. Each agent has predefined roles, skills, and system messages. The Facilitator oversees progression, the Assignment Agent routes tasks, domain experts generate responses, and the Summarizer aggregates outputs. Quality control is applied after each round.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "The system includes an interface for SME (Subject Matter Expert) review, enabling efficient validation of the generated FMEA tables. Human feedback is incorporated in Round 2 (in-context learning) to refine response generation. The system aims to reduce but not eliminate human involvement, with SMEs validating outputs rather than creating them from scratch.",
+        "human_oversight_mechanism": [
+          "post-action-review",
+          "pre-action-validation"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui",
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Reliability engineering and maintenance for industrial assets (pumps, boilers, chillers), specifically automating Failure Modes and Effects Analysis (FMEA) to identify and mitigate potential failure modes, support proactive maintenance strategies, and enhance operational reliability.",
+    "problem_description": "Manual creation of FMEA documents is labor-intensive, requires multidisciplinary expertise, lacks scalability, suffers from inconsistencies, and faces delays in validation\u2014particularly for out-of-scope scenarios involving novel or less-common industrial assets.",
+    "proposed_solution": "Chat-of-Thought: a collaborative multi-agent framework powered by LLMs where specialized virtual personas (Facilitator, Reliability Engineer, Quality Engineer, SME Validator, Summarizer) engage in iterative multi-round discussions to automatically generate FMEA documents. The system uses template-driven routing, multi-round chain-of-interactions (zero-shot, in-context learning, chain-of-interaction feedback loops, few-shot learning), and quality control mechanisms (pre-trained classifier and self-BLEU score filtering) to produce accurate and scalable FMEA outputs.",
+    "research_maturity": "prototype",
+    "research_methodology": "proof-of-concept",
+    "research_methodology_description": "The paper presents a system demonstration and walkthrough (including a supplementary video) of the Chat-of-Thought framework applied to FMEA generation for industrial assets. Validation is performed through SME review of generated FMEA tables rather than rigorous experimental benchmarking.",
+    "validation_methods": [
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Validation by SMEs confirms that the system reliably identifies failure modes, root causes, and potential effects.",
+        "System generates detailed and accurate FMEA tables for both standard and out-of-scope assets.",
+        "Iterative multi-round learning (zero-shot \u2192 in-context \u2192 chain-of-interaction \u2192 few-shot) progressively improves output quality."
+      ],
+      "response_time_impact": [
+        "Significantly reduces the effort required for FMEA generation compared to manual processes.",
+        "Automated and scalable manner of exploring complex scenarios without requiring human intervention for generation."
+      ],
+      "reliability_metrics": [],
+      "failure_attribution": [],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Round 2 incorporates FMEA-derived scenarios and human feedback to guide and refine response generation beyond zero-shot baseline.",
+        "chain-of-thought": "Core Chat-of-Thought mechanism enables iterative, context-aware multi-persona dialogue that extends traditional Chain-of-Thought by fostering dynamic discussions across specialized personas.",
+        "dynamic-decomposition": "Template-driven routing dynamically assigns questions to the most suitable persona based on contextual understanding and skill alignment, ensuring consistency and quality."
+      },
+      "failure_modes": [
+        "Out-of-scope (OOS) scenarios involving novel or less-common assets pose challenges for accurate FMEA generation.",
+        "Potential for duplicate or low-quality questions/answers addressed by self-BLEU score filtering and pre-trained classifier."
+      ],
+      "limitations": [
+        "The paper does not report quantitative performance metrics or benchmarks.",
+        "Validation relies primarily on SME review rather than systematic empirical evaluation.",
+        "Specific LLM models used are not identified."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "human-evaluation",
+      "generation-quality"
+    ],
+    "identified_research_gaps": [],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,201 @@
+{
+  "title": "ChatCNC: Conversational machine monitoring via large language model and real-time data retrieval augmented generation",
+  "doi": "10.1016/j.jmsy.2025.01.018",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Question Identifier acts as a gatekeeper that categorizes user questions into two groups: Scenario 1 (requires fresh data retrieval) and Scenario 2 (can be answered from conversation log). It triggers the appropriate downstream workflow for Data Retriever and Response Generator.",
+          "role": "orchestrator",
+          "specialized_role": "question_classifier",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4 / LLaMA3-8B / Mistral-7B (configurable)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Data Retriever manages data processing by using an LLM-based Query Generation sub-module to translate natural language questions into SQL query statements, and a Query Execution function to run those queries against the real-time MySQL CNC machine database, returning results in JSON format.",
+          "role": "retriever",
+          "specialized_role": "sql_query_generator_and_executor",
+          "context_engineering": {
+            "memory_types": [
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4 / LLaMA3-8B / Mistral-7B (configurable)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Response Generator analyzes retrieved data (in JSON format) or conversation history and generates natural language responses to user queries. It is prompted with manufacturing-specific context to support numeric inference, trend identification, and parameter analysis.",
+          "role": "summarizer",
+          "specialized_role": "natural_language_response_generator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4 / LLaMA3-8B / Mistral-7B (configurable)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "ChatCNC uses a multi-agent collaboration pattern where three specialized LLM-based agents cooperate sequentially. Question Identifier first classifies the user query and routes it to the appropriate workflow. For Scenario 1, Data Retriever generates and executes SQL queries to retrieve real-time data, then passes results to Response Generator. For Scenario 2, Question Identifier routes directly to Response Generator using conversation history. The agents form a linear pipeline with conditional branching controlled by Question Identifier.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three agents cooperate in a structured pipeline: Question Identifier acts as a conditional router, Data Retriever handles data acquisition, and Response Generator produces final outputs. Agents share context through conversation logs and JSON-formatted data payloads. The coordination is cooperative with a linear-to-conditional flow.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human operators interact with ChatCNC through a conversational text interface, posing natural language questions about CNC machine status, operational parameters, and production tracking. The system is designed to reduce reliance on software engineers by enabling operators with limited digital literacy to directly query manufacturing data. Human raters also evaluated the system for usability and helpfulness. Future work mentions incorporating a human feedback system for iterative refinement.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Real-time CNC machine monitoring on the manufacturing shop floor, enabling operators to query live operational data (spindle speed, load, sound level, production tracking) from IIoT-connected CNC machines via natural language conversation.",
+    "problem_description": "Manufacturing operators with limited digital literacy cannot directly query real-time IIoT machine data from rigid monitoring interfaces (GUIs, Digital Twins) without external support from software/data engineers, causing delays and inefficiencies in decision-making. Existing systems lack flexible, natural language-driven human-data interaction for real-time machine monitoring.",
+    "proposed_solution": "ChatCNC: a conversational machine monitoring framework integrating three LLM-based agents (Question Identifier, Data Retriever, Response Generator) with real-time Retrieval-Augmented Generation (RAG). The system translates natural language queries into SQL statements, retrieves live data from a MySQL/MTConnect-connected CNC machine database, and generates context-aware natural language responses. The framework supports multiple LLM APIs (GPT-4, LLaMA3-8B, Mistral-7B) and prompting strategies (Persona, Context, Exemplar) for scalability and rapid deployment.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments were conducted with 12 versions of ChatCNC (3 LLM APIs \u00d7 4 prompting strategies), each evaluated on three question categories (Generic Summary, Detail Review, Production Tracking) with 5 repetitions per question. Binary accuracy scoring, failure mode analysis, robustness testing with out-of-domain questions, and a human usability evaluation with 5 raters were performed.",
+    "validation_methods": [
+      "benchmark",
+      "case study",
+      "field deployment"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4 with Prompt 4 achieves 93.3% accuracy on Production Tracking questions requiring advanced data inference.",
+        "GPT-4 achieves perfect accuracy in Generic Summary and Detail Review when Context or Exemplar prompting is combined with Persona.",
+        "Adding contextual information (Persona + Context) yields the largest single performance gain across all LLM APIs.",
+        "Advanced prompting strategies dramatically improve Production Tracking accuracy, overcoming limitations of basic prompting.",
+        "Human raters scored ChatCNC 4.16/5 for user satisfaction and 4.48/5 for perceived helpfulness to operators."
+      ],
+      "response_time_impact": [
+        "Average run-time per question is 20.09 seconds, significantly shorter than manual methods (understanding inquiry, formulating SQL, interpreting data).",
+        "ChatCNC generates responses incrementally, allowing users to read them as they are being generated, improving interactive efficiency."
+      ],
+      "reliability_metrics": [
+        "GPT-4 with Prompt 4 achieves perfect robustness (100%) against out-of-domain questions.",
+        "LLaMA 3-8B shows lowest average robustness against out-of-domain questions, particularly with Prompt 3 and 4.",
+        "Mistral 7B shows similar robustness across all four prompts but with data hallucination failure type.",
+        "Data Retriever is the main cause of failures in GPT-4; Question Identifier is the primary failure source in Mistral 7B."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "persona": "Establishes agent roles and basic task understanding; necessary but insufficient alone for complex tasks like Production Tracking.",
+        "context": "Adding contextual information (parameter names, logical sequences) yields the largest single accuracy improvement across all LLM APIs when combined with Persona.",
+        "one-shot-exemplar": "Provides marginal additional improvement over Persona+Context for most APIs; LLaMA 3-8B struggles to properly process single examples for robustness.",
+        "few-shot-exemplar": "Achieves best overall performance for GPT-4 including perfect robustness; LLaMA 3-8B shows degraded robustness with few-shot examples.",
+        "retrieval-augmented-generation": "Real-time RAG via SQL query generation and execution enables accurate, up-to-date responses; core mechanism for Production Tracking accuracy of 93.3%.",
+        "in-context-learning": "Few-shot prompting with examples for SQL generation and scenario classification significantly improves Data Retriever and Question Identifier performance."
+      },
+      "failure_modes": [
+        "FM I - Context Unawareness: Conversation log lacks data in Scenario 2 due to prior retrieval failure.",
+        "FM II - Insufficient Information: SQL query designates incomplete time period or parameters.",
+        "FM III - Excessive Information: SQL query omits parameter designation, retrieving too much data.",
+        "FM IV - Shut Down: SQL query selects wrong parameter.",
+        "FM V - Irrelevant Information: SQL query retrieves irrelevant data due to keyword misinterpretation.",
+        "FM VI - Data Absence: Response Generator indicates lack of data due to Question Identifier categorization failure or SQL syntax error.",
+        "FM VII - Data Hallucination: Response Generator fabricates data when retrieval fails due to syntax errors or categorization failures."
+      ],
+      "limitations": [
+        "Current system lacks graphical output formats (pie charts, graphs, tables) requested by human raters.",
+        "Data retrieval failures can cascade into hallucination (FM VII) in Response Generator.",
+        "Mistral 7B consistently shows lowest performance regardless of prompting strategy.",
+        "LLaMA 3-8B struggles to establish robust domain boundaries with few-shot examples.",
+        "No verification agent to detect missing or hallucinated data before final response generation (proposed as future work).",
+        "Framework does not yet support statistical analysis, graph generation, or hidden pattern detection.",
+        "Performance heavily dependent on LLM API capability, with significant gaps between GPT-4 and smaller open-source models."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "classification",
+      "task-completion",
+      "human-evaluation",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Integrating an additional LLM agent to verify data accuracy, detect missing information, and mitigate hallucinations before generating final responses",
+      "Extending the framework to support more complex tasks including statistical analysis, graph generation, and hidden pattern detection",
+      "Integration of domain-specific industrial knowledge",
+      "Incorporating a robust human feedback system to iteratively refine and adapt capabilities of the framework",
+      "Expanding ChatCNC beyond machine monitoring to human resource management, customer support, and healthcare"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

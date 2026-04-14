@@ -1,0 +1,230 @@
+{
+  "title": "GRAG-ProSafe QAS: Graph retrieval-augmented generation for process production safety intelligent question and answer system",
+  "doi": "10.1016/j.eswa.2025.129947",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Entity recognition agent that extracts named entities from unstructured accident reports using prompt engineering and few-shot learning. Identifies six major entity types with 32 subcategories based on accident causation theory.",
+          "role": "other",
+          "specialized_role": "entity_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-V3 (Mar 2025)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Relation extraction and discrimination agent that identifies explicit and implicit relationships among entities using a two-stage strategy with prompt engineering and reasoning templates. Assigns confidence scores to implicit relations.",
+          "role": "other",
+          "specialized_role": "relation_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory",
+              "knowledge-graph"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-V3 (Mar 2025)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Graph-driven semantic enhancement agent that performs keyword extraction, path-driven multi-hop graph retrieval via Cypher queries on Neo4j, triple filtering, and natural language knowledge prompt construction to support RAG.",
+          "role": "retriever",
+          "specialized_role": "graph_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying",
+              "query-decomposition"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-V3 (Mar 2025)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Structured answer generation agent that uses Chain-of-Thought reasoning with multi-turn problem decomposition, iterative knowledge graph updating, and structured answer generation along verifiable knowledge paths for process safety QA.",
+          "role": "other",
+          "specialized_role": "answer_generator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "DeepSeek-V3 (Mar 2025)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential orchestration graph with four stages: (1) entity recognition, (2) explicit relation extraction, (3) implicit relation inference, and (4) confidence-based relation discrimination. This feeds into a RAG pipeline with graph-driven semantic enhancement followed by chain-of-thought structured answer generation across multiple turns. Each QA turn triggers keyword extraction, graph retrieval, context accumulation, and answer generation in a linear pipeline.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents operate in a sequential pipeline where the output of each stage feeds into the next. Entity extraction feeds relation extraction, which feeds knowledge graph construction, which feeds the RAG retrieval and generation stages. Multi-turn QA accumulates context across rounds.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users interact with the system through a front-end interface built with Vue3, allowing them to import accident reports via direct input or file upload, initiate multi-turn QA tasks, and view structured results. The system provides automated evaluation metrics (Faithfulness, Answer Relevancy) after each QA round to help users assess response quality. Expert evaluation was also conducted by five domain experts for cross-model validation.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Process production safety management in the iron and steel industry, focusing on accident analysis, risk identification, causal reasoning, and safety decision support using intelligent question answering over accident reports.",
+    "problem_description": "Frequent safety accidents in process industries (steel, chemical, petroleum) and the inadequacy of traditional safety management approaches (HAZOP, FMEA, rule-based QA systems) in handling complex, dynamic risk scenarios. LLMs face hallucination issues and lack domain-specific knowledge, while existing RAG+KG systems lack multi-hop reasoning, dynamic graph updates, and multi-turn QA support.",
+    "proposed_solution": "GRAG-ProSafe QAS: a Graph Retrieval-Augmented Generation system for process production safety QA. It uses a four-stage LLM-based framework (entity recognition, explicit relation extraction, implicit relation inference, confidence discrimination) to extract structured knowledge from accident reports and build a dynamic knowledge graph in Neo4j. Multi-hop graph retrieval with Cypher queries and chain-of-thought multi-turn reasoning are integrated to generate trustworthy, interpretable answers for safety risk management.",
+    "research_maturity": "prototype",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The study designs and implements a novel artifact (GRAG-ProSafe QAS system) with iterative evaluation. It constructs a knowledge graph from 198 steel industry accident reports, evaluates entity recognition performance against annotated ground truth, conducts ablation experiments to validate key modules, performs cross-model evaluation with automated RAGAS metrics and expert judgment, and demonstrates the system through a case study on explosion accidents.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Full GRAG-ProSafe QAS achieved Faithfulness Score of 0.8684, Answer Relevancy of 0.8241, and Factual Correctness of 0.8050 in multi-turn explosion accident QA.",
+        "Removing keyword extraction (Ablation 1) dropped Faithfulness Score sharply to 0.3679, demonstrating the critical role of semantic-driven keyword extraction.",
+        "Replacing structured KG with Wikipedia (Ablation 2) dropped Factual Correctness to 0.3270, showing general-purpose knowledge bases are insufficient for process safety reasoning.",
+        "Removing accumulated context in graph retrieval (Ablation 3) reduced Faithfulness Score by 0.3128 compared to full system.",
+        "Reducing KG to 50% nodes (Ablation 4) dropped Faithfulness to 0.5624 and Factual Correctness to 0.6582.",
+        "Reducing KG to 25% nodes (Ablation 5) further dropped Faithfulness to 0.3856.",
+        "Entity recognition for Accident Attributes-Type and Severity Level achieved precision/recall of 0.9595/0.9545 and 0.9912/0.9899 respectively.",
+        "RAG improvement over fine-tuned models: referenced prior work showing RAG reduced hallucinations by 21.5% compared to fine-tuned models."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Knowledge graph contains 1637 nodes and 2285 edges with 39 connected components.",
+        "Largest connected component covers 91.20% of all nodes (1493 nodes).",
+        "Average path length in LCC: 5.7434; graph diameter: 18; graph density: 0.0017.",
+        "Cross-model evaluation with DeepSeek-V3, Qwen-plus, and Doubao-1.5-pro-32k showed consistently stable automated scores across all three metrics, validating system transferability and reproducibility.",
+        "DeepSeek-V3 automated scores: Faithfulness 0.8468, Factual Correctness 0.7968, Answer Relevancy 0.8356."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Graph-based RAG with multi-hop retrieval significantly outperformed Wikipedia-based retrieval; removing RAG context accumulation dropped Faithfulness by 0.3128.",
+        "chain-of-thought": "CoT-driven structured answer generation enabled multi-turn causal chain analysis and traceable reasoning paths for complex safety scenarios.",
+        "in-context-learning": "Few-shot learning with illustrative examples improved entity recognition accuracy and consistency, especially for standardized entity types.",
+        "dynamic-decomposition": "Problem decomposition into subtasks with iterative graph updating enabled deeper causal inference and informational continuity across QA turns."
+      },
+      "failure_modes": [
+        "Lower recall and precision for rare or semantically ambiguous entity types (e.g., Equipment Inclination F3, Flammable Gases E4, Material Control H2).",
+        "Equipment Vibration (F2) achieved high recall but suffered from misidentification/confusion with semantically similar expressions.",
+        "Automated metrics may overestimate grounding quality compared to expert judgment, with the largest gap appearing in Faithfulness.",
+        "Relation hallucination and broken reasoning chains identified as potential failure modes in multi-hop reasoning.",
+        "Performance degrades significantly when knowledge graph completeness is reduced."
+      ],
+      "limitations": [
+        "System performance in real-time or streaming environments with incremental data flows has not been evaluated.",
+        "Specific failure cases in entity recognition and reasoning processes were not systematically identified, hindering targeted optimization.",
+        "Cross-domain generalization ability remains untested; domain-specific nature of accident reports may affect robustness in other industries.",
+        "The model was tested only on steel industry accident reports; applicability to petrochemical and other process industries requires further validation.",
+        "No fine-tuning was performed on domain-specific data; the system relies entirely on prompt engineering with DeepSeek-V3."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Ablation 1: Direct graph retrieval without keyword extraction module",
+      "Ablation 2: Wikipedia as substitute for structured knowledge graph",
+      "Ablation 3: Current-turn keywords only (no accumulated context in graph retrieval)",
+      "Ablation 4: 50% of knowledge graph nodes retained",
+      "Ablation 5: 25% of knowledge graph nodes retained",
+      "Qwen-plus (Apr 2025 release)",
+      "Doubao-1.5-pro-32k (Jan 2025 release)"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "retrieval-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Evaluating system performance in real-time or streaming environments by simulating incremental data flows or integrating time-series sensor data, including metrics such as graph update latency and system response time",
+      "Conducting systematic error analysis of critical modules such as entity recognition and multi-hop reasoning to categorize typical failures (e.g., relation hallucination, broken reasoning chains) and refine relation confidence calibration strategies and prompt template designs",
+      "Collecting accident reports and regulatory data from petrochemical and related industries to construct industry-specific subgraphs for supervised fine-tuning and building a cross-domain semantic mapping mechanism to improve entity and relation adaptation in heterogeneous domains"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

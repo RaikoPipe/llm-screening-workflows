@@ -1,0 +1,205 @@
+{
+  "title": "Cognitive digital twins for capability matching toward reconfigurable manufacturing: Leveraging asset administration shells and large language models",
+  "doi": "10.1016/j.rcim.2025.103105",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Chat model responsible for extracting query entities from SM ProcessSegment, generating capability templates via CoT prompting, and selecting the most suitable machine through iterative comparison queries.",
+          "role": "other",
+          "specialized_role": "capability_matcher",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-4-turbo-preview",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Embedding model that encodes extracted query entities and AAS knowledge base entities into dense vector representations for similarity-based retrieval.",
+          "role": "retriever",
+          "specialized_role": "embedding_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "text-embedding-3-large",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Entity matcher that determines whether each query-candidate pair from the top-10 retrieved candidates constitutes a valid match between process requirement entities and equipment capability entities.",
+          "role": "other",
+          "specialized_role": "entity_matcher",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "gpt-4-turbo-preview",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential orchestration graph: (1) the embedding model vectorizes AAS capability entities into a vector database; (2) when a production order is received, query entities are extracted from SM ProcessSegment and passed to the embedding model for similarity-based retrieval; (3) the entity matcher validates candidate pairs; (4) the chat model with CoT prompting populates the required capability template; (5) the chat model performs iterative comparison queries to select the most suitable machine.",
+        "orchestration_pattern": [
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three specialized LLM components (chat model, embedding model, entity matcher) cooperate in a linear pipeline: the embedding model retrieves candidates, the entity matcher validates them, and the chat model reasons over the results to produce capability matching outputs.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Process engineers interact with a frontend configuration tool to select process steps (CNCMachining, Forming, Coating, etc.) based on input documents like 2D/3D CAD models, technical drawings, and process specifications. They can also populate AAS instances with values via the frontend. The CDT then automates capability matching, but humans initiate the production planning workflow and can review AAS content via the repository interface.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "dashboard-gui",
+          "text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "production_planning",
+    "application_domain_description": "Flexible production planning for reconfigurable manufacturing, specifically capability matching between production process requirements and available equipment capabilities in a machining center context.",
+    "problem_description": "Reconfigurable manufacturing requires rapid reallocation of production resources to accommodate frequently changing customized product demands. Existing digital twins rely on ad-hoc information models lacking interoperability and scalability, and utilize data passively through static, manually defined configurations. Capability matching between process requirements and equipment capabilities has relied on rule-based reasoning limited to simple name/value comparisons, which cannot handle rich textual descriptions or scale to large machine pools.",
+    "proposed_solution": "A Cognitive Digital Twin (CDT) system integrating Asset Administration Shells (AAS) for interoperable knowledge representation of Products, Processes, and Resources (PPR), and Large Language Models (LLMs) with chain-of-thought prompting for intelligent capability matching. A Retrieval-Augmented Generation (RAG) system uses an embedding model to vectorize AAS capability entities, retrieves relevant candidates via semantic search, and uses GPT-4 with CoT prompting to translate process requirements into required capabilities and select the most suitable machine iteratively.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The proposed CDT system was implemented and validated in a small-scale machining center with 2 turning lathes and 4 milling machines. A test dataset of 106 historical production orders (2021\u20132023) was used to evaluate capability matching accuracy. The proposed CoT approach was compared against a rule-based baseline and four CoT prompt variations (VariationA\u2013D) to assess the contribution of individual prompt components.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Proposed CoT achieved 79% accuracy on 106 historical production orders vs. 29% for the rule-based baseline and 16.67% random threshold.",
+        "VariationB (instruction + reasoning process, no example) achieved 48% accuracy, demonstrating that step-by-step reasoning alone significantly improves over instruction-only (VariationA, ~29%).",
+        "VariationA performed similarly to the rule-based baseline at ~29% accuracy.",
+        "VariationC (instruction + example, no reasoning) showed no significant improvement over VariationA despite different error patterns.",
+        "VariationD (reversed prompt order: example before reasoning) showed unexpectedly low performance, highlighting the importance of prompt ordering."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "GPT-4 consistently adhered to the structured output template format required for reliable post-processing.",
+        "Open-source models like Llama2 70B frequently failed to output responses in the required template format, causing post-processing errors."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "chain-of-thought": "Proposed CoT (instruction + reasoning + example) achieved 79% accuracy, substantially outperforming all ablations and the rule-based baseline (29%).",
+        "in-context-learning": "Adding a demonstrative example alone (VariationC) did not improve over instruction-only (VariationA), but combining it with reasoning (full CoT) was critical for best performance.",
+        "retrieval-augmented-generation": "RAG-based semantic retrieval enabled scalable identification of relevant equipment types from a large AAS knowledge base without exhaustive pairwise comparisons."
+      },
+      "failure_modes": [
+        "67% of CoT errors stem from the LLM's bias toward recommending a 5-axis machine for tasks feasibly accomplished by a 3-axis machine with multiple setups, reflecting inherited model bias toward 'accurate machining'.",
+        "VariationA (instruction only) incorrectly recommended a 3-axis milling-turning machine in 54% of error cases.",
+        "VariationB showed a preference for 3-axis machines, arguing most features can be machined by 3-axis.",
+        "VariationD's reversed prompt order weakened CoT reasoning effectiveness.",
+        "Textual descriptions in AAS SMs do not always capture the full essence of a workpiece (e.g., complex 3D geometry), leading to decisions based on incomplete information."
+      ],
+      "limitations": [
+        "The current matching mechanism can only process textual inputs from AAS SMs; it cannot directly process multi-modal data such as technical drawings or 3D CAD models, even though AAS supports such attachments.",
+        "Fine-tuning the LLM weights was not feasible due to limited data samples and complexity of causality in the matching task.",
+        "The system does not incorporate 3D visualization of the shop floor in its current implementation.",
+        "The machine selection algorithm does not take device availability into account during capability matching (availability must be checked separately via scheduling calendars).",
+        "Open-source LLMs (e.g., Llama2 70B) failed to reliably produce structured output, limiting model choice to proprietary APIs."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Rule-based keyword search method (Baseline): machine capabilities and production processes described using keywords and numerical specifications with manually defined mapping rules",
+      "VariationA: LLM guided solely by instruction prompt without reasoning or example",
+      "VariationB: LLM guided by instruction and reasoning process prompts but without example",
+      "VariationC: LLM guided by instruction and demonstrative example but without reasoning process",
+      "VariationD: LLM guided by reverse-ordered CoT prompt (example presented before reasoning process)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Textual descriptions in AAS SMs do not always capture the full essence of a workpiece (e.g., 3D geometry), limiting the matching mechanism to text-only inputs; future work should explore multimodal LLMs capable of processing technical drawings and 3D models",
+      "The current implementation does not incorporate 3D visualization of the shop floor",
+      "Open-source LLMs (e.g., Llama2 70B) frequently fail to consistently output responses in required structured template formats, requiring further investigation",
+      "The selection algorithm does not currently take device availability into account during capability matching",
+      "Fine-tuning LLM weights for capability matching was not feasible due to limited data samples; future work could explore this with larger datasets"
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

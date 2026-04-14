@@ -1,0 +1,230 @@
+{
+  "title": "Graph RAG-based fault diagnosis for train bogies using knowledge graphs and large language model",
+  "doi": "10.1016/j.knosys.2025.114855",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM-driven agent responsible for extracting entities and relationships from unstructured maintenance logs and constructing the bogie fault knowledge graph using prompt engineering and few-shot learning.",
+          "role": "other",
+          "specialized_role": "knowledge_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o-mini",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Reasoning generation agent that constructs multi-hop reasoning chains from diagnostic queries and retrieved knowledge graph subgraphs, producing preliminary diagnostic conclusions with explicit Chains of Thought (CoT).",
+          "role": "other",
+          "specialized_role": "reasoning_generator",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search",
+              "reranking",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o-mini",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Consistency self-verification agent that performs multi-dimensional quality assessment on reasoning chains, checking stepwise logical coherence, factual consistency, and domain rule compliance, then feeds back structured error reports for iterative refinement.",
+          "role": "other",
+          "specialized_role": "consistency_verifier",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows an orchestration graph pattern with a four-stage pipeline: (1) data preprocessing, (2) LLM-driven KG construction, (3) Graph RAG workflow (graph-based indexing, graph-guided retrieval, graph-enhanced generation), and (4) fault diagnosis via multi-hop reasoning and multi-turn consistency self-verification. The reasoning generation and consistency verification agents operate in an iterative 'generate-verify-augment' loop until convergence criteria are met (two consecutive successful consistency checks).",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A 'dual-model, triple-function' collaborative mechanism where a reasoning generation model constructs and augments reasoning chains while a consistency self-verification model assesses logical coherence and evidential validity. The two models cooperate in a multi-turn generate-verify-augment cycle within a unified framework.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human experts are involved in a two-stage expert-in-the-loop review process during KG construction (coarse screening followed by detailed adjudication of triples and disputed causal paths). Domain experts also validate ontology construction, annotate triples for accuracy evaluation, and provide domain knowledge via prompt engineering. The system is query-driven, with railway maintenance engineers submitting natural language queries for fault diagnosis.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault diagnosis for high-speed train bogies in railway maintenance, leveraging knowledge graphs and large language models to enable explainable, domain-specific reasoning from maintenance logs and fault records.",
+    "problem_description": "Bogie faults in high-speed trains exhibit concealed, coupled, and nonlinear characteristics. Traditional vibration-based and deep learning methods lack interpretability and generalization, rely on scarce labeled data, and fail to exploit tacit knowledge embedded in unstructured maintenance logs. Existing KG approaches are static and manually constructed, while LLM-based methods suffer from hallucinations, lack domain-specific constraints, and cannot dynamically update with new fault knowledge.",
+    "proposed_solution": "A Graph Retrieval-Augmented Generation (Graph RAG) framework integrating Knowledge Graphs (KGs) and Large Language Models (LLMs) through a four-stage pipeline: (1) data preprocessing to standardize multimodal fault records; (2) LLM-driven automated KG construction from unstructured maintenance logs using prompt engineering and ontology-constrained extraction; (3) graph encoding and subgraph retrieval via a sparse-dense-graph hybrid retrieval architecture; and (4) diagnostic inference using multi-hop reasoning chains with multi-turn consistency self-verification for accurate, traceable fault classification.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments on a real-world railway bogie fault description dataset (884 fault records, split 8:2 for training/testing). The proposed Graph RAG method is compared against three baselines (MGNN, MPFCF, MSP-RAG) and a pure LLM approach across multiple metrics. Ablation studies evaluate the contributions of KG construction and RAG workflow components. Sub-module evaluations cover KG quality, incremental indexing, and multi-hop reasoning performance under varying chain lengths and graph densities.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "Weighted F1-Score of 73.83%, exceeding MGNN (71.36%), MPFCF (70.65%), and MSP-RAG (70.29%) by +2.47%, +3.18%, and +3.54% respectively",
+        "Top-10 Accuracy of 90.61%, outperforming MGNN, MPFCF, and MSP-RAG by +3.26%, +5.49%, and +6.88% respectively",
+        "Attribution Consistency of 92.67% across 300 labeled samples, exceeding MGNN (79.86%), MPFCF (84.46%), and MSP-RAG (83.39%)",
+        "Graph RAG vs Baseline RAG: Context Precision improved by 5.2%-12.2% across Q1, Q3, Q6; Faithfulness improved by 9.0%-11.0% across Q2, Q4, Q5",
+        "Graph RAG vs pure LLM (GPT-4o-mini): ROUGE-1 F1 improved from 38.2% to 87.3% (+49.1%); ROUGE-2 F1 improved from 10.4% to 77.1% (+66.7%); ROUGE-L F1 improved from 23.9% to 62.9% (+39.0%)",
+        "Multi-hop consistency self-verification module outperforms best baseline (Baseline-3) by 3.7% in accuracy and 3.6% in recall",
+        "Incremental indexing improved recall by +8.4% and F1 by +5.1% after adding 50 new fault cases",
+        "KG triple correctness rate of 96.33%, 3.08% higher than EEMontology baseline; entity coverage 100% vs 92.17% for EEMontology"
+      ],
+      "response_time_impact": [
+        "Graph RAG average reasoning time is 6.4s, higher than MGNN (4.9s), MPFCF (4.1s), and MSP-RAG (3.9s)",
+        "Graph RAG incremental update time is 238s, compared to MGNN (75s), MPFCF (63s), and MSP-RAG (69s)",
+        "Incremental indexing completed in 4 minutes vs 73 minutes for full-refresh indexing",
+        "Graph RAG average reasoning time (6.4s) is significantly faster than Baseline RAG (23.78s), a 271.6% improvement",
+        "Short reasoning chains converge in 3.1s average, medium chains in 6.8s, long chains in 9.2s",
+        "Sparse causal graphs: 2.9s average reasoning time; medium-density: 5.6s; high-density: 7.7s"
+      ],
+      "reliability_metrics": [
+        "ROUGE-1 F1: 87.3%, ROUGE-2 F1: 77.1%, ROUGE-L F1: 62.9%",
+        "Attribution Consistency: 92.67% across 300 expert-labeled samples",
+        "KG triple correctness rate: 96.33% (stratified sampling, 300 triples, 3 domain experts)",
+        "Multi-hop reasoning module accuracy: 86.8%, recall: 85.4% with average 2.9 convergence iterations",
+        "Medium-density causal graphs achieve highest precision (85.8%) with 3.1 convergence iterations"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Graph RAG with KG-based subgraph retrieval substantially outperforms Baseline RAG across context precision (+5.2% to +12.2%), faithfulness (+9% to +11%), and reasoning time (-271.6%). Compared to pure LLM, ROUGE-1 F1 improved by +49.1%, ROUGE-2 F1 by +66.7%, ROUGE-L F1 by +39.0%.",
+        "chain-of-thought": "Multi-hop reasoning chains with explicit Premise-Inference-Intermediate Conclusion-Evidence Reference structure provide verifiable causal pathways and improve diagnostic interpretability. Medium-length chains (5.2 hops) achieve best balance of accuracy (82.9%) and recall (85.3%).",
+        "iterative-reasoning": "Multi-turn consistency self-verification loop (generate-verify-augment) outperforms single-turn reasoning (Baseline-1: 78.4% P) and best single-turn with manual verification (Baseline-3: 83.1% P) by achieving 86.8% precision with controlled convergence iterations (avg 2.9).",
+        "in-context-learning": "Few-shot prompt engineering with role, task, and example sub-prompts guides LLM to extract entities and relationships from maintenance logs, achieving 96.33% triple correctness and 100% entity type coverage."
+      },
+      "failure_modes": [
+        "ROUGE-L precision (60.7%) reveals redundant information in generated diagnostic conclusions",
+        "Long reasoning chains (\u22657 hops) suffer from reasoning noise, decreased precision (72.1%), and increased convergence iterations (4.7)",
+        "High-density causal graphs trigger redundant consistency-repair processes, increasing convergence iterations (4.5) and latency (7.7s)",
+        "Sparse causal graphs suffer from breaks in information chains, reducing precision to 72.2%",
+        "GPT-4o-mini's generative nature produces semantically valid but lexically divergent outputs, limiting ROUGE scores",
+        "LLM hallucinations in domain-specific fault diagnosis without RAG augmentation"
+      ],
+      "limitations": [
+        "GPT-4o-mini as underlying Q&A model presents inherent constraints compared to state-of-the-art LLMs",
+        "ROUGE relies on literal n-gram overlaps, penalizing semantically valid but lexically divergent outputs",
+        "Higher average reasoning time (6.4s) and incremental update time (238s) compared to baselines due to ontology/causal-consistency validation and graph re-indexing",
+        "Long reasoning chains adversely affected by reasoning noise with decreased precision",
+        "Real-time efficiency of KG incremental updates needs improvement",
+        "Multimodal sensor and operational data not yet fused into the framework",
+        "Domain-adapted LLMs not yet integrated to further reduce hallucination risks"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Multimodal Graph Neural Networks (MGNN)",
+      "Multi-turn Prompt-driven Fault Consultation Framework (MPFCF)",
+      "Multi-Step Planner RAG (MSP-RAG)",
+      "Baseline RAG (MaxKB)",
+      "Pure LLM (GPT-4o-mini)",
+      "EEMontology",
+      "Baseline-1 (Single-Turn Reasoning without Consistency Self-Verification)",
+      "Baseline-2 (Multi-Turn Reasoning without Consistency Self-Verification)",
+      "Baseline-3 (Single-Turn Reasoning with Manual Rule Verification)",
+      "Baseline-4 (Consistency Verification Only)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "retrieval-quality",
+      "computational-efficiency",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Improving the real-time efficiency of KG incremental updates",
+      "Fusing multimodal sensor and operational data",
+      "Integrating domain-adapted LLMs to reduce hallucination risks",
+      "Extending the framework to other safety-critical sectors such as aerospace and energy"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

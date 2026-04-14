@@ -1,0 +1,231 @@
+{
+  "title": "Large Language Model-Based Autonomous Agent for Prognostics and Health Management",
+  "doi": "10.3390/machines13090831",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Parameter extractor: analyzes user queries using an LLM engine to identify and extract necessary parameters (target category, dataset path) and optional parameters (model name, evaluation flag, evaluation value) through prompt engineering techniques.",
+          "role": "other",
+          "specialized_role": "parameter_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Parameter evaluator: verifies the validity and completeness of extracted parameters, prompts users for missing necessary parameters, validates dataset paths, and checks for unsupported optional parameters, suggesting alternatives when needed.",
+          "role": "other",
+          "specialized_role": "parameter_validator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Task executor (Manager + Tool + Task Evaluator): orchestrates the full model development pipeline including data loading, preprocessing, model generation, training, evaluation, and iterative hyperparameter optimization. Selects top 5 models and saves results to CSV.",
+          "role": "orchestrator",
+          "specialized_role": "task_orchestrator_and_executor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Answer generator: reads the CSV file produced by the Task executor, identifies the best-performing model, and generates a structured natural language response summarizing the results for the user using prompt engineering techniques.",
+          "role": "summarizer",
+          "specialized_role": "result_summarizer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential orchestration graph where the Parameter extractor first parses the user query, then the Parameter evaluator validates and iteratively refines parameters through user interaction, followed by the Task executor which orchestrates the full model development pipeline with iterative optimization cycles, and finally the Answer generator composes the result summary. The Manager within the Task executor acts as a sub-orchestrator coordinating Tool submodules and the Task evaluator.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The four modules (Parameter extractor, Parameter evaluator, Task executor, Answer generator) operate in a sequential pipeline with cooperation. The Task executor internally coordinates the Manager, Tool submodules, and Task evaluator in a centralized manner. Iterative feedback loops between the Task evaluator and Manager enable dynamic re-optimization cycles.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users interact with the system through natural language queries to initiate PHM model generation tasks. When parameters are missing or ambiguous, the system interactively prompts users for additional input. Users can also specify optional parameters such as model architecture, evaluation metrics, and target performance values. The system guides non-specialists through the process without requiring programming expertise.",
+        "human_oversight_mechanism": [
+          "risk-based-escalation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "active-learning"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Prognostics and Health Management (PHM) for industrial equipment, specifically fault diagnosis (binary and multi-fault classification) and Remaining Useful Life (RUL) prediction to support predictive maintenance.",
+    "problem_description": "Developing effective PHM systems requires extensive expertise in data preprocessing, model design, and evaluation, creating high barriers for non-specialist maintenance engineers. Current workflows are manual, time-consuming, and difficult to scale across diverse industrial applications, limiting the adoption of AI-driven PHM.",
+    "proposed_solution": "An LLM-based autonomous agent that allows non-experts to build PHM models through natural language dialog. The agent comprises four modules: Parameter extractor (parses user queries), Parameter evaluator (validates and completes parameters interactively), Task executor (orchestrates data preprocessing, model training, hyperparameter optimization, and evaluation using deep learning architectures), and Answer generator (summarizes results). GPT-4o is selected as the primary LLM engine after comparative evaluation of six engines.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The study conducts controlled experiments evaluating six LLM engines (GPT-3.5-turbo, GPT-4, GPT-4o, GPT-4o-mini, Gemini-2.0-Flash, LLaMA-3.2) on 100 predefined use cases across eight query categories, each repeated 10 times per engine. The autonomous agent is then evaluated on benchmark PHM datasets (FordA, CWRU, C-MAPSS) and compared against literature-reported baselines.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o achieved the highest parameter extraction accuracy of 0.96 among all evaluated LLM engines.",
+        "Agent-generated models achieved 0.97 accuracy on FordA binary fault classification, outperforming literature baselines (0.89\u20130.95).",
+        "Agent-generated models achieved 0.95 accuracy on CWRU multi-fault classification, comparable to literature baselines (0.97\u20130.99).",
+        "Agent-generated RUL prediction achieved asymmetric score of 380.74 on C-MAPSS FD001, between literature values of 223.00 and 437.20.",
+        "Iterative optimization mechanism enabled progressive hyperparameter refinement across up to five cycles."
+      ],
+      "response_time_impact": [
+        "GPT-4o average response time: 1.900 seconds per query.",
+        "GPT-3.5-turbo average response time: 1.206 seconds (fastest among OpenAI models).",
+        "GPT-4 average response time: 2.809 seconds (slowest).",
+        "Gemini-2.0-Flash average response time: 0.964 seconds (fastest overall).",
+        "GPT-4o-mini average response time: 1.489 seconds.",
+        "LLaMA-3.2 average response time: 1.952 seconds."
+      ],
+      "reliability_metrics": [
+        "GPT-4o parameter extraction accuracy: 0.96 across 100 use cases (10 repetitions each).",
+        "GPT-4 accuracy: 0.90; GPT-4o-mini: 0.91; Gemini-2.0-Flash: 0.94; GPT-3.5-turbo: 0.68; LLaMA-3.2: 0.53.",
+        "System handles eight distinct use case types including vague queries, missing parameters, unsupported parameters, lexical drift, and dataset path issues."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Prompt engineering with predefined parameter categories and extraction constraints enabled reliable structured parameter extraction from diverse natural language queries.",
+        "iterative-reasoning": "Iterative validation loops between Parameter evaluator and user ensured completeness and correctness of parameters before task execution; iterative optimization cycles in Task executor progressively improved model performance."
+      },
+      "failure_modes": [
+        "LLM inference errors causing incorrect or incomplete parameter extraction, requiring multiple validation cycles.",
+        "Ambiguous or incomplete user queries requiring interactive clarification.",
+        "Unsupported model names or evaluation metrics specified by users.",
+        "Incorrect dataset paths provided by users.",
+        "Lexical drift (typos, grammatical errors) hindering parameter extraction.",
+        "Queries with evaluation targets that cannot be met even with maximum optimization cycles."
+      ],
+      "limitations": [
+        "Reliance on LLMs for query processing introduces trade-offs between accuracy, cost, and response time; incorrect extractions may require multiple validation cycles increasing computational overhead.",
+        "Dataset adaptability is limited: the system was designed around predefined open benchmark datasets and struggles with arbitrary user-provided datasets with varying formats and preprocessing requirements.",
+        "Standardizing data ingestion and transformation across different user-provided datasets is difficult.",
+        "LLaMA-3.2 showed the lowest accuracy (0.53), limiting its suitability for reliable parameter extraction.",
+        "Maximum optimization cycles are fixed at five, which may be insufficient for some tasks.",
+        "Annual API costs can be significant for high-volume deployments (e.g., ~$165.71/year for GPT-4o at 100 runs/day)."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "Wichard (FordA binary fault classification, accuracy 0.95)",
+      "Adeodato et al. (FordA binary fault classification, accuracy 0.95)",
+      "Schlegel et al. (FordA binary fault classification, accuracy 0.89)",
+      "Aziz et al. (CWRU multi-fault classification, accuracy 0.97)",
+      "Raj et al. (CWRU multi-fault classification, accuracy 0.99)",
+      "Muneer et al. (C-MAPSS FD001 RUL, asymmetric score 223.00)",
+      "Ensarioglu et al. (C-MAPSS FD001 RUL, asymmetric score 437.20)"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "regression",
+      "computational-efficiency",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Adaptive LLM selection strategies: using a hybrid LLM approach where lightweight models handle early-stage parameter extraction and higher-accuracy models are reserved for final validation and answer generation.",
+      "Enhanced dataset handling mechanisms: development of a modular and adaptive data ingestion pipeline with automated dataset structure detection and dynamic preprocessing framework to handle diverse user-provided datasets.",
+      "Dataset adaptability within the Task executor: extending beyond predefined open datasets to accommodate datasets with varying formats, feature distributions, and preprocessing requirements.",
+      "Computational efficiency: addressing trade-offs between accuracy, processing time, and cost introduced by reliance on LLMs for query processing.",
+      "Broader industrial applicability: improving robustness and practicality for broader adoption across diverse industrial PHM applications."
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

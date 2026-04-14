@@ -1,0 +1,139 @@
+{
+  "title": "CausalKGPT: Industrial structure causal knowledge-enhanced large language model for cause analysis of quality problems in aerospace product manufacturing",
+  "doi": "10.1016/j.aei.2023.102333",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "CausalKGPT: An industrial causal knowledge-enhanced LLM fine-tuned on ChatGLM-6B base model. Takes natural text descriptions related to quality defects as input, detects key mentions via NER, retrieves relevant causal knowledge from CQKG, and generates responses with causal knowledge graph-guided prompts to analyze causes of quality defects in aerospace shell manufacturing.",
+          "role": "monolithic",
+          "specialized_role": "quality_defect_cause_analyzer",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "conversation-history",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "ChatGLM-6B",
+            "finetuning_datasets": [
+              "real-world",
+              "human-annotated"
+            ],
+            "finetuning_dataset_description": "A quality-related prompt dataset with more than three thousand high-quality training instances constructed from aerospace manufacturing documents (product defect survey sheets, quality inspection, and maintenance reports), combined with causal knowledge graph triples. The dataset includes 'prompt', 'response', and 'history' fields supporting multi-round conversations. Data was cleaned and validated with feedback from aerospace professionals."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "Single-step orchestration where the CausalKGPT model receives a quality-related query, performs key mention detection via NER, retrieves relevant causal knowledge subgraphs from CQKG using CompGCN-based neighbor aggregation, and generates a response augmented with causal knowledge graph-guided prompts via P-tuning.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Aerospace professionals were involved in cleaning and validating the quality-related corpus data to ensure reliability of causal relationships. They also ranked and scored the outputs of each model (on a scale of 1-10) for 28 quality issues to evaluate model performance. Workers interact with CausalKGPT by submitting natural language questions about quality defects and receive text responses along with visualized causal knowledge graphs.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "active-learning"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Cause analysis of quality defects in aerospace thin-walled shell manufacturing, covering multiple processes including spin machining, heat treatment, welding, CNC machining, and testing. The system identifies root causes, immediate causes, and indirect causes of 28 types of quality defects influenced by 24 key equipment indicators.",
+    "problem_description": "Aerospace thin-walled shell manufacturing involves long, complex processes generating large amounts of quality-related data with ambiguous causal associations among quality defects and influencing factors. The coupling of multiple processes and factors makes it difficult to identify the main causes of quality defects. Existing LLMs may produce spurious associations and have poor causal reasoning, while traditional knowledge graphs only provide coarse-grained relationships without deep causal analysis.",
+    "proposed_solution": "CausalKGPT: An industrial structure causal knowledge-enhanced LLM that (1) uses a Structure Causal Graph-based Sum-Product Network (SCG-SPN) model to eliminate pseudo-association confounding factors via do-calculus intervention and construct a high-quality Causal Quality-related Knowledge Graph (CQKG), and (2) fine-tunes ChatGLM-6B using a novel P-tuning strategy with causal knowledge graph-guided prompts and a multi-round conversation dataset derived from CQKG, enabling bilingual (Chinese/English) cause analysis of quality defects.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A case study on aerospace thin-walled shell manufacturing using three years of real manufacturing documents. The study validates the SCG-SPN causal association estimation, constructs CQKG, fine-tunes CausalKGPT, and evaluates its performance against ChatGPT, GPT-4, and ChatGLM-6B through expert scoring of responses to 28 quality issues in both Chinese and English.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "CausalKGPT outperforms ChatGLM-6B base model in both Chinese and English Q&A on quality problems, demonstrating the value of high-quality causal knowledge graph construction and novel P-tuning.",
+        "CausalKGPT outperforms ChatGPT and is only 5.8% and 4.1% lower than GPT-4 in Chinese and English Q&A respectively, despite being an offline model fine-tuned on domain-specific data.",
+        "After SCG-SPN intervention, P(S1|do(U1))=0.227 vs P(S1|U1)=0.202 and P(S1|do(U2))=0.211 vs P(S1|U2)=0.205, showing reinforced causal associations after eliminating confounding factor.",
+        "SCG-SPN correctly identifies 'excessive feed ratio' as having stronger effect on 'local deformation' than 'excessive mandrel runout' after intervention, consistent with expert knowledge, whereas without intervention the ranking was reversed.",
+        "CQKG with intervention provides fine-grained causal relationships (immediate_cause, indirect_cause, root_cause) compared to coarse-grained 'cause' relationships without intervention."
+      ],
+      "response_time_impact": [
+        "For 28 quality defects, text generation (TCG) takes approximately 7.55 seconds (e.g., QD1: 1.014s keyword parsing + 6.436s text generation) and knowledge graph generation (TKG) takes approximately 9.03 seconds (e.g., QD1: 1.565s initial node + 7.465s 2-hop nodes).",
+        "Response time for text and knowledge graph generation is at the seconds level, fully capable of meeting information processing demands during manufacturing events.",
+        "Knowledge graph generation takes slightly more time than text generation; more relevant content generated leads to more time in constructing KG."
+      ],
+      "reliability_metrics": [
+        "CausalKGPT fine-tuned on a single NVIDIA A100 (40G) GPU within one day.",
+        "Expert scoring on scale 1-10 for 28 quality issues (full score 280) used as reliability benchmark across models."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "CQKG-guided prompts enable CausalKGPT to provide more closely detailed, well-structured, and highly specific responses compared to ChatGPT and GPT-4, which give more general answers not available in their training data.",
+        "in-context-learning": "Multi-round conversation history in the fine-tuning dataset enables the model to maintain context across multiple question-answer turns about quality defects.",
+        "chain-of-thought": "P-tuning with causal knowledge graph-guided prompts enables structured reasoning from key mention detection through causal knowledge retrieval to answer generation."
+      },
+      "failure_modes": [
+        "LLMs may yield ambiguous or spurious association results and have poor performance in causal reasoning without domain knowledge augmentation.",
+        "ChatGPT and GPT-4 responses are more general and less focused on specific machining key indicators, not utilizing domain-specific causal knowledge.",
+        "ChatGLM-6B base model without fine-tuning has less available value in responding to quality questions.",
+        "CausalKGPT lacks ability to respond to fine-grained micro-factors (chemical elements, material property parameters) affecting quality in shell machining."
+      ],
+      "limitations": [
+        "Only one confounding factor ('material of machining object') is considered for causal effect estimation, selected based on expert experience; multiple confounders may enhance robustness.",
+        "Response level of LLM is highly correlated with detailed professional knowledge; more high-quality fine-grained data needed for fine-tuning.",
+        "Multiple model parameters need retraining to ensure reliability and safety in more manufacturing scenarios.",
+        "Strict confidentiality requirements of aerospace manufacturing data prevent feeding quality-related data to commercial models like ChatGPT and GPT-4, limiting direct quantitative comparison.",
+        "Ability to respond to fine-grained micro-factors (chemical elements, material property parameters) affecting quality is still missing."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "ChatGPT",
+      "GPT-4",
+      "ChatGLM-6B"
+    ],
+    "evaluation_metric_categories": [
+      "human-evaluation",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Expanding more high-quality fine-grained data (chemical elements, material property parameters) for fine-tuning the model",
+      "Exploring multiple confounding factors to enhance robustness of causal effects among knowledge (only one confounding factor considered currently)",
+      "Retraining multiple model parameters to ensure reliability and safety of the fine-tuned LLM in more manufacturing scenarios",
+      "Improving ability to respond to more fine-grained micro-factors affecting quality in shell machining"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

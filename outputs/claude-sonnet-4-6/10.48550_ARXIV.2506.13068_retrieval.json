@@ -1,0 +1,221 @@
+{
+  "title": "Towards the Autonomous Optimization of Urban Logistics: Training Generative AI with Scientific Tools via Agentic Digital Twins and Model Context Protocol",
+  "doi": "10.48550/ARXIV.2506.13068",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Chatbot-powered user interface agent that enables dynamic, domain-specific interaction and decision support. Fine-tuned on LLaMA 3.3 and Gemma 3 using QLoRA for memory-efficient training. Parses user requests and rephrases technical outputs into plain language descriptions.",
+          "role": "other",
+          "specialized_role": "user_interface_agent",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "LLaMA 3.3 / Gemma 3 (fine-tuned with QLoRA)",
+            "supported_modalities": [
+              "text",
+              "dashboard-gui"
+            ],
+            "finetuning_datasets": [
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "Curated dataset created through templated dialogues inspired by the waterfall model of software development, dynamically generated using standard Python libraries to cover task-specific intents and user query types."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Knowledge-Augmented LLM for Solution Generation that serves as the general-purpose problem-solving engine. It parses user requests, queries the interdisciplinary knowledge base, identifies appropriate datasets and methodologies, and generates structured task workflows for downstream agents. It operates as a domain-aware planner and workflow generator, not directly invoking external APIs.",
+          "role": "orchestrator",
+          "specialized_role": "knowledge_augmented_planner",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "knowledge-graph",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM via Ollama framework (local instance)",
+            "supported_modalities": [
+              "text"
+            ],
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Autonomous Simulation and Optimization agent that executes scientific workflows via MCP. It acts as an MCP client, dynamically mapping subtasks to MCP-compliant server agents (e.g., Gurobi solver, freight simulation model, data retrieval service). It generates HTTP requests conforming to each MCP service's requirements and orchestrates end-to-end execution of optimization and simulation pipelines.",
+          "role": "other",
+          "specialized_role": "simulation_optimization_executor",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "model-context-protocol",
+              "api-call",
+              "external-models",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM via Ollama framework (fine-tuned with API templates)",
+            "supported_modalities": [
+              "text",
+              "dashboard-gui"
+            ],
+            "finetuning_datasets": [
+              "synthetic"
+            ],
+            "finetuning_dataset_description": "Fine-tuned using API templates for MCP services, allowing the LLM to generate HTTP requests conforming to each MCP service's requirements including proper parameterization and payload construction."
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-agent collaboration pattern orchestrated through the Model Context Protocol (MCP). A centralized LLM acts as the cognitive engine (MCP client) that interprets user requests, queries the knowledge base, generates structured task workflows, and dynamically dispatches subtasks to specialized MCP server agents (e.g., Gurobi solver, AnyLogic simulation, FAF data retrieval). The orchestration follows a hierarchical structure where the knowledge-augmented LLM coordinates downstream tool-specific agents.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The centralized LLM orchestrator decomposes user-defined logistics problems into subtasks and assigns them to specialized MCP server agents. Each agent handles a distinct category of domain-scientific computation or data access. The LLM dynamically maps each subtask to its corresponding MCP-compliant agent based on task type (e.g., heuristic optimization, agent-based simulation, dataset extraction), ensuring correct tool utilization at each workflow stage.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Users interact with the system through a natural language chatbot interface, defining optimization problems and objectives in plain, non-technical dialogue. The system lowers the barrier to entry for stakeholders such as freight operators, city logistics managers, and urban planners. Users can also upload domain-specific PDF documents to augment the knowledge base. The system returns results as human-readable explanations, route visualizations, and textual summaries, enabling users without specialized backgrounds to understand and engage with the decision-making process.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "transportation_management",
+    "application_domain_description": "Urban intermodal freight logistics optimization, including scheduling, routing, cost minimization, delivery time management, and carbon emission reduction across multimodal transportation networks (truck, rail, waterway).",
+    "problem_description": "Urban freight transportation systems face formidable challenges in optimizing intermodal logistics due to the need to integrate vast heterogeneous datasets, orchestrate diverse scientific tools, and balance competing objectives (cost, time, emissions). Existing digital twins are limited by single-purpose designs, rigid GUI-based interfaces, static data sources, and inability to integrate multi-domain simulation tools without labor-intensive manual effort. These barriers restrict accessibility for non-technical stakeholders and limit scalability and adaptability.",
+    "proposed_solution": "An agentic digital twin framework leveraging the Model Context Protocol (MCP) and multi-agent systems, augmented with large language models, retrieval-augmented generation (RAG), and structured knowledge graphs. The system enables autonomous agents to interpret natural language user requests, query a domain-specific knowledge base built from scientific literature and tool documentation, generate structured optimization workflows, and autonomously invoke scientific tools (e.g., Gurobi, AnyLogic, FAF) via MCP-compliant microservices to deliver optimized intermodal freight solutions with natural language explanations and geospatial visualizations.",
+    "research_maturity": "prototype",
+    "research_methodology": "proof-of-concept",
+    "research_methodology_description": "The authors implement a prototype automated digital twin system integrating all four core components (chatbot UI, knowledge-augmented LLM, customized knowledge base, autonomous simulation/optimization via MCP) in a Docker environment. Feasibility is demonstrated through two use cases: (1) knowledge base construction and question answering, and (2) end-to-end autonomous intermodal freight planning (Seattle to Orlando, 250 containers, 36-hour constraint). System performance and scalability are analyzed through response time measurements and load testing.",
+    "validation_methods": [
+      "case study",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "System autonomously generates optimized intermodal routes balancing cost, delivery time, and GHG emissions without manual intervention.",
+        "RAG-enhanced query response achieves context-aware, technically accurate answers to specialized logistics inquiries, reducing hallucination risk.",
+        "Knowledge graph construction enables evidence-based solution generation grounded in peer-reviewed literature and validated datasets."
+      ],
+      "response_time_impact": [
+        "Knowledge base construction processes typical research documents (15-30 pages) within 2-3 minutes.",
+        "RAG-enhanced query response system achieves average response time of 1.2 seconds for complex logistics queries.",
+        "Seattle-to-Orlando freight planning scenario (250 containers, 14-node network) solved optimally by Gurobi in 0.06 seconds.",
+        "Complete end-to-end workflow from natural language input through knowledge retrieval, optimization execution, and result visualization completed in under 15 seconds.",
+        "System maintains response times below 3 seconds for up to 50 simultaneous optimization requests under load testing."
+      ],
+      "reliability_metrics": [
+        "System maintains response times below 3 seconds for up to 50 simultaneous optimization requests with graceful performance degradation beyond this threshold.",
+        "Containerized microservice architecture enables horizontal scaling of individual components based on demand."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Enables context-aware, evidence-based responses to specialized logistics queries by retrieving relevant information from the knowledge graph and vector database, significantly reducing hallucination risk.",
+        "chain-of-thought": "Helps models learn to interpret and structure user input in a non-technical, accessible manner through templated dialogues and chain-of-thought prompting.",
+        "dynamic-decomposition": "Enables the LLM orchestrator to decompose complex freight optimization problems into subtasks and assign them to appropriate MCP server agents."
+      },
+      "failure_modes": [
+        "Misinterpretation of ambiguous natural language queries leading to suboptimal tool selection or workflow planning.",
+        "Incomplete specification of constraints by users resulting in imprecise mathematical formulations.",
+        "Overreliance on pre-trained embeddings limiting nuanced logistics terminology understanding.",
+        "Data format heterogeneity requiring significant preprocessing before integration.",
+        "Tool interoperability issues due to varying API specifications, licensing constraints, and computational requirements of COTS software."
+      ],
+      "limitations": [
+        "Reliance on FAF dataset which may not reflect granular, dynamic nature of local logistics networks or emerging freight movement trends.",
+        "Proprietary data from logistics companies and government agencies often restricted, limiting real-world scenario fidelity.",
+        "Heterogeneous data formats across GIS systems, optimization solvers, simulation software, and sensor networks require significant preprocessing.",
+        "Custom wrappers and interface adapters needed for each tool create maintenance overhead and limit extensibility.",
+        "Scalability challenges for large-scale real-world freight networks with thousands of nodes; exact methods may exceed time limits requiring heuristics that compromise solution quality.",
+        "Natural language understanding constrained by language model's coverage of domain-specific context.",
+        "Current demonstration limited to a 14-node network; metropolitan or national-level freight networks not yet validated."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "computational-efficiency",
+      "task-completion",
+      "operational-kpi"
+    ],
+    "identified_research_gaps": [
+      "Data availability and quality challenges: high-quality, real-time datasets capturing full complexity of urban logistics operations remain scarce and fragmented",
+      "Data format heterogeneity and preprocessing overhead across GIS systems, optimization solvers, simulation software, and real-time sensor networks",
+      "Tool interoperability and integration challenges due to varying API specifications, data formats, licensing constraints, and computational requirements of COTS software",
+      "Scalability and computational complexity when addressing large-scale, real-world freight networks with thousands of nodes",
+      "Natural language understanding and domain contextualization limitations leading to potential misinterpretation of ambiguous queries",
+      "Developing standardized ontologies and data exchange protocols for freight transportation tools",
+      "Creating automated data preprocessing pipelines that can handle diverse data formats",
+      "Implementing adaptive optimization strategies that dynamically select between exact and heuristic methods based on problem complexity",
+      "Establishing real-time data integration capabilities through IoT networks and live traffic feeds",
+      "Expanding domain coverage to support broader urban logistics applications beyond freight transportation"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

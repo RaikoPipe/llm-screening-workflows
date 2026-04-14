@@ -1,0 +1,162 @@
+{
+  "title": "Brain-Like Cognition-Driven Model Factory for IIoT Fault Diagnosis by Combining LLMs With Small Models",
+  "doi": "10.1109/JIOT.2024.3503274",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM supervisor that performs preliminary fault diagnosis using Brain-Like Chain of Thoughts (BLCoT) prompts, interacts with a fault knowledge graph, extracts keywords, generates prompts, infers preliminary diagnostic results, and provides maintenance recommendations to users.",
+          "role": "orchestrator",
+          "specialized_role": "fault_diagnosis_supervisor",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "ChatGPT / ChatGLM3 / LLaMA2 (multiple evaluated)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "1/5 of each IIoT dataset used for fine-tuning the LLMs before training."
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Hypernetwork-based small model generator that receives preliminary diagnostic results and node feature maps from Generative Vertical Federated Learning (GVFL), dynamically generates personalized small diagnostic models based on environmental states (node participation states), and performs precise fault classification.",
+          "role": "other",
+          "specialized_role": "dynamic_small_model_generator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "Hypernetwork with MLP (custom small neural network)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The BC-MF system uses a two-phase orchestration graph: (1) the LLM supervisor performs preliminary diagnosis via BLCoT prompts interacting with a fault knowledge graph, then (2) passes results to the GVFL hypernetwork which dynamically generates personalized small models for precise diagnosis. Finally, the LLM receives precise results and provides maintenance recommendations to users. The LLM acts as a central coordinator between the knowledge graph, the GVFL nodes, and the user.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "multi-agent-collaboration"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The LLM supervisor and the GVFL small model subsystem cooperate in a hierarchical manner: the LLM provides preliminary diagnosis to guide small model generation, and the small models return precise results to the LLM for final user interaction. VFL client nodes cooperate with the server through dynamic node activation and feature sharing.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human maintenance personnel interact with the BC-MF system by submitting fault queries. The LLM provides preliminary diagnosis and, after precise diagnosis by small models, returns maintenance recommendations to the user. The system is designed to facilitate intelligent human-machine interaction for fault analysis and decision-making in IIoT environments.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial IoT (IIoT) fault diagnosis for predictive maintenance in smart manufacturing, covering bearing faults, steel plate defects, electric fault-line detection, air conditioner faults, and electromechanical device faults.",
+    "problem_description": "LLMs alone cannot accurately diagnose faults from heterogeneous IIoT data across different devices and production processes. Classical small models lack general AI capabilities for multi-stage fault analysis and human-machine interaction. Existing federated learning approaches do not address vertical feature distribution across IIoT participants, and collaborative large-small model methods do not fully leverage LLMs to generate personalized small models for dynamic data scenarios.",
+    "proposed_solution": "A Brain-Like Cognition-Driven Model Factory (BC-MF) that uses an LLM as a brain-like supervisor to perform preliminary fault diagnosis via Brain-Like Chain of Thoughts (BLCoT) prompts augmented with a fault knowledge graph, and a Generative Vertical Federated Learning (GVFL) framework with a hypernetwork that dynamically generates personalized small diagnostic models based on preliminary LLM results and node feature maps. The system combines the general reasoning of LLMs with the precise classification of small models, and provides maintenance recommendations through human-machine interaction.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experiments on four public IIoT datasets and one self-made dataset, comparing BC-MF against multiple baselines (zero-shot, few-shot, CoT prompts for LLM evaluation; centralized, solo, and standard VFL for small model evaluation; LLM-only and small-model-only for comprehensive diagnosis). Metrics include accuracy, PCR, PRR, PAR, communication efficiency, and training time.",
+    "validation_methods": [
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "BLCoT achieves an average accuracy improvement of 16.59% over zero-shot prompting and 13.94% over common prompt methods.",
+        "CoT prompting improves LLM accuracy by 13.57% on average over zero-shot.",
+        "Few-shot prompting improves LLM accuracy by 11.68% on average over zero-shot.",
+        "BC-MF improves PRR by 4.84% on average compared to small models alone.",
+        "BC-MF improves PCR by 1.14%, PRR by 34.54%, and PAR by 20.28% on average compared to LLM alone.",
+        "BC-MF combined metrics (PCR, PRR, PAR) show an average increase of 10.13% over individual large and small models.",
+        "GVFL maintains stable accuracy closely resembling the centralized approach, while Solo method accuracy decreases by an average of 11.33% as the number of participants increases."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "BC-MF maintains stable accuracy across 4 and 10 and 20 node configurations on all five datasets.",
+        "Dynamic node selection with beta=0.875 and beta=0.75 shows continued accuracy increase after node selection, unlike random selection which shows significant fluctuations and fails to converge."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "chain-of-thought": "CoT prompting improves LLM accuracy by 13.57% on average over zero-shot baseline.",
+        "in-context-learning": "Few-shot prompting improves LLM accuracy by 11.68% on average over zero-shot baseline.",
+        "retrieval-augmented-generation": "BLCoT with knowledge graph retrieval achieves the best performance with 16.59% average accuracy improvement over zero-shot, by generating field-related knowledge for fault analysis."
+      },
+      "failure_modes": [
+        "After aggressive node selection (beta=0.875, only 2 nodes remaining), accuracy drops significantly due to too few effective features and need to re-establish layer connections.",
+        "LLMs without domain-specific prompting lack sufficient domain knowledge to accurately diagnose industrial faults.",
+        "Classical LLMs are clumsy to handle fast changes of heterogeneous IIoT data features."
+      ],
+      "limitations": [
+        "LLMs cannot accurately diagnose faults from heterogeneous IIoT data without specialized prompting and small model support.",
+        "Aggressive node selection (very low beta) can lead to accuracy drops due to insufficient features.",
+        "The hypernetwork requires interaction with all nodes to obtain intermediate computation results, which can create communication overhead mitigated by dynamic node activation.",
+        "Future work needed to introduce reinforcement learning for node selection and global fusion, especially for hyperparameter tuning."
+      ]
+    },
+    "integration_with_cps": "iot",
+    "baseline_methods": [
+      "Zero-shot (Z-S) prompt",
+      "Zero-shot-CoT (Z-S CoT) prompt",
+      "Few-shot (F-S) prompt",
+      "Few-shot-CoT (F-S CoT) prompt",
+      "LLMs alone (ChatGPT, ChatGLM3, LLaMA2)",
+      "Small Models alone (traditional small-scale fault classification NNs for VFL)",
+      "Centralized training (all data trained on server)",
+      "Solo training (each segmented dataset trained individually at each node)",
+      "Random node selection method"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "generation-quality",
+      "computational-efficiency",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Introducing reinforcement learning into BC-MF for node selection and global fusion",
+      "Applying reinforcement learning for hyperparameter tuning in BC-MF"
+    ],
+    "scalability_assessment": "data-scalability"
+  },
+  "reasoning": ""
+}

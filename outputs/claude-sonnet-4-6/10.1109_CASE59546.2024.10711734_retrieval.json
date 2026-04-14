@@ -1,0 +1,158 @@
+{
+  "title": "Enhancing Fault Troubleshooting through Human-Machine Collaboration: A Multi-Stage Reasoning Approach",
+  "doi": "10.1109/CASE59546.2024.10711734",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "LLM-based agent (GPT-4) responsible for Knowledge Graph Construction tasks including Named Entity Recognition, Relation Extraction, Causal Relation Extraction, and Fault Feature Classification from fault tickets.",
+          "role": "other",
+          "specialized_role": "knowledge_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Graph embedding agent using BGE-base for node feature initialization and R-GAT for aggregating graph node information to obtain embedding representations, used for retrieving similar fault symptoms from the DSFCKG.",
+          "role": "retriever",
+          "specialized_role": "graph_embedding_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "vector-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "graph-traversal"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "BGE-base + R-GAT",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Contrastive learning dataset of 2000 fault symptom node pairs derived from real-world fault tickets, with 70% training, 15% validation, 15% test split."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a multi-stage orchestration graph: first, the LLM-based KGC agent constructs the DSFCKG from historical fault tickets; then, during troubleshooting, the graph embedding retriever recommends fault locations based on the worker's input, and the worker performs on-site investigation and provides feedback, enabling iterative multi-stage reasoning until the root cause is identified.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The LLM-based KGC agent and the graph embedding retriever cooperate sequentially: the KGC agent builds the knowledge graph offline, and the retriever uses it online during fault troubleshooting to recommend fault locations iteratively in collaboration with human workers.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Workers initiate the troubleshooting process by describing fault phenomena in natural language. The system recommends potential fault locations, and workers conduct on-site inspections and provide feedback on findings. This iterative human-machine collaboration continues through multiple rounds until the root cause is identified.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Fault troubleshooting and diagnosis for critical industrial equipment (specifically bridge cranes in a steel plant), aiming to identify root causes of faults through human-machine collaboration.",
+    "problem_description": "Modern industrial machinery is complex, placing a heavy cognitive burden on maintenance workers. Fault descriptions in natural language are vague and non-standardized, and root causes of faults are often not directly discoverable but require multi-stage reasoning through causal chains. Existing automated fault diagnosis systems are limited to specific fault types and do not handle long fault causal chains effectively.",
+    "proposed_solution": "A Diagnostic Semantics-Enhanced Fault Causality Knowledge Graph (DSFCKG) is proposed to formalize fault information, constructed automatically using an LLM-based (GPT-4) Knowledge Graph Construction method. A graph embedding model (BGE-base + R-GAT) retrieves similar fault cases. A multi-stage reasoning-based human-machine collaborative fault troubleshooting framework iteratively recommends fault locations to workers, who perform on-site inspections and provide feedback, enabling gradual root cause identification.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "The proposed method is validated using 471 real-world fault tickets from a steel plant's bridge crane (2019-2021). A case study demonstrates the multi-stage troubleshooting process, and comparative experiments against CausalKG-ALBERT and traditional CBR methods are conducted on 30 randomly selected fault cases.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "The proposed fault troubleshooting method outperforms CausalKG-ALBERT and traditional CBR in both AccRC (root cause identification ratio) and ScoreTS (troubleshooting efficiency score) metrics across 30 test cases.",
+        "The graph embedding method (BGE-base + R-GAT) achieved higher accuracy and lower loss than plain text similarity embedding (BGE-base alone) on the contrastive learning dataset.",
+        "The R-GAT-based graph embedding model achieved 0.886 accuracy on validation set and 0.863 on test set.",
+        "95.54% of fault ticket extraction results required minimal manual adjustment under few-shot GPT-4 setting."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Graph embedding model: 0.886 accuracy on validation set, 0.863 on test set.",
+        "95.54% of LLM-based KGC extractions required minimal manual adjustment."
+      ],
+      "failure_attribution": [
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Few-shot prompting with 3 representative examples achieved 95.54% extraction accuracy with minimal manual adjustment needed.",
+        "retrieval-augmented-generation": "Graph embedding retrieval using R-GAT outperformed plain text similarity (BGE-base) in fault symptom similarity tasks, enabling more precise fault location recommendations.",
+        "chain-of-thought": "Multi-stage reasoning approach consistently verifies facts throughout the reasoning process, leading to more accurate root cause identification especially in complex long fault chain scenarios."
+      },
+      "failure_modes": [
+        "For rare fault symptoms, insufficient historical fault information may be available in the knowledge graph, requiring LLM to directly generate supplementary recommendations.",
+        "Current fault troubleshooting only supports single-line fault chain reasoning and cannot handle more complex fault scenarios with branching causal structures."
+      ],
+      "limitations": [
+        "Fault feature classification standards rely on worker experience and extensive fault ticket analysis; automated fault feature extraction and updating methods are needed.",
+        "Current method only handles single-line fault chain reasoning; more complex fault scenarios require deeper fault causality analysis.",
+        "Automated fault cause analysis and solution generation are not yet supported."
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "CausalKG-ALBERT (knowledge recommendation method)",
+      "Traditional Case-Based Reasoning (CBR) method",
+      "BGE-base plain text similarity embedding model"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "retrieval-quality",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Automated fault feature extraction and updating methods (currently relies on worker experience and extensive fault ticket analysis)",
+      "Current fault troubleshooting only considers single-line fault chain reasoning; deeper fault causality analysis needed for more complex fault scenarios",
+      "Future research on automated fault cause analysis and solution generation"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

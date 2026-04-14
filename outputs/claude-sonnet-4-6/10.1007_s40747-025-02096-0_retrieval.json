@@ -1,0 +1,224 @@
+{
+  "title": "Leveraging multi-agent framework for root cause analysis",
+  "doi": "10.1007/s40747-025-02096-0",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Central orchestrator of the multi-agent diagnostic framework. Executes semantic parsing of unstructured anomaly reports, coordination of distributed diagnostic workflows, and probabilistic synthesis of root cause hypotheses. Processes user queries through a prompt-engineered pipeline that extracts structured diagnostic parameters, initiates evidence-driven investigation workflows, and applies causal reasoning over multi-source findings.",
+          "role": "orchestrator",
+          "specialized_role": "rca_orchestrator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "QwenMax",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Addresses limitations of conventional RCA through a dual mechanism of structured experience reuse and multi-modal causal inference. Performs case retrieval using hybrid keyword and semantic matching, re-ranking, and root cause inversion via LLM-powered semantic-driven reverse index construction and multi-level causal generalization mechanisms. Provides intelligent augmentation to the RCA Agent's hypothesis generation process.",
+          "role": "retriever",
+          "specialized_role": "historical_case_retriever",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "knowledge-graph",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "QwenMax",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Systematically verifies root cause hypotheses through automated evidence integration and cross-domain data correlation. Converts manual diagnostic assumptions into quantifiable validation tasks. Implements hypothesis validation protocol with automated task deduplication, prioritized evidence collection, and dynamic cache invalidation. Uses semantic alignment between historical symptom patterns and real-time observations to compute confidence scores.",
+          "role": "other",
+          "specialized_role": "hypothesis_validator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "function-calling",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "QwenMax",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Serves as the unified output layer of the multi-agent RCA framework, transforming raw diagnostic data into structured reports for SREs and downstream systems. Integrates historical case matches, real-time validation metrics, and causal reasoning results to generate compliance-ready documentation with human interpretability. Employs adaptive templates to organize findings into standardized sections.",
+          "role": "summarizer",
+          "specialized_role": "report_generator",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "QwenMax",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "MA-RCA uses a centralized multi-agent collaboration pattern where the RCA Agent acts as the central orchestrator coordinating the Retrieval Agent, Validation Agent, and Report Agent. The RCA Agent dispatches tasks sequentially: first invoking the Retrieval Agent for historical case retrieval and hypothesis generation, then activating the Validation Agent for cross-validation against real-time telemetry, and finally coordinating the Report Agent for diagnostic report generation.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "The RCA Agent acts as a central hub coordinating specialized agents for distinct subtasks. Each agent operates within a dedicated domain to minimize context-switching. The RCA Agent dispatches the Retrieval Agent for historical pattern matching, activates the Validation Agent for real-time evidence verification, and coordinates the Report Agent for causal synthesis and reporting. Agents cooperate toward the shared goal of accurate root cause identification.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "centralized"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "SREs initiate diagnostic workflows by submitting alert descriptions through a natural language interface. The system validates inputs and requests missing parameters from users. SREs receive structured diagnostic reports generated by the Report Agent. The system serves as a cognitive aid for SREs, reducing manual report generation time while maintaining human oversight through the review of generated reports.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Automated root cause analysis (RCA) for complex distributed systems including cloud-native microservice platforms and power metering infrastructures, aimed at diagnosing system failures and anomalies with minimal human intervention.",
+    "problem_description": "Traditional RCA relies heavily on manual expertise from SREs, which is time-intensive and does not scale with increasing system complexity. Existing automated approaches suffer from LLM hallucinations, limited generalizability, context-switching errors in multi-step reasoning, and lack of historical diagnostic knowledge integration, leading to ungrounded causal hypotheses and cascading errors.",
+    "proposed_solution": "MA-RCA (Multi-Agent Root Cause Analysis), a collaborative framework that decomposes the RCA workflow into specialized subtasks managed by four dedicated agents: RCA Agent (orchestrator), Retrieval Agent (historical case retrieval and hypothesis grounding), Validation Agent (hypothesis verification against runtime data), and Report Agent (structured report generation). The framework integrates a historical anomaly case repository and a tool repository to ground hypotheses in verified evidence and suppress hallucinations.",
+    "research_maturity": "pilot",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Comprehensive experiments conducted on two real-world datasets (Nezha cloud-native benchmark and Power monitoring dataset) comparing MA-RCA against five baselines (CoT, RAG, RCACOPILOT, RCAgent, mABC) using accuracy, precision, recall, and F1-score metrics. Ablation studies evaluate contributions of individual components. The system was also deployed as a plugin in a real-world power metering infrastructure.",
+    "validation_methods": [
+      "benchmark",
+      "field deployment",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "MA-RCA achieves 95.8% accuracy (F1=0.952) on Nezha dataset, outperforming all baselines",
+        "MA-RCA achieves 84.3% accuracy (F1=0.828) on Power monitoring dataset, outperforming all baselines",
+        "MA-RCA outperforms mABC (F1=0.726 on Nezha, F1=0.613 on Power) by large margins",
+        "MA-RCA outperforms RCACOPILOT (F1=0.748 on Nezha, F1=0.651 on Power)",
+        "Ablation: removing Retrieval Agent causes F1 to drop to 0.295 on Nezha and 0.144 on Power",
+        "Ablation: removing multi-agent structure causes F1 to drop to 0.716 on Nezha and 0.680 on Power",
+        "Ablation: removing Validation Agent causes F1 to drop to 0.681 on Nezha and 0.543 on Power",
+        "Ablation: removing semantic retrieval causes F1 to drop to 0.874 on Nezha and 0.663 on Power",
+        "Optimal retrieval of 5 historical cases yields best performance (Acc=0.843, F1=0.828 on Power)"
+      ],
+      "response_time_impact": [
+        "Data collection and validation processes introduce additional latency compared to direct inference methods"
+      ],
+      "reliability_metrics": [],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Critical for performance; removing Retrieval Agent causes the largest performance drop (F1: 0.295 on Nezha, 0.144 on Power), demonstrating that historical case grounding is essential for hypothesis expansion",
+        "dynamic-decomposition": "Multi-agent task decomposition is essential; monolithic LLM (w/o multi-agent) causes F1 to drop to 0.716 on Nezha and 0.680 on Power due to context-switching errors",
+        "in-context-learning": "Few-shot exemplars from historical cases used in CoT baseline yield low performance (F1=0.412 on Nezha) without external grounding, but combined with retrieval and validation in MA-RCA yields strong results",
+        "chain-of-thought": "CoT alone yields lowest performance (F1=0.412 on Nezha, Acc=0.117 on Power), underscoring insufficiency of closed-loop reasoning without external grounding"
+      },
+      "failure_modes": [
+        "LLM hallucinations generating plausible but ungrounded causal hypotheses",
+        "Context-switching errors during multi-step reasoning across disparate domain knowledge",
+        "Retrieval of textually similar but causally irrelevant historical cases via cosine similarity",
+        "Performance degradation with too many retrieved cases (10 or 20) due to irrelevant or noisy instances diluting diagnostic relevance",
+        "Inflated false positives when Validation Agent is removed due to unchecked LLM hallucinations"
+      ],
+      "limitations": [
+        "Effectiveness depends heavily on quality and comprehensiveness of the historical case repository; sparse or outdated data may constrain Retrieval Agent performance",
+        "Data collection and validation processes introduce additional latency compared to direct inference methods, which could affect usability in highly time-sensitive scenarios",
+        "Static top-k retrieval strategy may not optimally balance informativeness and focus across all anomaly contexts"
+      ]
+    },
+    "integration_with_cps": "cyber-physical-system",
+    "baseline_methods": [
+      "CoT (Chain-of-Thought)",
+      "RAG (Retrieval-Augmented Generation)",
+      "RCACOPILOT",
+      "RCAgent",
+      "mABC"
+    ],
+    "evaluation_metric_categories": [
+      "classification"
+    ],
+    "identified_research_gaps": [
+      "Effectiveness depends heavily on the quality and comprehensiveness of the historical case repository; sparse or outdated data may constrain the Retrieval Agent's performance",
+      "Data collection and validation processes introduce additional latency compared to direct inference methods, which could affect usability in highly time-sensitive scenarios",
+      "Need for adaptive retrieval mechanisms that can dynamically determine the optimal number and relevance of historical cases based on anomaly context, moving beyond a static top-k strategy",
+      "Need to explore speculative execution and prefetching strategies for the agent team to anticipate and initiate potential data collection steps in parallel to streamline the diagnostic pipeline"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

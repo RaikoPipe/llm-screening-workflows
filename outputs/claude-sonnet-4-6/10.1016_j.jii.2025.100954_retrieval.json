@@ -1,0 +1,209 @@
+{
+  "title": "Analysis of causes of welding defects in bridge weathering steel based on large language models",
+  "doi": "10.1016/j.jii.2025.100954",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Multi-perspective associative memory agent that generates role-specific Q&A pairs from diverse professional viewpoints (welding technologist, operator, structural engineer, equipment specialist, quality inspector, process engineer) and retrieves factual memory using hybrid retrieval strategy (vector + BM25 + reranking).",
+          "role": "retriever",
+          "specialized_role": "multi_perspective_knowledge_integrator",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "vector-database",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "retrieval-augmented-generation"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking",
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base",
+              "external-models"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / qwen-plus / GPT-4o-mini / deepseek-V3 (multiple models evaluated)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        },
+        {
+          "description": "Inhibition-cognition control agent that filters irrelevant Q&A pairs via prompt-based inhibition, decomposes the filtered content into subtasks, and iteratively validates and corrects subtask decompositions through cognitive simulation, judgment, and correction phases.",
+          "role": "planner",
+          "specialized_role": "inhibition_cognition_task_optimizer",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "dynamic-decomposition",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / qwen-plus / GPT-4o-mini / deepseek-V3 (multiple models evaluated)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Expert-guided task verification meta-prompting agent that uses a dynamic closed-loop bidirectional subtask processor (forward solution generation + backward validation) and a Validation-aware Mixture of Experts Prompt Generator (VaME-Prompt) to dynamically select top-K expert templates via RAG and construct meta-prompts for final answer generation.",
+          "role": "other",
+          "specialized_role": "expert_guided_validator",
+          "context_engineering": {
+            "memory_types": [
+              "vector-database",
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "iterative-reasoning",
+              "retrieval-augmented-generation",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": [
+              "semantic-search",
+              "reranking"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "knowledge-base"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / qwen-plus / GPT-4o-mini / deepseek-V3 (multiple models evaluated)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a sequential pipeline (orchestration graph) where the input query first passes through the Multi-Perspective Associative Memory Mechanism, then through the Inhibition-Cognition Control Optimization Mechanism, and finally through the Expert-Guided Task Verification Meta-Prompting Method. Each module feeds its output to the next, with internal closed-loop feedback within the expert verification module.",
+        "orchestration_pattern": [
+          "orchestration-graph",
+          "re-act"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Three specialized modules (agents) operate in a linear pipeline with cooperation: the memory agent enriches context, the planner agent decomposes and validates tasks, and the expert verification agent generates and validates final answers using domain expert knowledge. Internal bidirectional closed-loop validation within the expert module enables iterative correction.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "linear"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Domain experts are involved in two ways: (1) statically, by curating the expert knowledge base (templates and Q&A pairs) used in the VaME-Prompt module during system deployment; (2) for evaluation, three qualified welding experts independently assessed 100 randomly selected model responses using a standardized 0-10 scoring system across five criteria (accuracy, reasonableness, scientificity, compliance, comprehensiveness) in a double-blind protocol. During runtime operation, expert validation proceeds automatically via RAG without active expert participation.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "quality_management",
+    "application_domain_description": "Analysis of root causes of welding defects in bridge weathering steel, integrating alloy element influences, crack control, and parameter optimization to support defect diagnosis and quality assurance in structural steel welding.",
+    "problem_description": "Analyzing the causes of welding defects in bridge weathering steel requires integrating multidisciplinary knowledge (alloy elements, crack control, parameter optimization), but existing LLM-based approaches suffer from: (1) single-perspective reasoning and incomplete memory mechanisms causing systematic reasoning biases; (2) inefficient task decomposition with redundant steps and unclear sub-task boundaries; (3) absence of expert-guided cross-task validation, allowing reasoning errors to propagate and amplify through the diagnostic chain.",
+    "proposed_solution": "An LLM-based analytical framework comprising three synergistic modules: (1) Multi-Perspective Associative Memory Mechanism using dual-storage (associative + factual memory) with role-based Q&A expansion and hybrid retrieval (vector + BM25 + BGE reranking); (2) 'Inhibition-Cognition' Control Optimization Strategy that filters irrelevant information, decomposes tasks into subtasks, and iteratively corrects decomposition errors via cognitive simulation-judgment-correction loops; (3) Expert-Guided Task Verification Meta-Prompting Method with dynamic closed-loop bidirectional subtask processing and a Validation-aware Mixture of Experts Prompt Generator (VaME-Prompt) that dynamically selects top-K expert templates via RAG to construct adaptive meta-prompts.",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "The study constructs a specialized Q&A dataset of 1214 validated entries for bridge weathering steel welding defects, then conducts ablation and comparative experiments across four LLMs (qwen-plus, GPT-4o-mini, GPT-4o, deepseek-V3) evaluating three progressively combined method modules using ROUGE-L, BERTScore, and expert ratings. A case study on welding joint quality improvement further demonstrates practical application.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o achieves highest ROUGE-L F1 of 0.63 with all methods combined, compared to 0.32 baseline (improvement of 0.31).",
+        "GPT-4o-mini shows ROUGE-L F1 improvement from 0.33 (base) to 0.58 (all methods), a gain of 0.25.",
+        "qwen-plus ROUGE-L F1 improves from 0.29 (base) to 0.46 (all methods), a gain of 0.17.",
+        "deepseek-V3 ROUGE-L F1 improves from 0.26 (base) to 0.43 (all methods), a gain of 0.17.",
+        "GPT-4o-mini and GPT-4o both achieve highest BERTScore F1 of 0.87 with all methods combined.",
+        "GPT-4o-mini BERTScore F1 increases from 0.77 (base) to 0.87 (all methods), a gain of 0.10.",
+        "Expert total score for GPT-4o improves from 35.39 (base) to 37.32 (all methods).",
+        "deepseek-V3 achieves largest expert score improvement of 3.33 points (35.19 to 37.42).",
+        "qwen-plus expert total score improves by 2.54 points (34.02 to 36.56).",
+        "Optimal K=3 for VaME-Prompt top-K expert selection yields highest mean BERTScore F1 with Q1 of 0.75."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [],
+      "failure_attribution": [
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Hybrid retrieval (vector + BM25 + BGE reranking) with K=3 expert templates improves BERTScore F1 across all models; multi-perspective memory injection enhances information completeness and cross-role knowledge integration.",
+        "dynamic-decomposition": "Inhibition-cognition control filters redundant information and structures problem-solving into progressive workflows (diagnosis, optimization, verification), improving ROUGE-L and BERTScore F1 scores across all models.",
+        "iterative-reasoning": "Dynamic closed-loop bidirectional subtask processing with forward solution generation and backward validation prevents error propagation and improves expert evaluation scores for consistency and accuracy.",
+        "in-context-learning": "Role-based Q&A expansion from multiple professional perspectives (welding technologist, operator, structural engineer, etc.) enhances contextual depth and reduces single-perspective cognitive bias."
+      },
+      "failure_modes": [
+        "Single-perspective reasoning leads to incomplete causal analysis and systematic reasoning biases.",
+        "Information redundancy from multi-perspective content can divert attention from core problems without inhibition control.",
+        "Improper task granularity allocation and unclear sub-task boundaries cause logical gaps and systematic biases.",
+        "Linear sequential processing without cross-task validation allows early-stage errors to propagate and amplify.",
+        "Difficulty distinguishing genuine causal synthesis from sophisticated recombination of plausible information in LLM outputs."
+      ],
+      "limitations": [
+        "Hybrid retrieval mechanism increases computational load, creating a trade-off between analytical performance and resource consumption.",
+        "Reliance on expert-curated knowledge base adds to operational costs and hinders scalability.",
+        "Framework's dependency on hybrid retrieval and expert integration leads to computational bottlenecks.",
+        "Evaluating the depth of model reasoning\u2014distinguishing genuine causal synthesis from sophisticated information aggregation\u2014remains an open challenge without a formalized evaluation framework.",
+        "No formalized composite evaluation system exists to rigorously assess sufficiency, reliability, and domain faithfulness of LLM-integrated knowledge."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "GPT-4o (base, no additional modules)",
+      "GPT-4o + multi-perspective associative memory mechanism (x)",
+      "GPT-4o + multi-perspective associative memory + inhibition-cognition control (x+y)",
+      "qwen-plus (base)",
+      "qwen-plus + x",
+      "qwen-plus + x+y",
+      "GPT-4o-mini (base)",
+      "GPT-4o-mini + x",
+      "GPT-4o-mini + x+y",
+      "deepseek-V3 (base)",
+      "deepseek-V3 + x",
+      "deepseek-V3 + x+y"
+    ],
+    "evaluation_metric_categories": [
+      "generation-quality",
+      "retrieval-quality",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Optimizing computational efficiency and reducing resource dependency of the hybrid retrieval mechanism and expert-curated knowledge base",
+      "Developing cost-effective knowledge enhancement strategies (e.g., model lightweighting, knowledge distillation) to broaden framework scalability",
+      "Constructing a formalized composite evaluation framework to rigorously assess the sufficiency, reliability, and domain faithfulness of LLM-integrated knowledge",
+      "Distinguishing genuine causal synthesis from sophisticated recombination of plausible information in LLM reasoning",
+      "Validating the causal reasoning capabilities of LLMs in a more objective manner"
+    ],
+    "scalability_assessment": "computational-scalability"
+  },
+  "reasoning": ""
+}

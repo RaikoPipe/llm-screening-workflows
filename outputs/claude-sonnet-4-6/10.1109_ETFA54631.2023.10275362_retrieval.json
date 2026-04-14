@@ -1,0 +1,165 @@
+{
+  "title": "Towards autonomous system: flexible modular production system enhanced with large language model agents",
+  "doi": "10.1109/ETFA54631.2023.10275362",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Manager agent that works on top of the automation modules, orchestrating diverse skills of the automation modules to plan the production. It queries the digital twin system to retrieve skill descriptions and generates a sequence of skills to fulfill a given production task.",
+          "role": "orchestrator",
+          "specialized_role": "production_planner",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "text-davinci-003",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Operator agents that work within a particular automation module, orchestrating diverse functionalities to execute a given skill. Each operator agent retrieves functionality information from the digital twin system and generates a sequence of RESTful API calls to execute the requested skill.",
+          "role": "other",
+          "specialized_role": "skill_executor",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database"
+            ]
+          },
+          "genai_model": {
+            "model_name": "text-davinci-003",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "A hierarchical multi-agent system where a manager agent at the MES level orchestrates skills across automation modules, and multiple operator agents within each automation module orchestrate fine-granular functionalities to execute those skills. The manager agent decomposes the production task into a sequence of skills, passes them to the MES system, which then invokes operator agents for each skill execution.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A hierarchical coordination strategy where the manager agent decomposes production tasks into skills and delegates them to operator agents. The manager agent coordinates at the MES level while operator agents handle execution within individual automation modules. Agents cooperate toward the shared goal of completing the production task.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans provide task instructions as natural language input to the manager agent. The system then autonomously plans and executes the production process. Human experts are also involved in retrofitting the automation system, creating digital twins, and refining prompts iteratively. The paper notes that the system reduces the need for human effort in production planning and control.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Intelligent planning and control of flexible modular production processes in a smart factory context, enabling autonomous orchestration of production skills and functionalities through LLM agents integrated with digital twins and industrial automation systems.",
+    "problem_description": "Traditional production systems face challenges in achieving flexible, agile manufacturing due to inflexible workflows, lack of adaptability, difficulty integrating diverse technologies, and the need for highly knowledgeable workforce. Planning and process orchestration for customized production tasks rely on accumulated human expertise, making it time-consuming and error-prone when knowledge is unavailable.",
+    "proposed_solution": "A novel framework combining LLMs (GPT), digital twins (Asset Administration Shell), and industrial automation systems. The automation system is retrofitted with modular RESTful service interfaces for fine-granular functionalities and coarse-granular skills. A digital twin system registers these interfaces with descriptive information. LLM agents (manager and operator agents) are created via prompt engineering to interpret digital twin information and autonomously plan and control production by orchestrating skills and functionalities in response to natural language task instructions.",
+    "research_maturity": "prototype",
+    "research_methodology": "proof-of-concept",
+    "research_methodology_description": "A prototypical demonstrator of a matrix modular production facility was implemented in a laboratory setting. The system was tested with a use case involving un-predefined production tasks, demonstrating feasibility of integrating LLMs into industrial automation. A limited quantitative evaluation was performed on 50 generated samples from the manager agent to assess correctness and efficiency.",
+    "validation_methods": [
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "96% of all skill sequences generated by the manager agent (text-davinci-003) are executable without error",
+        "88% of generated skill sequences can solve the particular task and produce the right product",
+        "Only 6% of generated skill sequences use the minimal required steps to solve the task efficiently without unnecessary steps"
+      ],
+      "response_time_impact": [
+        "Reduced delay time in production planning processes compared to manual planning",
+        "Faster problem-solving and better adaptation to customer demands through LLM reasoning"
+      ],
+      "reliability_metrics": [
+        "96% executable skill sequences out of 50 evaluated samples",
+        "88% task-solving accuracy out of 50 evaluated samples"
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency",
+        "context-formatting"
+      ],
+      "ce_technique_effectiveness": {
+        "chain-of-thought": "Encourages step-by-step reasoning, breaking complex problems into smaller intermediate tasks, improving logical structure of outputs",
+        "in-context-learning": "Few-shot examples constrain output structure and improve model performance; absence of examples led to increased misunderstood or irrelevant responses",
+        "retrieval-augmented-generation": "Digital twin context injection enables the model to combine general knowledge with system-specific knowledge for domain-specific reasoning"
+      },
+      "failure_modes": [
+        "Non-deterministic outputs: LLM generates varying results even with the same input",
+        "Inefficient skill sequences: only 6% of outputs use minimal required steps",
+        "Stateless interaction: agent does not track how its output affects the production system",
+        "Inaccurate or lossy knowledge conversion from digital twin models to natural language prompts leading to misinterpretation",
+        "Difficulty interpreting dynamic numeric operational data"
+      ],
+      "limitations": [
+        "Stateless interaction: LLM agents lack memory of dynamic effects on the environment and cannot perform informed sequential decision-making",
+        "Non-deterministic results: LLM outputs vary even with identical inputs, making deterministic production control unreliable",
+        "No comprehensive evaluation benchmark for industrial automation LLM tasks; only use-case-level proof-of-concept provided",
+        "High computational requirements of large LLM models pose challenges for local deployment in industrial settings",
+        "Retrofitting existing production facilities to accommodate modular interfaces is time-consuming and complex",
+        "Knowledge representation conversion between digital twin software systems and natural language is challenging and may be lossy",
+        "Creating high-fidelity digital twins is labor-intensive and requires comprehensive system understanding",
+        "Dynamic operational data not included in prompts due to agent difficulty interpreting numeric time-series data"
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "operational-kpi"
+    ],
+    "identified_research_gaps": [
+      "Stateless interaction of LLM agents requires memory mechanisms to track dynamic effects on the environment",
+      "Non-deterministic results from LLMs require additional mechanisms for deterministic output and predictability",
+      "Lack of evaluation benchmarks for comprehensive performance quantification of LLM agents in industrial automation tasks",
+      "Computational complexity of large LLM models poses challenges for local deployment in industrial settings",
+      "Retrofitting existing production facilities to accommodate modular interfaces is challenging and time-consuming",
+      "Knowledge representation conversion between digital twin software systems and natural language is difficult and potentially lossy",
+      "High-quality data and high-fidelity digital twin creation is labor-intensive and requires comprehensive system understanding",
+      "Integration of operational/dynamic data into LLM agent prompts remains unresolved"
+    ],
+    "scalability_assessment": "organizational-scalability"
+  },
+  "reasoning": ""
+}

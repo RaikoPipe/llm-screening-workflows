@@ -1,0 +1,169 @@
+{
+  "title": "Incorporating Large Language Models into Production Systems for Enhanced Task Automation and Flexibility",
+  "doi": "10.48550/ARXIV.2407.08550",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Manager LLM agent responsible for overall production planning. It interprets user commands or system-triggered events and dynamically generates a process plan consisting of a sequence of subtasks for operator agents.",
+          "role": "planner",
+          "specialized_role": "production_planner",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Operator LLM agents responsible for control tasks at the control level. They receive subtasks from the manager agent, interpret real-time event log data, and decide on sequences of atomic microservice calls to execute production operations. Multiple operator agents exist for different modules (e.g., conveyor transport, AGV).",
+          "role": "other",
+          "specialized_role": "production_controller",
+          "context_engineering": {
+            "memory_types": [
+              "state-tracking",
+              "external-database",
+              "conversation-history"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "iterative-reasoning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "function-calling",
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4o / LLAMA-3-70B (fine-tuned)",
+            "finetuning_datasets": [
+              "real-world"
+            ],
+            "finetuning_dataset_description": "Fine-tuned model based on LLAMA-3-70B trained on texts from event logs generated during system operation in the modular production facility."
+          },
+          "generated_workers": true
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "A hierarchical multi-agent system where a manager LLM agent at the planning level decomposes production tasks into subtasks and delegates them to operator LLM agents at the control level. Operator agents then translate subtasks into sequences of atomic microservice calls executed via a run-time environment. Agents communicate through an event log memory system and coordinate handovers between production modules.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "A centralized hierarchical coordination where the manager agent orchestrates operator agents. The manager generates a process plan and delegates subtasks to operator agents, which independently execute control actions. Operator agents also communicate with each other to coordinate workpiece handovers between production modules.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "system-initiated",
+      "human_integration": {
+        "human_integration_description": "Humans interact with the system via a web application front-end to input tasks. The system can also be triggered by system-detected events. Human supervisors receive alerts from operator agents when unforeseen issues arise. System-generated decisions and operations still require human approval in the current prototype, making it function as an assistant system. Human evaluators also assess the effectiveness of generated commands.",
+        "human_oversight_mechanism": [
+          "pre-action-validation",
+          "real-time-monitoring",
+          "risk-based-escalation"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "corrective-feedback",
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "production_control",
+    "application_domain_description": "Industrial automation and production control in a modular production facility, encompassing dynamic process planning, real-time control of production modules (conveyors, AGVs, storage, testing stations), and autonomous task execution with LLM-based decision-making.",
+    "problem_description": "Traditional industrial automation systems follow rigid, predefined rules and workflows that lack adaptability to dynamic, unpredictable environments. Bridging the gap between automation and autonomy requires intelligence capable of dynamic decision-making for unforeseen situations, which rule-based systems cannot practically provide.",
+    "proposed_solution": "Integration of LLMs into industrial automation systems via a multi-agent architecture built on top of digital twins. A manager LLM agent handles production planning while operator LLM agents handle real-time control decisions by interpreting event log data and invoking atomic microservices. Structured prompt templates and event-driven information modeling enable effective LLM-based decision-making across automation pyramid layers.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A pilot case study was conducted at the Institute of Industrial Automation and Software Engineering (IAS), University of Stuttgart, using a real modular production facility. The system was implemented and evaluated with 100 test points (50% predefined routine tasks, 50% unpredefined scenarios) across multiple LLMs to assess planning and control capabilities.",
+    "validation_methods": [
+      "case study",
+      "benchmark"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "GPT-4o achieved 88% effectiveness in generating correct and effective commands across both routine and unforeseen scenarios.",
+        "Fine-tuned LLAMA-3-70B achieved 87% effectiveness, comparable to GPT-4o, confirming the value of fine-tuning for specific tasks.",
+        "LLAMA-3-8B achieved only 53% effectiveness, indicating smaller models are insufficient for complex planning and control.",
+        "GPT-3.5 was also evaluated but specific effectiveness scores were not detailed beyond the figure.",
+        "System successfully handles both pre-defined routine tasks and spontaneous decisions for unpredefined events."
+      ],
+      "response_time_impact": [
+        "LLM inferencing latency ranges from 100ms to 1 second on local server with dual NVIDIA A100 Tensor Core GPUs.",
+        "Cloud server inferencing takes 1 to 10 seconds.",
+        "Real-time performance is a limitation; LLM reasoning is only performed when operations can be paused or when new events during inferencing do not affect decision-making."
+      ],
+      "reliability_metrics": [
+        "100 test points evaluated: 50% predefined routine tasks, 50% unpredefined scenarios.",
+        "Evaluation on two levels: error-free executable commands and effectiveness of commands in resolving incidents.",
+        "GPT-4o: ~88% effective commands; Fine-tuned LLAMA-3-70B: ~87% effective commands; LLAMA-3-8B: ~53% effective commands."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Prompt templates with role, context, behavioral instructions, and input-output patterns effectively guide LLM agents to perform specific tasks; demonstrated across all evaluated models.",
+        "dynamic-decomposition": "Task decomposition into subtasks for manager and operator agents enables handling of complex production planning and control; effective for both routine and unforeseen scenarios.",
+        "iterative-reasoning": "Event-driven information modeling with chronological event logs enables iterative decision-making by operator agents responding to real-time state changes."
+      },
+      "failure_modes": [
+        "Smaller LLMs (e.g., LLAMA-3-8B) fail to generate effective commands for complex planning and control tasks.",
+        "Technically error-free but ineffective commands (e.g., 'wait(5)' instead of alerting supervisor when workpiece fails to move).",
+        "LLM inferencing latency prevents strict real-time operation.",
+        "System-generated decisions still require human approval, limiting full autonomy."
+      ],
+      "limitations": [
+        "Real-time performance: LLM latency (100ms-10s) prevents operation in strict real-time environments.",
+        "Comprehensive testing: Current evaluation relies on synthetic test cases in a controlled laboratory environment; real-world manufacturing variability not fully addressed.",
+        "Cost-benefit evaluation: Economic feasibility of integrating LLMs into production systems not yet thoroughly investigated.",
+        "Human approval still required for system-generated decisions, making it an assistant system rather than fully autonomous.",
+        "Test cases can quickly become complicated and condition-specific."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [],
+    "evaluation_metric_categories": [
+      "task-completion",
+      "human-evaluation"
+    ],
+    "identified_research_gaps": [
+      "Real-time performance latency introduced by LLM inference needs to be addressed for strict real-time environments",
+      "Comprehensive real-world testing beyond synthetic/laboratory test cases is needed to validate robustness and reliability",
+      "Cost-benefit evaluation of integrating LLMs into production systems requires thorough investigation",
+      "Test-driven development process for future intelligent autonomous systems powered by LLMs",
+      "Broadening application areas beyond the current modular production facility case study",
+      "Systematic testing and evaluation to improve system value and cost-effectiveness",
+      "Human approval is still required for system-generated decisions, limiting full autonomy"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

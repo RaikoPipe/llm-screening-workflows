@@ -1,0 +1,186 @@
+{
+  "title": "Integrating Large Language Models with Network Optimization for Interactive and Explainable Supply Chain Planning: A Real-World Case Study",
+  "doi": "10.48550/ARXIV.2508.21622",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Reads incoming requests and extracts relevant components such as product identifiers, time windows, types of decisions, configuration settings, and user context. Transforms ambiguous natural language inputs into machine-readable instructions.",
+          "role": "other",
+          "specialized_role": "information_extractor",
+          "context_engineering": {
+            "memory_types": [
+              "conversation-history",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM Model 1 (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Manages the system's configuration layer stored in JSON files. Validates, updates, or retrieves configuration details including inventory policies, supply constraints, DC relationships, service levels, and demand forecasts. Enables what-if scenarios and reconfiguration of planning assumptions.",
+          "role": "other",
+          "specialized_role": "configuration_manager",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "database",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        },
+        {
+          "description": "Activated when a parsed request corresponds to an optimization run. Performs two key tasks: builds the optimization model by engineering the input context using parsed queries and configuration data, and interprets the solver's output, translating it into clear, decision-ready formats including graphs, tables, and natural-language summaries. Uses two-step context engineering with a reflection mechanism between LLM Model 1 and LLM Model 2.",
+          "role": "orchestrator",
+          "specialized_role": "optimization_orchestrator",
+          "context_engineering": {
+            "memory_types": [
+              "external-database",
+              "state-tracking",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "chain-of-thought",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": [
+              "database-querying"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "external-models",
+              "database",
+              "model-context-protocol",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "LLM Model 2 (unspecified)",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a multi-agent collaboration pattern where a Parser Agent extracts user intent, a Config Manipulator Agent manages configuration, and an Optimizer Agent handles optimization runs and result interpretation. A reflection mechanism between LLM Model 1 and LLM Model 2 is used to verify completeness and quality of engineered context. The pipeline follows a structured seven-step context engineering process: (1) LLM Model 1 receives user role and REST request with static CE template, (2) dynamically modifies the template, (3) passes updated context to LLM Model 2, (4) reflection mechanism assesses context quality, (5-6) refined context queries backend systems and transforms data into outputs, (7) results returned via REST response.",
+        "orchestration_pattern": [
+          "multi-agent-collaboration",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": {
+          "multi_agent_coordination_strategy_description": "Agents cooperate in a linear pipeline: Parser Agent extracts intent, Config Manipulator Agent handles configuration, and Optimizer Agent runs optimization and generates results. A reflection mechanism between two LLM models enhances contextual accuracy. All agents share a centralized database and communicate via REST API.",
+          "task_alignment": "cooperation",
+          "organizational_structure": "hierarchical"
+        }
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Planners interact with a web-based React/JavaScript interface to pose queries or submit planning requests in natural or structured language. The system is role-aware, tailoring responses to analysts, managers, or executives. Users can execute optimization runs, configure model parameters, input contextual data, and review results presented as charts, tables, and narrative summaries. The system supports a closed-loop feedback mechanism where planners review and analyze recommendations interactively.",
+        "human_oversight_mechanism": [
+          "real-time-monitoring",
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": [
+          "continuous-improvement"
+        ]
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Tactical inventory rebalancing and network optimization for supply chain planning, specifically inter-DC inventory transfers to prevent stockouts across a retailer's distribution network with multiple distribution centers and retail stores.",
+    "problem_description": "Optimization model outputs from network optimization (MIP/linear programming) for supply chain planning are difficult to interpret for non-technical stakeholders. There is a communication gap between OR specialists and business decision-makers with varying roles (analysts, managers, executives), who need actionable insights in natural language and visuals rather than abstract solver outputs. This limits the practical adoption of OR tools in real-world supply chain planning.",
+    "proposed_solution": "An integrated framework combining a Mixed-Integer Programming (MIP) network optimization model (solved by SCIP) with Large Language Models (LLMs) as an explainability and interaction layer. The system features a multi-agent architecture with a Parser Agent, Config Manipulator Agent, and Optimizer Agent, connected via REST APIs to a React-based dashboard. A context engineering (CE) pipeline with a two-LLM reflection mechanism generates role-specific, explainable summaries, tables, and graphs from optimization outputs. A Bayesian Neural Network is also integrated for probabilistic predictions.",
+    "research_maturity": "prototype",
+    "research_methodology": "case-study",
+    "research_methodology_description": "A real-world case study of a U.S. retailer's distribution network (5 DCs) is used to demonstrate the integrated framework. A simulation projects inventories and stockouts without optimization, and the system is tested on a scenario with projected stockouts at DC1, evaluating transfer recommendations, cost savings, and WOS impact generated by the LLM-optimization pipeline.",
+    "validation_methods": [
+      "case study",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "System prevented projected stockouts at DC1 where simulated inventory reached -1,141 units by Week 38",
+        "Total of 294 units transferred across Weeks 33-38, resolving stockout conditions",
+        "DC1 transitioned from sustained stockouts to stable post-transfer inventory position",
+        "WOS at DC1 improved from negative/near-zero to positive levels post-transfer",
+        "Source sites (DC2-DC5) maintained healthy WOS levels within acceptable thresholds after outbound transfers",
+        "LLM-generated role-specific summaries improved interpretability of optimization results for non-technical stakeholders"
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "Alignment between actual and simulated inventory at DC5 validated the forecasting model accuracy"
+      ],
+      "failure_attribution": [],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Few-shot prompt examples in static CE template enabled role-specific and structured output generation",
+        "chain-of-thought": "Two-step context engineering with reflection mechanism between LLM1 and LLM2 enhanced contextual accuracy, consistency, and modularity",
+        "dynamic-decomposition": "Role-aware prompt templating dynamically tailored context to user role and specific request, enabling analyst/manager/executive-level outputs"
+      },
+      "failure_modes": [],
+      "limitations": [
+        "Data privacy and security concerns for industry-grade deployment (private LLMs not yet implemented)",
+        "General-purpose LLMs not fine-tuned for domain-specific supply chain terminology",
+        "Optimization engine (SCIP) may be computationally intensive for rapid responses, motivating BNN integration",
+        "Static dashboard tools cannot match LLM dynamic query-driven interactivity",
+        "Reinforcement learning for adaptive inventory transfer policies not yet incorporated",
+        "Multi-modal explanation layers combining textual reasoning, visual analytics, and causal attribution not yet developed"
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "Simulation without network optimization model (projected inventories and stockouts across all DCs in the absence of a network optimization model)"
+    ],
+    "evaluation_metric_categories": [
+      "operational-kpi",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Deploying private LLMs trained on proprietary supply chain data for stronger data privacy, security, and customization",
+      "Transfer learning techniques to fine-tune general-purpose LLMs for domain-specific terminology and decision contexts",
+      "Incorporating reinforcement learning (RL) methods to allow the optimization engine to iteratively learn effective policies for inventory transfers under uncertainty",
+      "Leveraging Bayesian Neural Network (BNN) for online network optimization with probabilistic predictions and uncertainty quantification",
+      "Developing multi-modal explanation layers combining textual reasoning, visual analytics, and causal attribution"
+    ],
+    "scalability_assessment": "not-assessed"
+  },
+  "reasoning": ""
+}

@@ -1,0 +1,143 @@
+{
+  "title": "Deep digital twin-powered large vision-language model for multi-scenario industrial fault diagnosis",
+  "doi": "10.1016/j.aei.2025.103997",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "A monolithic fault diagnosis agent (FDGLM) that integrates a pretrained Vision Transformer (ViT) as visual encoder and ChatGLM-6B as language encoder. It processes time-frequency spectrograms of vibration signals and generates fault diagnoses, causal analyses, and maintenance recommendations through a two-stage LoRA fine-tuning strategy with a Q-Former bridging visual and textual modalities.",
+          "role": "monolithic",
+          "specialized_role": "fault_diagnosis_agent",
+          "context_engineering": {
+            "memory_types": [
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "in-context-learning",
+              "chain-of-thought"
+            ],
+            "retrieval_strategies": []
+          },
+          "tools": {
+            "has_tools": false,
+            "external_tools": []
+          },
+          "genai_model": {
+            "model_name": "ChatGLM-6B + ViT (FDGLM)",
+            "finetuning_datasets": [
+              "synthetic",
+              "real-world",
+              "human-annotated"
+            ],
+            "finetuning_dataset_description": "Two-stage fine-tuning: Stage 1 uses large-scale time-frequency spectrogram images generated from deep digital twin synthetic vibration signals (3000 samples per class per health condition) from CWRU, HUST, PU, and XJTU bearing datasets. Stage 2 uses paired image-text datasets where textual labels were generated using predefined expert knowledge templates (incorporating diagnostic results, health condition descriptions, and maintenance suggestions), with LLMs such as ChatGPT assisting in label generation."
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system follows a single-step pipeline: a user submits a time-frequency spectrogram image with a text prompt (e.g., 'What is the fault with the bearing?'), and the FDGLM processes it through the fine-tuned ViT visual encoder, Q-Former cross-modal bridge, and ChatGLM-6B language encoder to produce a diagnostic response including fault classification, causal analysis, and maintenance recommendations in a single forward pass.",
+        "orchestration_pattern": [
+          "single-step"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "The system provides a human-machine interaction interface where users (including those with limited technical expertise) can submit time-frequency spectrograms and text prompts to receive fault diagnoses, health assessments, and maintenance recommendations. The left panel displays the time-frequency spectrogram and input area, while the right panel shows diagnostic results and maintenance suggestions. The system supports multimodal interaction by integrating textual and visual inputs.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text",
+          "image",
+          "dashboard-gui"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "maintenance",
+    "application_domain_description": "Industrial equipment health management and fault diagnosis, specifically bearing fault diagnosis in mechanical systems under multiple operating conditions and across different datasets, enabling intelligent prognostics and health management (PHM).",
+    "problem_description": "Conventional data-driven fault diagnosis approaches suffer from scenario-specific limitations (poor generalization across operating conditions and equipment types), inadequate intelligent capabilities (only output labels without causal reasoning), and data scarcity (industrial failures are rare and costly to reproduce, making large-scale training datasets difficult to obtain). Existing large-scale models lack domain-specific industrial knowledge for effective fault diagnosis.",
+    "proposed_solution": "The Fault Diagnosis General Language Model (FDGLM) framework combines deep digital twin technology with a large vision-language model. A CycleGAN-based digital twin generates high-quality synthetic vibration signals that are converted to time-frequency spectrograms via STFT. A pretrained ViT is fine-tuned using LoRA with combined cross-entropy and circle contrastive losses for robust visual feature extraction. A Q-Former bridges visual and textual modalities. ChatGLM-6B is fine-tuned using LoRA with domain-specific expert knowledge corpora and autoregressive loss to enable fault reasoning and maintenance decision support. The two-stage fine-tuning strategy enables multi-scenario diagnostics with minimal trainable parameters (0.86M).",
+    "research_maturity": "prototype",
+    "research_methodology": "experiment",
+    "research_methodology_description": "Controlled experimental comparison of FDGLM against multiple baseline methods (SVM, MLP, CNN, VGG16, ResNet18, DenseNet121, ViT, Swin Transformer, ConvNeXt, ChatGLM2-6B-chat, VisualGLM) across three diagnostic scenarios (single-condition, cross-condition, cross-dataset) using four bearing datasets (CWRU, HUST, PU, XJTU). Hyperparameter analysis (LoRA rank, training data volume) and ablation studies on framework components were also conducted.",
+    "validation_methods": [
+      "benchmark",
+      "simulation"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "FDGLM achieves 99.6% accuracy under single-condition scenarios, outperforming all baselines including Swin-Transformer (99.3%) and VisualGLM (99.1%) on XJTU dataset.",
+        "FDGLM achieves 99.5% accuracy on HUST single-condition dataset, outperforming all baselines.",
+        "FDGLM achieves average 91.5% accuracy across cross-condition tasks on HUST dataset, outperforming Swin-Transformer (91.8% best task) and ConvNeXt.",
+        "FDGLM achieves average 95.9% accuracy across cross-dataset transfer tasks, with highest 97.0% on XJTU and lowest 94.7% on HUST.",
+        "FDGLM uses only 0.86M trainable parameters (LoRA rank=8), the fewest among all compared methods except SVM, while achieving the best diagnostic performance.",
+        "Combining cross-entropy and circle contrastive losses improves accuracy to 0.995 vs. 0.977 (cross-entropy only) or 0.973 (circle loss only) in ablation study.",
+        "Two-stage fine-tuning (visual + language) achieves 0.995 accuracy vs. 0.636 (language only) or 0.448 (no fine-tuning) in ablation study.",
+        "Digital twin twin signals achieve Pearson correlation >0.92 with real signals vs. ~0.5 for simulated signals, validating data generation quality.",
+        "With 3000 samples per class from digital twin, FDGLM achieves 0.995 accuracy; increasing to 4000-5000 yields marginal gains."
+      ],
+      "response_time_impact": [
+        "FDGLM inference time is 1872.52 ms per sample, higher than traditional deep learning models (e.g., DCNN: 1.21 ms, ViT: 4.96 ms) due to autoregressive generation and cross-modal fusion modules.",
+        "ChatGLM2-6B-chat inference time is 1023.31 ms, and VisualGLM is 1959.70 ms, compared to FDGLM's 1872.52 ms.",
+        "FDGLM maintained stable operation on a laptop with i7-12650H CPU and GeForce RTX 4060 GPU with 16 GB RAM, demonstrating feasibility for on-device deployment."
+      ],
+      "reliability_metrics": [
+        "FDGLM achieves F1-score of 0.995 on XJTU single-condition dataset.",
+        "FDGLM achieves F1-score of 0.995 on HUST single-condition dataset.",
+        "FDGLM achieves F1-score of 0.927 on cross-condition task 4 (HUST dataset).",
+        "Results averaged over multiple independent experimental runs to reduce randomness and enhance statistical robustness."
+      ],
+      "failure_attribution": [
+        "model-capability",
+        "context-insufficiency"
+      ],
+      "ce_technique_effectiveness": {
+        "in-context-learning": "Domain-specific textual instruction fine-tuning of ChatGLM-6B enables accurate fault classification, causal inference, and maintenance recommendations aligned with PHM terminology.",
+        "chain-of-thought": "The Q-Former and two-stage fine-tuning enable coherent reasoning chains from visual time-frequency features to textual fault diagnoses and maintenance suggestions."
+      },
+      "failure_modes": [
+        "Cross-condition scenarios cause misclassification of both severity levels within the same fault type and different fault types entirely, revealing generalization limitations under distribution shifts.",
+        "Cross-dataset task 3 (HUST as test set) achieved lowest accuracy (94.7%), suggesting sensitivity to bearing type variations (ER-16K vs. SKF series).",
+        "General LVLMs (Qwen 3, DeepSeek-V3.1, GPT-5) without domain fine-tuning fail to identify specific fault categories or provide failure mechanism explanations from time-frequency diagrams.",
+        "Without visual encoder fine-tuning, the model struggles to capture salient time-frequency patterns, severely limiting diagnostic capability (accuracy drops to 0.636).",
+        "At small sample sizes (1000-2000 per class), model accuracy is limited (0.911-0.933), indicating insufficient capture of fault variability."
+      ],
+      "limitations": [
+        "Large-scale models have significantly higher inference latency than traditional deep learning models due to autoregressive generation and cross-modal fusion.",
+        "The framework has not been validated for few-shot and zero-shot scenarios involving unforeseen failures in real-world industrial environments.",
+        "Industrial signal acquisition often involves severe noise; noise reduction techniques specifically tailored to large-scale models are not yet addressed.",
+        "The model shows sensitivity to bearing type variations in cross-dataset scenarios, with performance dropping when bearing types differ significantly.",
+        "Real-world bearing vibration datasets provide insufficient samples (only ~117-250 per class) for large-scale model training without digital twin augmentation."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "SVM",
+      "MLP",
+      "DCNN",
+      "ResNet18",
+      "DenseNet121",
+      "VGG16",
+      "ViT",
+      "Swin-Transformer",
+      "ConvNeXt",
+      "ChatGLM2-6B-chat",
+      "VisualGLM",
+      "Qwen 3",
+      "DeepSeek-V3.1",
+      "GPT-5"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "computational-efficiency"
+    ],
+    "identified_research_gaps": [
+      "Few-shot and zero-shot challenges caused by unforeseen failures in real-world industrial environments",
+      "Designing noise reduction techniques specifically tailored to large-scale models for industrial signal acquisition with severe noise"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}

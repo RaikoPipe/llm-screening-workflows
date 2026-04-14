@@ -1,0 +1,147 @@
+{
+  "title": "Building a Knowledge Graph to Enrich Chatgpt Responses in Manufacturing Service Discovery",
+  "doi": "10.2139/ssrn.4517533",
+  "retrieval": {
+    "system_architecture": {
+      "agents": [
+        {
+          "description": "Main agent that receives user queries about manufacturing service discovery, classifies them as easy or hard questions, converts natural language to Cypher queries via LangChain, retrieves data from the Manufacturing Service Knowledge Graph (MSKG), and generates enriched responses using GPT-4.",
+          "role": "monolithic",
+          "specialized_role": "manufacturing_service_discovery_agent",
+          "context_engineering": {
+            "memory_types": [
+              "knowledge-graph",
+              "external-database",
+              "parametric-memory"
+            ],
+            "prompt_engineering_techniques": [
+              "retrieval-augmented-generation",
+              "in-context-learning",
+              "dynamic-decomposition"
+            ],
+            "retrieval_strategies": [
+              "graph-traversal",
+              "database-querying",
+              "semantic-search"
+            ]
+          },
+          "tools": {
+            "has_tools": true,
+            "external_tools": [
+              "api-call",
+              "database",
+              "knowledge-base",
+              "external-models",
+              "function-calling"
+            ]
+          },
+          "genai_model": {
+            "model_name": "GPT-4",
+            "finetuning_datasets": [],
+            "finetuning_dataset_description": null
+          },
+          "generated_workers": false
+        }
+      ],
+      "orchestration": {
+        "orchestration_pattern_description": "The system uses a single-step orchestration pattern where user queries are received by the application, forwarded to the GPT-4 endpoint via LangChain to be converted into Cypher queries, executed against the Neo4j-based MSKG, and the retrieved data is used to construct enriched responses. Hard questions additionally invoke graph embedding-based downstream tasks (manufacturer recommendation via cosine similarity and multi-label classification via MLP) before response generation.",
+        "orchestration_pattern": [
+          "single-step",
+          "orchestration-graph"
+        ],
+        "multi_agent_coordination_strategy": null
+      },
+      "trigger": "human-initiated",
+      "human_integration": {
+        "human_integration_description": "Human clients from the manufacturing industry initiate queries through a conversational QA interface. The system responds with enriched answers combining MSKG data and GPT-4 generation. Human evaluation is also used to assess QA system performance by manually comparing MSKG responses against GPT-4 standalone responses.",
+        "human_oversight_mechanism": [
+          "post-action-review"
+        ],
+        "interaction_modalities": [
+          "conversational-text"
+        ],
+        "feedback_and_learning_methods": []
+      }
+    },
+    "application_domain": "supply_chain_planning",
+    "application_domain_description": "Manufacturing service discovery and supplier identification within digital supply chains, focusing on helping clients find small and medium-sized manufacturers based on their services, certifications, and locations across North America.",
+    "problem_description": "Small and medium-sized manufacturers are difficult to discover by potential clients due to unstructured and inconsistent online information, limited marketing resources, and the inability of general-purpose LLMs like ChatGPT to accurately answer domain-specific queries about manufacturing capabilities, certifications, and locations. Existing manufacturing search engines and static databases are incomplete and not reliably up-to-date.",
+    "proposed_solution": "A Manufacturing Service Knowledge Graph (MSKG) is constructed from structured (Wikidata) and unstructured (manufacturers' websites) data using a bottom-up ontology approach, coarse key-term filtration, and BART-based zero-shot label classification. The MSKG is integrated with GPT-4 via LangChain to enrich ChatGPT responses. Graph embeddings (Node2Vec, GraphSAGE) enable similarity-based manufacturer recommendations and multi-label service classification. LangChain converts natural language queries into Cypher queries for Neo4j, enabling structured retrieval from the MSKG to answer both easy (graph query-based) and hard (graph embedding-based) manufacturing discovery questions.",
+    "research_maturity": "prototype",
+    "research_methodology": "design-science",
+    "research_methodology_description": "The authors design and implement an artifact (the MSKG and its integration with ChatGPT), evaluate it through quantitative metrics (AUC-ROC, F1, Precision@N, MRR, Silhouette scores) on a dataset of 13,000+ manufacturers, and compare the system's QA performance against GPT-4 standalone responses across 15 benchmark questions.",
+    "validation_methods": [
+      "benchmark",
+      "case study"
+    ],
+    "reported_outcomes": {
+      "decision_quality_improvement": [
+        "MSKG-enriched ChatGPT can answer complex multi-condition queries (e.g., listing 30 ITAR+ISO9001 certified manufacturers) that GPT-4 alone cannot address.",
+        "MSKG responses are based on structured data, providing higher reliability and interpretability compared to GPT-4's pattern-recognition-based estimations.",
+        "Data extraction achieved AUC-ROC of 95.91%, AUC-PR of 95.26%, accuracy of 89.10%, F1 score of 90.76%, recall of 89.10%, and precision of 93.92%.",
+        "Multi-label classification training accuracy: 98.90%; validation accuracy: 98.72%, F1: 94.62%, recall: 99.93%, precision: 89.85%.",
+        "GraphSAGE achieved Silhouette score of 0.6949 vs. Node2Vec's 0.4059 for clustering manufacturer service attributes.",
+        "Manufacturer recommendation P@10: Node2Vec 80% (Q13), 70% (Q14); GraphSAGE 90% (Q13), 50% (Q14). MRR: Node2Vec 100% for both; GraphSAGE 100% (Q13), 50% (Q14).",
+        "Our extraction model outperforms prior KG extraction methods: Precision 94% vs. FabNER 93%, F1 91% vs. FabNER 88%."
+      ],
+      "response_time_impact": [],
+      "reliability_metrics": [
+        "AUC-ROC of 95.91% across all extraction models.",
+        "AUC-PR of 95.26% across all extraction models.",
+        "Certification extraction model achieved highest AUC-ROC; location extraction was least effective.",
+        "10-fold cross-validation repeated thrice for MLP model robustness."
+      ],
+      "failure_attribution": [
+        "context-insufficiency",
+        "model-capability"
+      ],
+      "ce_technique_effectiveness": {
+        "retrieval-augmented-generation": "Combining MSKG retrieval with GPT-4 generation enables answering complex, multi-condition manufacturing queries that GPT-4 alone cannot resolve, providing structured, reliable, and interpretable answers.",
+        "dynamic-decomposition": "LangChain-based classification of queries into easy (graph query) and hard (graph embedding) types enables appropriate retrieval strategy selection, improving answer quality for different question complexities.",
+        "in-context-learning": "Providing retrieved MSKG data as context to GPT-4 significantly improves factual accuracy and completeness of responses compared to GPT-4 standalone."
+      },
+      "failure_modes": [
+        "Front-page information could only be extracted from ~13,000 of ~17,000 companies due to animated GIFs, videos, or images used as front-page content.",
+        "Services and certifications presented as images on websites cannot be extracted by text-based methods.",
+        "Abbreviations used as key terms (e.g., 'CMMI', 'CA') may match irrelevant N-grams during coarse filtration.",
+        "Location extraction model showed lowest performance among entity types.",
+        "Graph embedding applied to undirected homogeneous subgraph, losing directional and heterogeneous relationship information from the full MSKG.",
+        "Cold start problem: lack of customer activity data limits manufacturer recommendation accuracy."
+      ],
+      "limitations": [
+        "Only front-page text of manufacturer websites is used; deeper pages and image-based content are not processed.",
+        "Graph embedding uses undirected homogeneous graph, not leveraging the directed heterogeneous nature of the full MSKG.",
+        "No customer activity data available, causing cold start problem for recommendations.",
+        "MSKG currently limited to four entity types (Manufacturer, Service, Certification, Location); does not cover materials, sectors, or adjacent business/legal domains.",
+        "Scalability to millions of entities and cross-domain knowledge integration remain future challenges.",
+        "LLMs' understanding of KG contexts may require targeted fine-tuning for improved interpretive and reasoning skills."
+      ]
+    },
+    "integration_with_cps": "digital-twin",
+    "baseline_methods": [
+      "GPT-4 (with browsing and analysis)",
+      "PSL",
+      "DeNERT-KG",
+      "Automobile Industry Data Extraction",
+      "FabNER"
+    ],
+    "evaluation_metric_categories": [
+      "classification",
+      "retrieval-quality",
+      "human-evaluation",
+      "task-completion"
+    ],
+    "identified_research_gaps": [
+      "Current graph embedding methods (Node2Vec and GraphSAGE) treat the MSKG as an undirected homogeneous graph, ignoring directional relationships and labels; future work should develop embeddings for directed heterogeneous graphs using frameworks like DGGAN, DGE, and HetGNN",
+      "Lack of customer activity data in MSKG causes a cold start problem for manufacturer recommendations; integrating side information into embeddings is proposed",
+      "Limited web link capturing and image classification on manufacturers' websites; deep learning techniques such as CNNs should be used to improve extraction from technical imagery",
+      "MSKG scope should be expanded to include manufacturers' sectors and materials and their interconnections",
+      "Challenges in integrating real-time, diverse data into KGs, especially cross-domain knowledge integration",
+      "Future efforts should improve LLMs' understanding of KG contexts through targeted fine-tuning and pretraining strategies that leverage graph information",
+      "Developing and widely adopting manufacturing-specific schema.org extensions to enhance indexing and linking of manufacturing capabilities nationally and globally",
+      "Scaling MSKG to include more entity types and relationships spanning adjacent domains such as business, legal, microelectronics, aerospace, and medical sectors"
+    ],
+    "scalability_assessment": "domain-generalization"
+  },
+  "reasoning": ""
+}
