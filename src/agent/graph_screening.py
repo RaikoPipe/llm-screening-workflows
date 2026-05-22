@@ -235,6 +235,7 @@ class State:
     output_path: str = "screening_results.csv"
     audit_dir: str = "."
     stage: int = 3
+    screening_type: str = "abstract"  # "abstract" or "fulltext"
     batch_id: str = field(
         default_factory=lambda: datetime.now(timezone.utc).strftime("%Y%m%d") + "_" + uuid.uuid4().hex[:6]
     )
@@ -343,6 +344,7 @@ async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, A
         "max_fulltext_words": max_fulltext_words,
         "prompt_version": _PROMPT_VERSION,
         "stage": state.stage,
+        "screening_type": state.screening_type,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "record_count": len(state.literature_items),
         "code_split": (
@@ -404,8 +406,12 @@ async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, A
             continue
 
         # -- Build text to screen ------------------------------------------
-        if isinstance(item.fulltext, str) and item.fulltext.strip():
-            # Fix: join after split so the prompt receives a string, not a list repr
+        use_fulltext = (
+            state.screening_type == "fulltext"
+            and isinstance(item.fulltext, str)
+            and item.fulltext.strip()
+        )
+        if use_fulltext:
             text_to_screen = " ".join(remove_section(item.fulltext).split()[:max_fulltext_words])
             text_label = "Fulltext"
         else:
