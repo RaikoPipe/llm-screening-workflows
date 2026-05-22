@@ -41,6 +41,7 @@ async def run_exclusion_screening(
     temperature: float = 0.2,
     max_output_tokens: int = 16000,
     max_fulltext_words: int = 12000,
+    screening_type: str = "abstract",
 ) -> dict:
     """Run the exclusion screening pipeline (screening_instructions_v3).
 
@@ -61,6 +62,8 @@ async def run_exclusion_screening(
         temperature: Sampling temperature (default 0.2 for screening).
         max_output_tokens: Max tokens per LLM response.
         max_fulltext_words: Truncate fulltext to this many words before screening.
+        screening_type: Text source for LLM screening — "abstract" (default) or "fulltext".
+            When "fulltext", the full paper text is used if available, falling back to abstract.
 
     Returns:
         Final graph state dict.
@@ -69,6 +72,7 @@ async def run_exclusion_screening(
         "output_path": output_path,
         "audit_dir": audit_dir,
         "stage": stage,
+        "screening_type": screening_type,
     }
     if input_path:
         state_kwargs["input_path"] = input_path
@@ -268,6 +272,13 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-words", type=int, default=12000, dest="max_fulltext_words")
     parser.add_argument("--batch-id", default=None, help="Override auto-generated batch ID.")
     parser.add_argument(
+        "--screening-type", dest="screening_type", default="abstract", choices=["abstract", "fulltext"],
+        help=(
+            "Text source for LLM screening. 'abstract' uses title+abstract only (default). "
+            "'fulltext' uses the full paper text when available, falling back to abstract."
+        ),
+    )
+    parser.add_argument(
         "--pilot", action="store_true",
         help=(
             "Run Stage 2 pilot validation. Input CSV must have an r1_decision column "
@@ -305,4 +316,5 @@ if __name__ == "__main__":
             temperature=args.temperature,
             max_output_tokens=args.max_output_tokens,
             max_fulltext_words=args.max_fulltext_words,
+            screening_type=args.screening_type,
         ))
