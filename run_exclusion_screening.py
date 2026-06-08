@@ -1,4 +1,4 @@
-"""Entry point for exclusion screening — screening_instructions_v3 compliant.
+"""Entry point for exclusion screening — screening_instructions_v6 compliant.
 
 Usage
 -----
@@ -43,9 +43,9 @@ async def run_exclusion_screening(
     max_fulltext_words: int = 12000,
     screening_type: str = "abstract",
 ) -> dict:
-    """Run the exclusion screening pipeline (screening_instructions_v3).
+    """Run the exclusion screening pipeline (screening_instructions_v6).
 
-    The PICOC scope, 12 exclusion codes, and boundary rules are embedded in the
+    The PICOC scope, 12 exclusion codes, and 13 boundary rules are embedded in the
     system prompt inside graph_screening.py — no external criteria dict required.
 
     Args:
@@ -110,10 +110,11 @@ async def run_pilot_validation(
 ) -> None:
     """Run Stage 2 pilot validation and compute inter-rater agreement metrics.
 
-    Computes sensitivity, specificity, Cohen's κ, and Gwet's AC1 comparing
+    Computes sensitivity, specificity, Gwet's AC1, and Cohen's κ comparing
     LLM decisions against R1 ground-truth labels from the input CSV.
 
-    Thresholds per §7: sensitivity ≥ 0.95, specificity ≥ 0.70, κ ≥ 0.70.
+    Thresholds per §7: sensitivity ≥ 0.95, specificity ≥ 0.70, AC1 ≥ 0.80.
+    Cohen's κ is computed and reported for reference but is NOT a threshold criterion.
 
     Args:
         input_path: Labelled CSV with a column named r1_decision_col
@@ -179,11 +180,12 @@ async def run_pilot_validation(
     kappa = cohen_kappa_score(r1_bin, llm_bin)
     ac1 = _gwet_ac1(r1_bin, llm_bin)
 
-    # Thresholds
+    # Thresholds per §7: sensitivity ≥ 0.95, specificity ≥ 0.70, AC1 ≥ 0.80.
+    # Cohen's κ is reported only — not a threshold criterion.
     sens_ok = sensitivity >= 0.95
     spec_ok = specificity >= 0.70
-    kappa_ok = kappa >= 0.70
-    passed = sens_ok and spec_ok and kappa_ok
+    ac1_ok = ac1 >= 0.80
+    passed = sens_ok and spec_ok and ac1_ok
 
     print("\n" + "=" * 60)
     print(f"Pilot Validation Metrics — batch {batch_id}")
@@ -191,8 +193,8 @@ async def run_pilot_validation(
     print(f"  Records    : {len(r1)}")
     print(f"  Sensitivity: {sensitivity:.3f}  {'✓ ≥0.95' if sens_ok else '✗ <0.95 FAIL'}")
     print(f"  Specificity: {specificity:.3f}  {'✓ ≥0.70' if spec_ok else '✗ <0.70 FAIL'}")
-    print(f"  Cohen's κ  : {kappa:.3f}  {'✓ ≥0.70' if kappa_ok else '✗ <0.70 FAIL'}")
-    print(f"  Gwet's AC1 : {ac1:.3f}")
+    print(f"  Gwet's AC1 : {ac1:.3f}  {'✓ ≥0.80' if ac1_ok else '✗ <0.80 FAIL'}")
+    print(f"  Cohen's κ  : {kappa:.3f}  (reported only — not a threshold criterion)")
     print(f"  Confusion  : TP={tp} FN={fn} TN={tn} FP={fp}")
     print(f"  RESULT     : {'PASS — proceed to Stage 3' if passed else 'FAIL — refine prompt, re-run on fresh sample'}")
     print("=" * 60 + "\n")
@@ -207,8 +209,8 @@ async def run_pilot_validation(
         "|--------|-------|-----------|------|",
         f"| Sensitivity | {sensitivity:.3f} | ≥ 0.95 | {'✓' if sens_ok else '✗'} |",
         f"| Specificity | {specificity:.3f} | ≥ 0.70 | {'✓' if spec_ok else '✗'} |",
-        f"| Cohen's κ   | {kappa:.3f} | ≥ 0.70 | {'✓' if kappa_ok else '✗'} |",
-        f"| Gwet's AC1  | {ac1:.3f} | — | — |",
+        f"| Gwet's AC1  | {ac1:.3f} | ≥ 0.80 | {'✓' if ac1_ok else '✗'} |",
+        f"| Cohen's κ   | {kappa:.3f} | — (reported only) | — |",
         "",
         f"**Binarisation:** {{Include, Maybe}} → positive; {{Exclude}} → negative  ",
         f"**Confusion:** TP={tp} FN={fn} TN={tn} FP={fp}  ",
@@ -257,7 +259,7 @@ def _gwet_ac1(r1: list, r2: list) -> float:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run exclusion screening per screening_instructions_v3.",
+        description="Run exclusion screening per screening_instructions_v6.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--input", dest="input_path", help="Input CSV with bibliographic data.")
@@ -282,7 +284,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "--pilot", action="store_true",
         help=(
             "Run Stage 2 pilot validation. Input CSV must have an r1_decision column "
-            "with R1 ground-truth labels. Computes sensitivity, specificity, κ, AC1."
+            "with R1 ground-truth labels. Computes sensitivity, specificity, Gwet's AC1 "
+            "(threshold ≥ 0.80), and Cohen's κ (reported only)."
         ),
     )
     parser.add_argument("--r1-col", default="r1_decision",
