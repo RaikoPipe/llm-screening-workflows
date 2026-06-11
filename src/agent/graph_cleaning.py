@@ -12,10 +12,9 @@ from typing import Any, Dict, List, TypedDict
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_ollama import ChatOllama
 
 from langgraph.graph import StateGraph
-from src.utils import get_paper_collection
+from src.utils import get_llm, get_paper_collection
 from pydantic import BaseModel, Field
 
 class Configuration(TypedDict):
@@ -80,11 +79,7 @@ async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any
 async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
     """Screen each literature item based on exclusion criteria, with up to 3 retries on error."""
 
-    configuration = config.get("configurable", {})
-    model_name = configuration.get("model_name", "gpt-oss:120b")
-
-    llm_agent = ChatOllama(model=model_name, **configuration)
-    llm_agent = llm_agent.with_structured_output(ScreeningDecision)
+    llm_agent = get_llm(config).with_structured_output(ScreeningDecision)
     parser = JsonOutputParser()
 
     system_prompt = """You are a literature screening expert. Evaluate the title and fulltext against exclusion criteria.
