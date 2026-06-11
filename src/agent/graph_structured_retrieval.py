@@ -8,14 +8,13 @@ from typing import Any, Dict, TypedDict
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.runnables import RunnableConfig
-from langchain_ollama import ChatOllama
-from langchain_anthropic import ChatAnthropic
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel, ValidationError
 from typing_extensions import Optional
 from loguru import logger
 
 from src.utils.fulltext_manipulation import omit_sections_markdown
+from src.utils.llm_utils import get_llm
 from src.utils.prompt_utils import load_prompt
 from src.utils.pydantic_utils import extract_json
 import json_repair
@@ -263,27 +262,6 @@ def should_process(state:State)-> str:
         return END
 
     return "continue"
-
-def get_llm(config: RunnableConfig, json_mode: bool = False, temperature: float = None) -> Any:
-    cfg = config.get("configurable", {})
-    if "claude" in cfg["model_name"]:
-        return ChatAnthropic(
-            model_name=cfg["model_name"],
-            temperature=temperature if temperature is not None else cfg["temperature"],
-            thinking={"type": "enabled"} if cfg["reasoning"] else None
-        )
-    else:
-        if "gpt-oss" in cfg["model_name"] and cfg["reasoning"]:
-            # gpt-oss is the only current model to support reasoning levels
-            cfg["reasoning"] = "high"
-
-        return ChatOllama(
-            model=cfg["model_name"],
-            reasoning=cfg["reasoning"],
-            temperature=temperature if temperature is not None else cfg["temperature"],
-            format="json" if json_mode else None
-        )
-
 
 # Build graph
 graph = (

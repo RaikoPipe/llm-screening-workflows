@@ -21,13 +21,11 @@ from typing import Any, Dict, List, Literal, Optional, TypedDict
 import pandas as pd
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
-from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph
 from pydantic import BaseModel, Field
 from tqdm.asyncio import tqdm
 
-from src.utils import get_paper_collection, remove_section
-from graph_structured_retrieval import get_llm
+from src.utils import get_paper_collection, get_llm, remove_section
 
 
 # ---------------------------------------------------------------------------

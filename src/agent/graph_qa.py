@@ -13,10 +13,9 @@ from typing import Any, Dict, List, TypedDict, Optional
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_ollama import ChatOllama
 
 from langgraph.graph import StateGraph
-from src.utils import get_paper_collection, remove_section
+from src.utils import get_paper_collection, get_llm, remove_section
 from pydantic import BaseModel, Field
 import pandas as pd
 from tqdm.asyncio import tqdm
@@ -87,11 +86,7 @@ async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any
 async def qa_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
     """QA literature item based on quality assessment criteria, with up to 3 retries on error."""
 
-    configuration = config.get("configurable", {})
-    model_name = configuration.get("model_name", "gpt-oss:120b")
-
-    llm_agent = ChatOllama(model=model_name, **configuration)
-    llm_agent = llm_agent.with_structured_output(QADecision)
+    llm_agent = get_llm(config).with_structured_output(QADecision)
 
     system_prompt = """You are a professional literature reviewer for high ranking scientific journals in the field of computer science and engineering. Perform a quality assessment of the given paper against the quality criteria given by the user.
     ALWAYS return your answer as a JSON with reasoning and scoring attributes (brief explanation per quality criterion using the Scale [Highest: 2, Moderate: 1, Lowest: 0])."""
