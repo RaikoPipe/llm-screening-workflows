@@ -38,7 +38,7 @@ async def run_exclusion_screening(
     batch_id: Optional[str] = None,
     literature_items=None,
     model_name: str = "gpt-oss:120b",
-    temperature: float = 0.2,
+    temperature: float = 0.0,
     max_output_tokens: int = 16000,
     max_fulltext_words: int = 12000,
     screening_type: str = "abstract",
@@ -269,7 +269,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--stage", type=int, default=3, choices=[2, 3],
                         help="Screening stage (2=pilot, 3=title/abstract).")
     parser.add_argument("--model", default="gpt-oss:120b", help="LLM model name (Ollama).")
-    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-tokens", type=int, default=16000, dest="max_output_tokens")
     parser.add_argument("--max-words", type=int, default=12000, dest="max_fulltext_words")
     parser.add_argument("--batch-id", default=None, help="Override auto-generated batch ID.")

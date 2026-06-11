@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field
 from tqdm.asyncio import tqdm
 
 from src.utils import get_paper_collection, remove_section
+from graph_structured_retrieval import get_llm
 
 
 # ---------------------------------------------------------------------------
@@ -313,7 +314,7 @@ async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any
             literature_items.append(LiteratureItem(
                 record_id=record_id,
                 title=str(paper.get("title", "")),
-                abstract=str(paper.get("abstractNote", paper.get("abstract", ""))),
+                abstract=str(paper.get("abstract", paper.get("abstract", ""))),
                 doi=str(paper.get("DOI", paper.get("doi", ""))),
                 fulltext=str(paper.get("fulltext", "")) if pd.notna(paper.get("fulltext", "")) else "",
                 extra=str(paper.get("extra", "")),
@@ -337,10 +338,10 @@ async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, A
     max_fulltext_words = configuration.get("max_fulltext_words", 12000)
     max_output_tokens = configuration.get("max_output_tokens", 16000)
 
-    llm_agent = ChatOllama(
-        model=model_name,
+    llm_agent = get_llm(
+        config=config,
+        json_mode=True,
         temperature=temperature,
-        num_predict=max_output_tokens,
     ).with_structured_output(ScreeningDecision)
 
     run_metadata: Dict[str, Any] = {
