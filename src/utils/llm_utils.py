@@ -23,6 +23,7 @@ def get_llm(config: RunnableConfig, json_mode: bool = False, temperature: float 
 
     llm_endpoint = os.getenv("LLM_ENDPOINT")
     header_auth_key = os.getenv("HEADER_AUTH_KEY")
+    llm_api_key = os.getenv("LLM_API_KEY")
 
     reasoning = cfg.get("reasoning")
     if "gpt-oss" in model_name and reasoning:
@@ -38,6 +39,11 @@ def get_llm(config: RunnableConfig, json_mode: bool = False, temperature: float 
     if llm_endpoint:
         kwargs["base_url"] = llm_endpoint
     if header_auth_key:
-        kwargs["client_kwargs"] = {"headers": {"Authorization": header_auth_key}}
+        # If header_auth_key is just the token (no "Bearer " prefix):
+        auth_value = header_auth_key if header_auth_key.startswith("Bearer ") else f"Bearer {header_auth_key}"
+        kwargs["client_kwargs"] = {"headers": {"Authorization": auth_value}}
+    if llm_api_key:
+        kwargs["client_kwargs"] = {"headers": {"Authorization": llm_api_key}}
+
 
     return ChatOllama(**kwargs)

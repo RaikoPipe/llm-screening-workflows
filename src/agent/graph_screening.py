@@ -3,10 +3,15 @@
 Tri-level decision output: Include / Exclude / Maybe (§4).
 
 Exclusion-code split:
-  LLM-evaluated  : 1, 2, 3, 4, 5, 9, 10  (content analysis required)
-  Metadata pre-filter : 7 (year < 2022), 8 (language), 11 (duplicate)
-  Flag-based      : 6 (grey-lit tier via item.is_grey_literature),
-                    12 (full-text unavailable via item.fulltext_unavailable)
+  LLM-evaluated       : 1–12 (all codes; content analysis + text-derived metadata)
+  Metadata pre-filter : 7 (year < 2022), 8 (language), 11 (duplicate),
+                        6 (grey-lit tier via item.is_grey_literature),
+                        12 (full-text unavailable via item.fulltext_unavailable)
+
+The metadata pre-filter is a fast-path that short-circuits before the LLM when
+the relevant flags/fields are present. The LLM additionally evaluates all 12
+codes so that records with missing metadata can still be excluded on codes
+6–8, 11, 12 when the text itself reveals the condition.
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ from typing import Any, Dict, List, Literal, Optional, TypedDict
 
 import pandas as pd
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import StateGraph
 from pydantic import BaseModel, Field
@@ -55,8 +61,9 @@ class CodeEvaluation(BaseModel):
 class ScreeningDecision(BaseModel):
     """Structured LLM output per screening_instructions_v6 §2/§3.
 
-    Codes evaluated here: 1–5, 9, 10.
-    Codes 6–8, 11–12 are handled outside the LLM as metadata pre-filters.
+    All 12 exclusion codes are evaluated by the LLM. Codes 6–8, 11, 12 are
+    additionally handled as metadata pre-filters before the LLM is invoked
+    when the relevant flags/fields are present on the LiteratureItem.
     """
 
     code_1: CodeEvaluation = Field(description=(
@@ -86,6 +93,22 @@ class ScreeningDecision(BaseModel):
         "manufacturing or logistics (e.g., healthcare, finance, or logistics outside a production "
         "network context)."
     ))
+    code_6: CodeEvaluation = Field(description=(
+        "Code 6 — Grey literature below Tier 1: applies if the paper is a vendor white paper, blog "
+        "post, or unaffiliated preprint. Institutionally affiliated arXiv preprints are Tier 1 and "
+        "are NOT excluded here. Prefer the metadata flag when present; use this only when the text "
+        "itself reveals the venue type and the metadata flag is absent."
+    ))
+    code_7: CodeEvaluation = Field(description=(
+        "Code 7 — Published before January 2022: applies if the publication date is before 2022-01-01 "
+        "(online-first counts as the publication date). Prefer the metadata year field when present; "
+        "use this only when the year must be inferred from the text and the metadata field is absent."
+    ))
+    code_8: CodeEvaluation = Field(description=(
+        "Code 8 — Language not English or German: applies if the paper is written in a language other "
+        "than English or German. Prefer the metadata language field when present; use this only when "
+        "the language must be inferred from the text and the metadata field is absent."
+    ))
     code_9: CodeEvaluation = Field(description=(
         "Code 9 — Editorial/opinion: applies if the paper is an editorial, opinion piece, or "
         "non-methodological commentary without a methodological or empirical contribution."
@@ -94,6 +117,19 @@ class ScreeningDecision(BaseModel):
         "Code 10 — Secondary literature: applies if the paper is a systematic literature review, "
         "narrative review, scoping review, or meta-analysis."
     ))
+    code_11: CodeEvaluation = Field(description=(
+        "Code 11 — Duplicate record: applies if the paper appears to be a duplicate of another "
+        "record in the corpus. Prefer the metadata is_duplicate flag when present; use this only "
+        "when the text itself reveals duplication (e.g., identical title to a peer-reviewed version) "
+        "and the metadata flag is absent."
+    ))
+    code_12: CodeEvaluation = Field(description=(
+        "Code 12 — Full text and/or abstract unavailable: applies if neither the full text nor a "
+        "substantive abstract is available for screening. Where the title alone is unambiguously "
+        "in-scope and full text is obtainable, do NOT apply this code (screen in on title and "
+        "resolve at Stage 4). Prefer the metadata fulltext_unavailable flag when present; use this "
+        "only when the absence is evident from the text and the metadata flag is absent."
+    ))
     decision: Literal["Include", "Exclude", "Maybe"] = Field(description=(
         "Overall screening decision. "
         "Include = no exclusion codes apply. "
@@ -101,7 +137,7 @@ class ScreeningDecision(BaseModel):
         "Maybe = genuinely ambiguous; set note to 'ESCALATE: <one-line reason>'."
     ))
     excl_code: Optional[int] = Field(default=None, description=(
-        "First applicable exclusion code number (1–10), or null for Include/Maybe decisions."
+        "First applicable exclusion code number (1–12), or null for Include/Maybe decisions."
     ))
     note: str = Field(description=(
         "Brief reasoning summary for the overall decision, "
@@ -116,80 +152,87 @@ class ScreeningDecision(BaseModel):
 _SYSTEM_PROMPT = """You are a systematic literature review (SLR) screening expert. \
 The study concerns **LLM-based decision support for strategic manufacturing and logistics planning**.
 
-## Scope (PICOC)
+## 1. PICOC
 
-**Population:** LLM-based decision-support systems applied to manufacturing and logistics planning \
-at the strategic or upper-tactical horizon — decisions that configure or reconfigure the physical \
-production system.
+| Element | Definition | Include example | Exclude example |
+|---|---|---|---|
+| **P**opulation | LLM-based decision-support systems applied to manufacturing and logistics planning at the strategic or upper-tactical horizon (decisions that configure or reconfigure the physical production system) | LLM-assisted greenfield factory concept design | Shopfloor scheduling system |
+| **I**ntervention | LLM, foundation model, generative AI, agentic AI, RAG, or LLM-hybrid (solver, KG, digital twin) **where the LLM generates, structures, mediates, or substantively supports the planning decision itself** | Multi-agent LLM for SC network configuration | Classical MILP solver without LLM component |
+| **C**omparator | Any or none (baselines optional) | Human planner vs. LLM agent | — |
+| **O**utcome | Task coverage, architectural patterns, empirical evidence, adoption barriers | Auto-generated factory layout concept; what-if network analysis | Chatbot UX satisfaction only |
+| **C**ontext | Strategic manufacturing and logistics planning across five subdomains: factory planning (VDI 5200), SC network design, strategic logistics/distribution network design, technology selection & investment appraisal, GPN design | Global production network footprint reconfiguration | MES/ERP runtime operations |
 
-**Intervention:** LLM, foundation model, generative AI, agentic AI, RAG, or LLM-hybrid (solver, \
-knowledge graph, digital twin).
+---
 
-**Comparator:** Any or none (baselines optional).
+## 2. Exclusion codes (log one per excluded record)
 
-**Outcome:** Task coverage, architectural patterns, empirical evidence, adoption barriers.
+| Code | Reason |
+|------|--------|
+| 1 | Scope exclusively operational or tactical (scheduling, MES/ERP, shopfloor control, predictive maintenance, quality control, S&OP). Upper-tactical decisions are included **only** when they alter the physical system configuration (e.g., capacity expansion, line reconfiguration); decisions that schedule or sequence within a fixed configuration are excluded. |
+| 2 | No qualifying LLM / foundation model / generative AI / agentic AI / RAG / LLM-hybrid component. The LLM must generate, structure, mediate, or substantively support the planning decision itself. Qualifying functions include: proposing or parametrising plans, RAG over planning knowledge that feeds the decision, reasoning over the decision, LLM↔solver query mediation, synthesising heterogenous data to derive planning-relevant conclusions, running or interpreting what-if/scenario analyses, data-driven forecasting that directly informs a planning judgment, or recommendation/advisory output that combines information to support a planning decision.  |
+| 3 | Does not address at least one strategic manufacturing and logistics planning task (see §1 subdomains). **Supplier, partner, sourcing, and bid-evaluation decisions qualify only when they determine production-network topology or site/echelon structure**; procurement within a fixed network is excluded under this code. |
+| 4 | AI/ML contribution without LLM component (pure RL, classical ML, metaheuristics). **VAE/GAN "generative design" is non-LLM generative ML and is excluded here.** |
+| 5 | Non-manufacturing/logistics domain (healthcare, finance, logistics outside production network context). **Facility/site-selection methods qualify only in a manufacturing/logistics production context**; generic urban, retail, energy-grid, and abstract mechanism-design siting are excluded under this code. |
+| 6 | Grey literature below Tier 1 (vendor white papers, blog posts, unaffiliated preprints) |
+| 7 | Published before January 2022 |
+| 8 | Language ≠ English or German |
+| 9 | Editorial, opinion, or position piece **only**. Conceptual frameworks, taxonomies, and design-science architectures are **not** excluded here — they are valid Category-C study types and are screened **in** for full-text resolution (see §3). |
+| 10 | Secondary literature (SLR, narrative review) — retain for reference snowballing only |
+| 11 | Duplicate record |
+| 12 | Full text and/or abstract unavailable. Where the title alone is unambiguously in-scope and full text is obtainable, screen in on title and resolve at Stage 4.
+---
 
-**Context — Five strategic subdomains:**
-1. Factory planning (VDI 5200: concept, basic, detail planning)
-2. Supply chain (SC) network design (facility location, network topology)
-3. Strategic logistics / distribution network design
-4. Technology selection & investment appraisal (make-or-buy, capex prioritisation)
-5. Global production network (GPN) design (footprint reconfiguration, reshoring)
+## 3. Boundary-case decision rules
 
-**Key inclusion criterion:** The paper must address at least one decision that configures or \
-reconfigures the physical production system (greenfield/brownfield factory design, network layout, \
-capacity expansion, facility location, etc.).
-
-**Upper-tactical boundary:** Upper-tactical decisions are included ONLY when they alter the \
-physical system configuration (e.g., capacity expansion, line reconfiguration). Decisions that \
-merely schedule or sequence within a fixed configuration → Exclude (Code 1).
-
-## Exclusion codes you must evaluate
-
-Codes 6–8, 11–12 are metadata pre-filters applied before you see the paper. \
-Evaluate codes 1–5, 9, and 10 only.
-
-| Code | Criterion |
-|------|-----------|
-| 1 | Scope exclusively operational or tactical (scheduling, MES/ERP, shopfloor control, predictive maintenance, quality control, S&OP). Upper-tactical included **only** when it alters physical system configuration. |
-| 2 | No LLM / foundation model / generative AI / agentic AI / RAG / LLM-hybrid in the contribution. |
-| 3 | Does not address at least one of the five strategic subdomains. |
-| 4 | AI/ML contribution without LLM component (pure RL, classical ML, metaheuristics). |
-| 5 | Non-manufacturing/logistics domain (healthcare, finance, logistics outside production network context). |
-| 9 | Editorial, opinion piece, or non-methodological commentary. |
-| 10 | Secondary literature (SLR, narrative review) — retain for reference snowballing only. |
-
-## Boundary-case decision rules — §3 (apply all 13 consistently)
-
-| # | Case | Decision |
-|---|------|----------|
-| 1 | LLM mentioned but not used in the contribution | Exclude — Code 2 |
-| 2 | Tactical planning with strategic framing (e.g., capacity allocation that configures new facilities) | Include; add "strategic framing" to note |
-| 3 | Upper-tactical decision that schedules/sequences within a fixed configuration | Exclude — Code 1 |
-| 4 | Digital twin / simulation paper | Include only if LLM/GenAI is used for model generation, parametrisation, or a strategic planning decision; else Exclude — Code 2 |
-| 5 | SC network design with no LLM front end (pure MILP/solver) | Exclude — Code 4 |
-| 6 | LLM+solver hybrid | Include if LLM mediates between user intent and solver for a strategic task |
-| 7 | Workshop / short paper (< 4 pages) | Include if methodological; Maybe if cannot determine from abstract |
-| 8 | Ambiguous strategic scope | Maybe — note "ESCALATE: <one-line reason>" |
-| 9 | Year boundary: online-first date ≥ 2022-01-01 but print/issue date is 2021 | Include (online-first date governs); note year boundary in the `note` field |
-| 10 | LLM used only for data extraction, text mining, or NLP preprocessing (not for the planning decision itself) | Exclude — Code 2 |
-| 11 | Retail / consumer-goods supply chain with no manufacturing or production network context | Exclude — Code 5 |
-| 12 | Conceptual framework, visionary paper, or position paper without empirical or methodological contribution | Exclude — Code 9 |
-| 13 | Preprint (arXiv, SSRN, etc.) | Do not exclude solely for preprint status; evaluate all other codes normally |
-
+| Case | Decision |
+|------|----------|
+| LLM mentioned but not used in the contribution | Exclude (code 2) |
+| LLM role is peripheral: basic document QA, standalone information retrieval (web search or database lookup without combinatory insight derivation), text mining, NLP preprocessing, or literature/research assistance. | Exclude (code 2) |
+| LLM+solver hybrid where the LLM mediates user intent ↔ solver for a strategic task | Include |
+| Supplier / partner / sourcing / bid-evaluation decision that determines production-network topology or site/echelon structure | Include; document the configuring effect |
+| Supplier / sourcing / procurement decision within a fixed network (no topology change) | Exclude (code 3) |
+| Site/facility-selection method in a manufacturing/logistics production context | Include |
+| Site/facility-selection in a generic urban, retail, energy-grid, or abstract mechanism-design setting | Exclude (code 5) |
+| VAE/GAN "generative design" with no LLM component | Exclude (code 4) |
+| Conceptual framework / taxonomy / design-science architecture (no implementation) | Include (screen-in) as Category-C; resolve at full-text. Do **not** exclude as commentary |
+| Editorial / opinion / position piece | Exclude (code 9) |
+| Tactical planning with strategic framing (e.g., capacity allocation that configures new facilities such as new production lines) | Include; document framing explicitly |
+| Upper-tactical decision that schedules/sequences within a fixed configuration (shift-pattern adjustment, lot-sizing, production sequencing on existing lines) | Exclude (code 1) |
+| Digital twin / simulation paper | Include only if LLM/GenAI is used for model generation, parametrization, or a strategic planning decision; else exclude (code 2) |
+| SC network design with no LLM front end (pure MILP/solver) | Exclude (code 4) |
+| Preprint + journal version both found | Keep peer-reviewed version; log preprint DOI with tag `PREPRINT-OF:{DOI}` |
+| Institutionally affiliated arXiv preprint, no journal version | Include (Tier 1) |
+| Unaffiliated arXiv preprint | Exclude (code 6) |
+| Workshop / short paper (< 4 pages) | Include if methodological; exclude if abstract-only or poster |
+| Ambiguous strategic scope | Tag `ESCALATE` with one-line note; escalate per §5 |
+| Year boundary | Publication date ≥ 2022-01-01 (online-first counts) |
 ## Instructions
 
-1. Evaluate each code independently from the title and text provided.
-2. Apply all 13 boundary-case rules above before reaching a decision.
-3. Set `decision`:
+1. Evaluate each of the 12 exclusion codes (1–12) independently from the title, text, and any metadata provided.
+2. Apply all boundary-case rules above before reaching a decision.
+3. For codes 6 (grey-lit tier), 7 (year), 8 (language), 11 (duplicate), and 12 (fulltext/abstract unavailable), prefer an explicit metadata flag or field when present. Apply the code from the text only when the metadata is absent and the condition is clearly evident.
+4. Set `decision`:
    - **Include** — no exclusion codes apply.
    - **Exclude** — at least one code applies; set `excl_code` to the first applicable code number.
    - **Maybe** — genuinely ambiguous; set `note` to "ESCALATE: <one-line reason>".
-4. Provide concise single-sentence `reasoning` per code.
-5. Be conservative: when in doubt choose **Maybe** over **Exclude**.
+5. Provide concise single-sentence `reasoning` per code.
+6. Be conservative: when in doubt choose **Maybe** over **Exclude**. In particular, escalate \
+   rather than exclude when (a) the LLM's role is described but its centrality to the decision is \
+   unclear, or (b) the paper is a conceptual/framework contribution.
 """
 
 _PROMPT_VERSION = hashlib.md5(_SYSTEM_PROMPT.encode()).hexdigest()[:8]
+
+# Pre-built cached SystemMessage — constructed once, reused for every record.
+# ChatAnthropic passes cache_control blocks through to the Anthropic API as-is.
+# Requires langchain-anthropic >= 0.1.15 and a Claude 3+ model.
+_SYSTEM_PROMPT_CACHED = SystemMessage(content=[
+    {
+        "type": "text",
+        "text": _SYSTEM_PROMPT,
+        "cache_control": {"type": "ephemeral"},
+    }
+])
 
 
 # ---------------------------------------------------------------------------
@@ -332,30 +375,36 @@ async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, A
     """Screen each literature item with tri-level output and per-code reasoning."""
     configuration = config.get("configurable", {})
     model_name = configuration.get("model_name", "gpt-oss:120b")
-    temperature = configuration.get("temperature", 0.2)
+    temperature = configuration.get("temperature", 0.0)
     max_fulltext_words = configuration.get("max_fulltext_words", 12000)
     max_output_tokens = configuration.get("max_output_tokens", 16000)
+    seed = configuration.get("seed", 0)
 
     llm_agent = get_llm(
         config=config,
         json_mode=True,
         temperature=temperature,
-    ).with_structured_output(ScreeningDecision)
+    ).with_structured_output(ScreeningDecision, method="json_mode")
+
+    format_instructions = PydanticOutputParser(pydantic_object=ScreeningDecision).get_format_instructions()
 
     run_metadata: Dict[str, Any] = {
         "batch_id": state.batch_id,
         "model_name": model_name,
+        "seed": seed,
         "temperature": temperature,
         "max_fulltext_words": max_fulltext_words,
         "prompt_version": _PROMPT_VERSION,
+        "prompt_caching": "ephemeral",
         "stage": state.stage,
         "screening_type": state.screening_type,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "record_count": len(state.literature_items),
         "code_split": (
-            "LLM: 1-5, 9, 10 | pre-filter: 6 (grey-lit flag), 7 (year), "
+            "LLM: 1-12 (all codes) | pre-filter fast-path: 6 (grey-lit flag), 7 (year), "
             "8 (language), 11 (duplicate), 12 (fulltext unavailable)"
         ),
+        "system_prompt": _SYSTEM_PROMPT
     }
 
     results: List[ScreeningResult] = []
@@ -426,12 +475,13 @@ async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, A
         human_prompt = (
             f"# Title\n{item.title}\n\n"
             f"# {text_label}\n{text_to_screen}\n\n"
-            "Evaluate this paper against exclusion codes 1–5, 9, and 10. "
-            "Provide per-code reasoning and decide: Include, Exclude, or Maybe."
+            "Evaluate this paper against all 12 exclusion codes (1–12). "
+            "Provide per-code reasoning and decide: Include, Exclude, or Maybe.\n\n"
+            f"{format_instructions}"
         )
 
         messages = [
-            SystemMessage(content=_SYSTEM_PROMPT),
+            _SYSTEM_PROMPT_CACHED,
             HumanMessage(content=human_prompt),
         ]
 
@@ -588,8 +638,14 @@ def _write_audit_markdown(state: State, audit_path: str) -> None:
     llm_results = [r for r in state.results if r.screening_decision is not None]
     lines += ["## Per-record detailed reasoning", ""]
     if llm_results:
-        header = "| Record ID | Title | C1 | C2 | C3 | C4 | C5 | C9 | C10 | Decision | Excl | Note |"
-        sep = "|-----------|-------|----|----|----|----|----|----|----|----------|------|------|"
+        header = (
+            "| Record ID | Title | C1 | C2 | C3 | C4 | C5 | C6 | C7 | C8 | C9 | C10 | C11 | C12 | "
+            "Decision | Excl | Note |"
+        )
+        sep = (
+            "|-----------|-------|----|----|----|----|----|----|----|----|----|-----|-----|-----|"
+            "----------|------|------|"
+        )
         lines += [header, sep]
         for r in llm_results:
             d = r.screening_decision
@@ -602,8 +658,9 @@ def _write_audit_markdown(state: State, audit_path: str) -> None:
             n = r.note[:70].replace("|", "\\|")
             lines.append(
                 f"| {r.record_id} | {t} | {_fmt(d.code_1)} | {_fmt(d.code_2)} | {_fmt(d.code_3)} | "
-                f"{_fmt(d.code_4)} | {_fmt(d.code_5)} | {_fmt(d.code_9)} | {_fmt(d.code_10)} | "
-                f"{r.decision} | {r.excl_code or ''} | {n} |"
+                f"{_fmt(d.code_4)} | {_fmt(d.code_5)} | {_fmt(d.code_6)} | {_fmt(d.code_7)} | "
+                f"{_fmt(d.code_8)} | {_fmt(d.code_9)} | {_fmt(d.code_10)} | {_fmt(d.code_11)} | "
+                f"{_fmt(d.code_12)} | {r.decision} | {r.excl_code or ''} | {n} |"
             )
     else:
         lines.append("_No LLM-screened records in this run._")

@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, TypedDict
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser
 
 from langgraph.graph import StateGraph
 from src.utils import get_llm, get_paper_collection
@@ -79,7 +79,8 @@ async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any
 async def screen_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
     """Screen each literature item based on exclusion criteria, with up to 3 retries on error."""
 
-    llm_agent = get_llm(config).with_structured_output(ScreeningDecision)
+    llm_agent = get_llm(config, json_mode=True).with_structured_output(ScreeningDecision, method="json_mode")
+    format_instructions = PydanticOutputParser(pydantic_object=ScreeningDecision).get_format_instructions()
     parser = JsonOutputParser()
 
     system_prompt = """You are a literature screening expert. Evaluate the title and fulltext against exclusion criteria.
@@ -99,6 +100,8 @@ Title: {item.title}
 Fulltext: {item.fulltext}
 
 Should this paper be INCLUDED (1) or EXCLUDED (0) based on the exclusion criteria?
+
+{format_instructions}
 """
 
                 messages = [

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, TypedDict, Optional
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser
 
 from langgraph.graph import StateGraph
 from src.utils import get_paper_collection, get_llm, remove_section
@@ -86,7 +86,8 @@ async def load_literature(state: State, config: RunnableConfig) -> Dict[str, Any
 async def qa_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
     """QA literature item based on quality assessment criteria, with up to 3 retries on error."""
 
-    llm_agent = get_llm(config).with_structured_output(QADecision)
+    llm_agent = get_llm(config, json_mode=True).with_structured_output(QADecision, method="json_mode")
+    format_instructions = PydanticOutputParser(pydantic_object=QADecision).get_format_instructions()
 
     system_prompt = """You are a professional literature reviewer for high ranking scientific journals in the field of computer science and engineering. Perform a quality assessment of the given paper against the quality criteria given by the user.
     ALWAYS return your answer as a JSON with reasoning and scoring attributes (brief explanation per quality criterion using the Scale [Highest: 2, Moderate: 1, Lowest: 0])."""
@@ -110,6 +111,8 @@ async def qa_literature(state: State, config: RunnableConfig) -> Dict[str, Any]:
     Quality Assessment Criteria: {state.qa_criteria}
 
     Which scoring should this paper receive in regards to each quality criterion?
+
+    {format_instructions}
     """
 
                 messages = [
